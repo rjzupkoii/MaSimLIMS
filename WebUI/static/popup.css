@@ -1,0 +1,98 @@
+.button {
+    background-color: coral;
+    color: #000000;
+    cursor: pointer;
+}
+  
+.button:hover {
+    background: #3876ac;
+}
+  
+.popUp {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popUpContent {
+    margin: 10% auto;
+    width: 60%;
+    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
+    animation-name: openPopUp;
+    animation-duration: 1s;
+}
+  
+.popUpHeader h2,
+.popUpFooter h3 {
+    margin: 0;
+}
+  
+.popUpHeader {
+    background: co;
+    padding: 15px;
+    color: #fff;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+  
+.popUpBody {
+    text-align: center;
+    font-size: 1em;
+    padding: 10px 20px;
+    background: #fff;
+}
+  
+.close {
+    color: #ccc;
+    float: right;
+    font-size: 30px;
+    color: #fff;
+}
+  
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.option{
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  position: relative;
+}
+.option > a{
+  text-decoration: none;
+  color: #000;
+  font-family: Arial;
+  height: 30px;
+}
+.option > a:first-child{
+    float: left;
+    background-color: coral;
+    width: 50%;
+    font-size: 1.2em;
+    text-align: center;
+}
+.option > a:nth-child(2){
+    float: right;
+    background-color: lightgreen;
+    width: 50%;
+    font-size: 1.2em;
+    text-align: center;
+}
+/*the style of how the window will show up*/
+@keyframes openPopUp {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+}

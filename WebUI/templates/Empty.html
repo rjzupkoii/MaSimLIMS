@@ -1,0 +1,49 @@
+{% load static %}
+<head>
+  <link rel = "stylesheet" href = "{% static './contenttable.css' %}">
+  <link rel = "stylesheet" href = "{% static './NavBar.css' %}">
+  <style>
+      .center{
+          margin: auto;
+          width: 60%;
+          border: 3px solid #009879;
+          padding: 10px;
+          text-align: center;
+      }
+  </style>
+  <!-- refresh every 5 seconds-->
+  <meta http-equiv="refresh" content="5">
+</head>
+<p id="demo"></p>
+<body>
+  <ul class="nav">
+    <li><a href = "http://127.0.0.1:8000/"> Home </a>
+      <ul class="subnav">
+        <li><a href="http://127.0.0.1:8000/Home/BurkinaFaso">Burkinafaso</a></li>
+        <li><a href="http://127.0.0.1:8000/Home/Masim">Masim</a></li>
+      </ul>
+    </li>
+    <li><a> Databases </a>
+      <ul class="subnav">
+        <li><a href="http://127.0.0.1:8000/Study/BurkinaFaso">Burkinafaso</a></li>
+        <li><a href="http://127.0.0.1:8000/Study/Masim">Masim</a></li>
+      </ul>
+    </li>
+    <li><a> Replicates That Worth to Notice </a>
+      <ul class="subnav">
+        <li><a href="http://127.0.0.1:8000/Replicate/BurkinaFaso/WorthToNotice">Burkinafaso</a></li>
+        <li><a href="http://127.0.0.1:8000/Replicate/Masim/WorthToNotice">Masim</a></li>
+      </ul>
+    </li>
+    <li><a> Latest 100 </a>
+      <ul class="subnav">
+        <li><a href="http://127.0.0.1:8000/Latest/BurkinaFaso">Burkinafaso</a></li>
+        <li><a href="http://127.0.0.1:8000/Latest/Masim">Masim</a></li>
+      </ul>
+    </li>
+  </ul>
+  <div class="center">
+       <h1>{{Message}}</h1>
+  </div>
+  <script src="{% static './tablesort.js' %}"></script>
+</body>
