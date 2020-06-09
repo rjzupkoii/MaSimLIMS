@@ -1,4 +1,4 @@
-# WebUI-InsertDelete
+# MaSim LIMS
 Add some insertion and delete features to our Web GUI
 
 Setup:
