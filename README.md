@@ -1,26 +1,48 @@
 # WebUI-InsertDelete
 Add some insertion and delete features to our Web GUI
 
+Setup:
+1. Download and install Python
+2. Setup the virtual envrionment
 
-Setups:
-1.Download python
-2.pip install virtualenvwrapper-win     (setup the virtual envrionment)
-3.mkvirtualenv test	(start a virtual environment named test)
-4.pip install django	(specify to the virtual envrionment test)
-5.pip install psycopg2
-6.django-admin --version 	(check the django version)
-7.mkdir project-name
-8.cd project-name
-9.django-admin startproject project-name		(create a folder with manage.py)
+``` pip install virtualenvwrapper-win ```
 
-manage.py is a local server
+3. Start a virtual environment, named test but can be changed
+
+``` mkvirtualenv test ```
+
+4. Install dependencies
+
+``` 
+pip install django 
+pip install psycopg2
+```
+
+5. Check the django version
+
+``` django-admin --version ```
+
+6.Create the project directory
+
+```
+mkdir project-name
+cd project-name
+```
+
+7. Create a folder with manage.py, which will be the local server
+
+``` django-admin startproject project-name ```
 
 Run server:
-1.python manage.py runserver
-2.Once the server is running, localhost is the webpage
+
+``` python manage.py runserver ```
+
+Once the server is running, you can connect over `localhost`
 
 Work on a virtual environment:
-1.workon env-name
+
+``` workon env-name ```
 
 Start application (new folder):
-1.python manage.py startapp app-name
+
+``` python manage.py startapp app-name ```
