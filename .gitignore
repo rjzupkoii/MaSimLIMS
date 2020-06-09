@@ -1,0 +1,8 @@
+
+# Ignore IDE environmental data
+.idea/
+.vs/
+
+# Ignore complied Python
+__pycache__/
+*.pyc
