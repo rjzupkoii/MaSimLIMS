@@ -1,12 +1,16 @@
 # MaSim LIMS
-Add some insertion and delete features to our Web GUI
+Basic laboratory information managmenet system (LIMS) for working with the meta-data and status of MaSim.
 
-Setup:
+This documment is current as of Python 3.83
+
+---
+
+## Setup:
 1. Download and install Python
 2. Setup the virtual envrionment
 
 ```
-pip install virtualenvwrapper-win 
+python -m pip install virtualenvwrapper-win 
 ```
 
 3. Start a virtual environment, named test but can be changed
@@ -18,8 +22,8 @@ mkvirtualenv test
 4. Install dependencies
 
 ``` 
-pip install django 
-pip install psycopg2
+python -m pip install django 
+python -m pip install psycopg2
 ```
 
 5. Check the django version
@@ -41,7 +45,7 @@ cd project-name
 django-admin startproject project-name 
 ```
 
-Run server:
+## Run server:
 
 ``` 
 python manage.py runserver 
@@ -55,7 +59,7 @@ Work on a virtual environment:
 workon env-name 
 ```
 
-Start application (new folder):
+## Start application (new folder):
 
 ``` 
 python manage.py startapp app-name 
