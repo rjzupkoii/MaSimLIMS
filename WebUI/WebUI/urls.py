@@ -16,12 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+#    path('Study/', include('StudyUI.urls')),
+#    path('Config/',include('ConfigUI.urls')),
+#    path('Replicate/', include('Replicate.urls')),
+#    path('Home/', include('Home.urls')),
+#    path('Latest/', include('Latest.urls')),
+
 urlpatterns = [
-    path('', include('Home.urls')),
-    path('Study/', include('StudyUI.urls')),
-    path('Config/',include('ConfigUI.urls')),
-    path('Replicate/', include('Replicate.urls')),
-    path('Home/', include('Home.urls')),
-    path('Latest/', include('Latest.urls')),
-    path('admin/', admin.site.urls),
+    path('', include('lims.urls')),
+    path('admin/', admin.site.urls),    
 ]

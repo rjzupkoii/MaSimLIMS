@@ -47,6 +47,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Inject the database from the session
+    'WebUI.middlewear.database.DatabaseMiddlewear',
 ]
 
 ROOT_URLCONF = 'WebUI.urls'

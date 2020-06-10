@@ -1,64 +1,40 @@
+{% extends "base.html" %}
 {% load static %}
-<head>
-  <link rel = "stylesheet" href = "{% static './contenttable.css' %}">
-  <link rel = "stylesheet" href = "{% static './NavBar.css' %}">
-  <!-- refresh every 5 seconds-->
-  <meta http-equiv="refresh" content="5">
-</head>
-<p id="demo"></p>
-<body>
-  <ul class="nav">
-    <li><a href = "http://127.0.0.1:8000/"> Home </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Home/BurkinaFaso">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Home/Masim">Masim</a></li>
-      </ul>
-    </li>
-    <li><a> Databases </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Study/BurkinaFaso">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Study/Masim">Masim</a></li>
-      </ul>
-    </li>
-    <li><a> Replicates That Worth to Notice </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Replicate/BurkinaFaso/WorthToNotice">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Replicate/Masim/WorthToNotice">Masim</a></li>
-      </ul>
-    </li>
-    <li><a> Latest 100 </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Latest/BurkinaFaso">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Latest/Masim">Masim</a></li>
-      </ul>
-    </li>
-  </ul>
-  <table class="content-table" style="margin-left:auto;margin-right:auto">
-    <thead>
+
+{% block title %}MaSim LIMS / Replicates{% endblock %}
+
+{% block meta %} 
+<!-- Refresh every minute -->
+<meta http-equiv="refresh" content="60">
+{% endblock %}
+
+{% block content %}
+<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+<table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+  <thead>
+    <tr>
+      <th>File Name</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Movement</th>
+      <th>Running Time</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <td colspan = "4">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
+    </tr>
+  </tfoot>
+  <tbody>
+    {% for r in rows %}
       <tr>
-        <th>File Name</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Movement</th>
-        <th>Running Time</th>
+        <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
+        <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
+        <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
+        <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
+        <td><a style="text-decoration:none; color:#000000">{{r.5}}</a></td>
       </tr>
-    </thead>
-    <tfoot>
-      <tr>
-        <td colspan = "4">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
-      </tr>
-    </tfoot>
-    <tbody>
-      {% for r in rows %}
-        <tr>
-          <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.5}}</a></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <script src="{% static './tablesort.js' %}"></script>
-</body>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,16 +1,18 @@
 .nav{
-    background-color: #595959;
+    background-color: #041E42;
     color: #ffffff;
     list-style: none;
     text-align:center;
     /*top left bottom right*/
-    padding: 35px 0 35px 0;
+    padding: 1em 0 1em 0;
 }
+
 /* li that inside nav*/
 .nav > li{
     display: inline-block;
     padding-right: 50px;
 }
+
 /* links --> "a" tage*/
 .nav > li > a{
     /*no underline*/
@@ -18,12 +20,13 @@
     text-decoration: none;
     color: #ffffff;
 }
+
 .nav > li > a:hover{
     color: #c1c1c1;
 }
 
 .subnav {
-    background-color: #595959;
+    background-color: #041E42;
     color: #ffffff;
     list-style: none;
     text-align:center;
@@ -32,11 +35,13 @@
     position: absolute;
     display: none;
 }
+
 .subnav > li{
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 35px;
 }
+
 .subnav > li > a{
     /*no underline*/
     font-family: 'Arial', serif;
