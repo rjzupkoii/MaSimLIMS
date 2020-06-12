@@ -5,7 +5,7 @@ This document is current as of Python 3.83
 
 ---
 
-## Setup:
+## Setup: 
 1. Download and install Python
 2. Setup the virtual environment
 
