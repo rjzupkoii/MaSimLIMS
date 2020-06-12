@@ -1,13 +1,13 @@
 # MaSim LIMS
-Basic laboratory information managmenet system (LIMS) for working with the meta-data and status of MaSim.
+Basic laboratory information management system (LIMS) for working with the meta-data and status of MaSim.
 
-This documment is current as of Python 3.83
+This document is current as of Python 3.83
 
 ---
 
 ## Setup:
 1. Download and install Python
-2. Setup the virtual envrionment
+2. Setup the virtual environment
 
 ```
 python -m pip install virtualenvwrapper-win 
