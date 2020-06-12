@@ -13,7 +13,6 @@ class DatabaseMiddlewear:
     def __init__(self, get_response):
         self.get_response = get_response
 
-        self.databases = self.getDatabases()
         # Load the databases if not set
         if self.databases is None:
             self.databases = self.getDatabases()
