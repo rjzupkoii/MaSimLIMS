@@ -13,6 +13,7 @@ class DatabaseMiddlewear:
     def __init__(self, get_response):
         self.get_response = get_response
 
+        self.databases = self.getDatabases()
         # Load the databases if not set
         if self.databases is None:
             self.databases = self.getDatabases()
@@ -20,8 +21,9 @@ class DatabaseMiddlewear:
 
     # Get and return the response
     def __call__(self, request):    
-
-        # Set the default database if not already set
+        # Execute before view functions
+        # Set the default database if not already set (i.e. restart the server)
+        # How does request.session['database'] change?
         if not 'database' in request.session:
             request.session['database'] = 1
 
@@ -34,9 +36,8 @@ class DatabaseMiddlewear:
 
 
     def injectDatabase(self, request):
-        # Note the ID
+        # Note the ID (get the database id)
         database = request.session['database']
-
         # Raise an error if not found
         if database not in self.databases:
             raise Exception("Database {} not found in registry".format(database))

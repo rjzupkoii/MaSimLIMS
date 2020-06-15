@@ -7,7 +7,7 @@ import psycopg2
 
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
-
+from django.contrib import messages
 from lims.shared import *
 
 # The index of the LIMS just shows a basic list of what is running on the default database
@@ -19,6 +19,7 @@ def index(request):
 
     # Render empty if there are no results
     if len(rows) == 0:
+        # Get the dbname
         message = "{0}, no replicates running".format(request.session['dbname'])
         return render(request, "empty.html", {"message": message})
 
@@ -34,11 +35,10 @@ def index(request):
 
 # This view will render the last 100 replicates that ran on the database
 @require_http_methods(["GET"])
-def replicates(request):
+def replicatesLatest100(request):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM v_replicates ORDER BY starttime DESC LIMIT 100"
     rows = selectQuery(request, SQL)
-
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -47,7 +47,6 @@ def replicates(request):
             rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
         if rowsList[ndx][5]:
             rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
-            
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Last 100 replicates on"})
 
 
@@ -61,3 +60,134 @@ def setdb(request, id):
     # Set the id and redirect to home
     request.session['database'] = id
     return redirect('/')
+
+@require_http_methods(["GET"])
+def study(request):
+    # This query has problem
+    SQL = "select s.id, s.name, count(c.id) configs, count(r.id) replicates from study s left join configuration c on c.studyid = s.id left join v_replicates r on r.configurationid = c.id group by s.id"\
+    " union SELECT studyid, CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates FROM" \
+    " (SELECT s.id, studyid, s.name, COUNT(c.id) configs, COUNT(r.id) replicates"\
+    " FROM sim.configuration c LEFT JOIN sim.replicate r ON r.configurationid = c.id LEFT JOIN sim.study s ON s.id = c.studyid GROUP BY s.id, studyid, s.name) iq order by id "
+    rows = selectQuery(request,SQL)
+    return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
+
+# Set seesion use this id
+@require_http_methods(["GET"])
+def setStudyConfig(request,id):
+    # Here we do not need exception because when the user click the study id, it has to exist
+    request.session['studyID'] = id
+    return redirect("config")
+
+@require_http_methods(["GET"])
+def config(request):
+    # If study id is None
+    if "None" in request.session['studyID']:
+        SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename," + " concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " + "from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
+    # If study ID is a number
+    else:
+        SQL = "select configuration.id, configuration.name, configuration.notes, configuration.filename," + " concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " \
+              "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = " + str(request.session['studyID']) + ' group by configuration.id order by configuration.id'
+    # Fetch from table
+    rows = selectQuery(request,SQL)
+    return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on"})
+
+@require_http_methods(["GET"])
+def setStudyReplicate(request, id):
+    request.session['studyID'] = id
+    return redirect("replicate")
+
+@require_http_methods(["GET"])
+def replicate(request):
+    if "None" in request.session['studyID']:
+        SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
+              "from configuration inner join v_replicates on v_replicates.configurationid = configuration.id where studyid is NULL order by v_replicates.id"
+    else:
+        SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime from study left join configuration on configuration.studyID = "\
+              + request.session['studyID'] + "inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = " + request.session['studyID'] + "order by v_replicates.id"
+    rows = selectQuery(request, SQL)
+    rowsList = []
+    for ndx in range(0, len(rows)):
+        rowsList.append(list(rows[ndx]))
+        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        # Only when endtime and runningtime exist, we process the data
+        if rowsList[ndx][3]:
+            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+        if rowsList[ndx][5]:
+            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
+@require_http_methods(["GET"])
+def setStudyInsert(request):
+    # Examine the name first
+    # When the user clicks "Submit" the form should check to see if a name was entered (i.e., more than 1 character), if it is valid then it is submitted to the server.
+    try:
+        name = request.GET["studyName"]
+        # This works but need real database
+        if len(name) < 1:
+            messages.success(request, "Please input at least one character!")
+        else:
+            SQL = "select id from study"
+            rows = selectQuery(request,SQL)
+            # Get current database's current last ID
+            lastID = rows[-1][0]
+            # Do not reuse the primary key
+            SQL = "insert into study values (" + str(lastID+1) + ', \'' + name + "\')"
+            commitQuery(request,SQL)
+    except (psycopg2.DatabaseError) as error:
+        messages.success(request, error)
+    return redirect('/study')
+
+# Why here need to add this line?
+@require_http_methods(["GET"])
+def setStudyDelete(request,id):
+    request.session['studyID'] = id
+    return redirect("/study/DeleteFail")
+
+@require_http_methods(["GET"])
+def DeleteFail(request):
+    SQL = "delete from study where id = " + request.session['studyID']
+    commitQuery(request,SQL)
+    return redirect('/study')
+
+@require_http_methods(["GET"])
+def setConfigReplicate(request, id):
+    request.session['configID'] = id
+    return redirect("configReplicate")
+
+@require_http_methods(["GET"])
+def configReplicate(request):
+    if "None" in request.session['configID']:
+        SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
+              "from v_replicates where configurationid is NULL order by v_replicates.id"
+    else:
+        SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
+              "from v_replicates where configurationid = " + request.session['configID'] + "order by v_replicates.id"
+    rows = selectQuery(request,SQL)
+    rowsList = []
+    for ndx in range(0, len(rows)):
+        rowsList.append(list(rows[ndx]))
+        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        # Only when endtime and runningtime exist, we process the data
+        if rowsList[ndx][3]:
+            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+        if rowsList[ndx][5]:
+            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
+@require_http_methods(["GET"])
+def worthToNotice(request):
+    # Not within latest 100 and interval > 2 days and not end
+    SQL = "select id, filename, starttime, endtime, movement, runningtime from v_replicates " \
+          "where starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
+          "and (now()-starttime) > interval '2 days' and endtime is null order by id desc"
+    rows = selectQuery(request, SQL)
+    rowsList = []
+    for ndx in range(0, len(rows)):
+        rowsList.append(list(rows[ndx]))
+        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        # Only when endtime and runningtime exist, we process the data
+        if rowsList[ndx][3]:
+            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+        if rowsList[ndx][5]:
+            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on"})

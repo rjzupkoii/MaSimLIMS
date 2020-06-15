@@ -18,3 +18,16 @@ def selectQuery(request, sql):
     cursor.close()
     connection.close()
     return rows
+def commitQuery(request, sql):
+    # Open the connection
+    connection = psycopg2.connect(request.session['dbconnection'])
+    cursor = connection.cursor()
+    # Execute the query, note the rows
+    cursor.execute(sql)
+    # commit the changes
+    connection.commit()
+
+    # Clean-up and return
+    cursor.close()
+    connection.close()
+    return

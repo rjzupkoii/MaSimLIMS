@@ -1,36 +1,12 @@
+{% extends "base.html" %}
 {% load static %}
-<head>
-  <link rel = "stylesheet" href = "{% static './contenttable.css' %}">
-  <link rel = "stylesheet" href = "{% static './NavBar.css' %}">
-</head>
-<p id="demo"></p>
-<body>
-  <ul class="nav">
-    <li><a href = "http://127.0.0.1:8000/"> Home </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Home/BurkinaFaso">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Home/Masim">Masim</a></li>
-      </ul>
-    </li>
-    <li><a> Databases </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Study/BurkinaFaso">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Study/Masim">Masim</a></li>
-      </ul>
-    </li>
-    <li><a> Replicates That Worth to Notice </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Replicate/BurkinaFaso/WorthToNotice">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Replicate/Masim/WorthToNotice">Masim</a></li>
-      </ul>
-    </li>
-    <li><a> Latest 100 </a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Latest/BurkinaFaso">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Latest/Masim">Masim</a></li>
-      </ul>
-    </li>
-  </ul>
+{% block title %}MaSim LIMS / Studys{% endblock %}
+{% block meta %}
+<!-- Refresh every minute -->
+<meta http-equiv="refresh" content="60">
+{% endblock %}
+{% block content %}
+<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
   <table class="content-table" style="margin-left:auto;margin-right:auto;">
     <thead>
       <tr>
@@ -43,13 +19,12 @@
     <tbody>
       {% for r in rows %}
         <tr>
-          <td><a style="text-decoration:none; color:#000000" href="http://127.0.0.1:8000/Replicate/{{link}}/WhereConfigID={{r.0}}">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="http://127.0.0.1:8000/Replicate/{{link}}/WhereConfigID={{r.0}}">{{r.3}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="http://127.0.0.1:8000/Replicate/{{link}}/WhereConfigID={{r.0}}">{{r.4}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="http://127.0.0.1:8000/Replicate/{{link}}/WhereConfigID={{r.0}}">{{r.5}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/setConfigReplicate/{{r.0}}">{{r.0}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/setConfigReplicate/{{r.0}}">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/setConfigReplicate/{{r.0}}">{{r.4}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/setConfigReplicate/{{r.0}}">{{r.5}}</a></td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
-  <script src="{% static './tablesort.js' %}"></script>
-</body>
+  {% endblock %}

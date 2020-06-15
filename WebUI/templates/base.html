@@ -1,17 +1,26 @@
 {% load static %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<style>
+  input[type=text] {
+    margin: 10px 0;
+  }
+  .messages{
+    list-style:none;
+    background-color: #FF0000
+  }
+</style>
 <head xmlns="http://www.w3.org/1999/xhtml">
   <title>{% block title %}{% endblock  %}</title>
   
   <link rel = "stylesheet" href = "{% static './contenttable.css' %}">
   <link rel = "stylesheet" href = "{% static './NavBar.css' %}">
   <link rel = "stylesheet" href = "{% static './style.css' %}">
-  <script src="{% static './tablesort.js' %}"></script>
-  
+  <link rel = "stylesheet" href = "{% static './popup.css' %}">
+
   {% block meta %}{% endblock  %}
 </head>
-
+<p id="demo"></p>
 <body>
   <div id="page-container">
     <div id="content-wrap">
@@ -21,17 +30,14 @@
     <li><a>Select Database</a>
       <ul class="subnav">
         {% for key, value in request.session.databases.items %}
-          <li><a href="/setdb/{{ key }}">{{ value.Name  }}</a></li>
+          <!--Here setdb is called-->
+          <li><a href="/setdb/{{ key }}">{{ value.Name }}</a></li>
         {% endfor %}
       </ul>
     </li>
-    <li><a>Long Running Replicates</a>
-      <ul class="subnav">
-        <li><a href="http://127.0.0.1:8000/Replicate/BurkinaFaso/WorthToNotice">Burkinafaso</a></li>
-        <li><a href="http://127.0.0.1:8000/Replicate/Masim/WorthToNotice">Masim</a></li>
-      </ul>
-    </li>
-    <li><a href="/replicates">Last 100 Replicates</a></li>
+    <li><a href="/study">Study</a>
+    <li><a href="/worthToNotice">Long Running Replicates</a>
+    <li><a href="/replicatesLatest100">Last 100 Replicates</a></li>
   </ul>
     {% block content %}{% endblock %}
     </div>
@@ -39,5 +45,7 @@
       &nbsp;<em>Boni Lab @ Penn State</em><p />
     </footer>    
   </div>
+  <script src="{% static './popup.js' %}"></script>
+  <script src="{% static './tablesort.js' %}"></script>
 </body>
 </html>
