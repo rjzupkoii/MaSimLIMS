@@ -13,14 +13,10 @@ urlpatterns = [
     path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),
     path('setdb/<int:id>', views.setdb, name='setdb'),
     # Get id
-    path('setStudyConfig/<str:id>',views.setStudyConfig,name = 'setStudyConfig'),
-    path('setStudyReplicate/<str:id>',views.setStudyReplicate,name = 'setStudyReplicate'),
-    path('config', views.config, name='config'),
-    path('replicate', views.replicate, name='replicate'),
+    path('StudyConfig/<str:id>',views.StudyConfig,name = 'StudyConfig'),
+    path('StudyReplicate/<str:id>',views.StudyReplicate,name = 'StudyReplicate'),
     path('study/InsertFail', views.setStudyInsert, name='setStudyInsert'),
-    path('study/setStudyDelete/<str:id>', views.setStudyDelete, name='setStudyDelete'),
-    path('study/DeleteFail', views.DeleteFail, name = "DeleteFail"),
-    path('setConfigReplicate/<str:id>', views.setConfigReplicate, name = "setConfigReplicate"),
-    path('configReplicate', views.configReplicate, name = "configReplicate"),
+    path('study/DeleteFail/<str:id>', views.DeleteFail, name='DeleteFaile'),
+    path('ConfigReplicate/<str:id>', views.ConfigReplicate, name = "ConfigReplicate"),
     path('worthToNotice', views.worthToNotice, name = "worthToNotice"),
 ]

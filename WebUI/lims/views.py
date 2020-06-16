@@ -71,39 +71,28 @@ def study(request):
     rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
 
-# Set seesion use this id
-@require_http_methods(["GET"])
-def setStudyConfig(request,id):
-    # Here we do not need exception because when the user click the study id, it has to exist
-    request.session['studyID'] = id
-    return redirect("config")
 
 @require_http_methods(["GET"])
-def config(request):
+def StudyConfig(request,id):
     # If study id is None
-    if "None" in request.session['studyID']:
+    if "None" in id:
         SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename," + " concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " + "from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
     # If study ID is a number
     else:
         SQL = "select configuration.id, configuration.name, configuration.notes, configuration.filename," + " concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " \
-              "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = " + str(request.session['studyID']) + ' group by configuration.id order by configuration.id'
+              "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = " + str(id) + ' group by configuration.id order by configuration.id'
     # Fetch from table
     rows = selectQuery(request,SQL)
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on"})
 
 @require_http_methods(["GET"])
-def setStudyReplicate(request, id):
-    request.session['studyID'] = id
-    return redirect("replicate")
-
-@require_http_methods(["GET"])
-def replicate(request):
-    if "None" in request.session['studyID']:
+def StudyReplicate(request, id):
+    if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from configuration inner join v_replicates on v_replicates.configurationid = configuration.id where studyid is NULL order by v_replicates.id"
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime from study left join configuration on configuration.studyID = "\
-              + request.session['studyID'] + "inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = " + request.session['studyID'] + "order by v_replicates.id"
+              + id + "inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = " + id + "order by v_replicates.id"
     rows = selectQuery(request, SQL)
     rowsList = []
     for ndx in range(0, len(rows)):
@@ -115,6 +104,7 @@ def replicate(request):
         if rowsList[ndx][5]:
             rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
 
 @require_http_methods(["GET"])
 def setStudyInsert(request):
@@ -137,31 +127,20 @@ def setStudyInsert(request):
         messages.success(request, error)
     return redirect('/study')
 
-# Why here need to add this line?
 @require_http_methods(["GET"])
-def setStudyDelete(request,id):
-    request.session['studyID'] = id
-    return redirect("/study/DeleteFail")
-
-@require_http_methods(["GET"])
-def DeleteFail(request):
-    SQL = "delete from study where id = " + request.session['studyID']
+def DeleteFail(request, id):
+    SQL = "delete from study where id = " + id
     commitQuery(request,SQL)
     return redirect('/study')
 
 @require_http_methods(["GET"])
-def setConfigReplicate(request, id):
-    request.session['configID'] = id
-    return redirect("configReplicate")
-
-@require_http_methods(["GET"])
-def configReplicate(request):
-    if "None" in request.session['configID']:
+def ConfigReplicate(request, id):
+    if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from v_replicates where configurationid is NULL order by v_replicates.id"
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
-              "from v_replicates where configurationid = " + request.session['configID'] + "order by v_replicates.id"
+              "from v_replicates where configurationid = " + id + "order by v_replicates.id"
     rows = selectQuery(request,SQL)
     rowsList = []
     for ndx in range(0, len(rows)):

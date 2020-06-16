@@ -39,14 +39,14 @@
       {% for r in  rows%}
         <tr>
           <!--r.0 studyid-->
-          <td><a style="text-decoration:none; color:#000000" href="/setStudyConfig/{{ r.0 }}">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/setStudyConfig/{{ r.0 }}">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/setStudyConfig/{{ r.0 }}">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/setStudyReplicate/{{ r.0 }}">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.1}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.0}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.2}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">{{r.3}}</a></td>
           <!-- If the count of configurations is 0 and the count of replicates is 0, then a link labeled "[DELETE]" should appear under the "Actions" column for studies.-->
           {% if 0 == r.2 and 0 == r.3 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/setStudyReplicate/{{ r.0 }}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">[NOTES]</a>
               <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
               <div id="popUpWindow-{{r.0}}" class="popUp">
                 <div class="popUpContent">
@@ -58,7 +58,7 @@
                     <h3>Are you sure that you wish to delete {{r.1}}?</h3>
                   </div>
                   <div class="option">
-                        <a href="/study/setStudyDelete/{{ r.0 }}">DELETE</a>
+                        <a href="/study/DeleteFail/{{ r.0 }}">DELETE</a>
                         <a href="">CANCEL</a>
                   </div>
                 </div>
@@ -67,7 +67,7 @@
           <!--normal operations-->
           {% else %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/setStudyReplicate/{{ r.0 }}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">[NOTES]</a>
             </td> 
           {% endif %}
         </tr>
