@@ -7,12 +7,13 @@
 from django.urls import path
 from . import views
 
+# Add urls, their implementation function in views, and their names.
 urlpatterns = [
     path('', views.index, name='index'),
     path('study', views.study, name='study'),
     path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),
     path('setdb/<int:id>', views.setdb, name='setdb'),
-    # Get id
+    # Put id in the urls
     path('StudyConfig/<str:id>',views.StudyConfig,name = 'StudyConfig'),
     path('StudyReplicate/<str:id>',views.StudyReplicate,name = 'StudyReplicate'),
     path('study/InsertFail', views.setStudyInsert, name='setStudyInsert'),

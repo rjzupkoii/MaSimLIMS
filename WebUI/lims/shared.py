@@ -18,6 +18,7 @@ def selectQuery(request, sql):
     cursor.close()
     connection.close()
     return rows
+# Some SQL syntaxs need to be commited. i.e. insertion and delete
 def commitQuery(request, sql):
     # Open the connection
     connection = psycopg2.connect(request.session['dbconnection'])

@@ -50,6 +50,7 @@ def replicatesLatest100(request):
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Last 100 replicates on"})
 
 
+# setup connection "session"
 @require_http_methods(["GET"])
 def setdb(request, id):
     # Validate the ID provided
@@ -61,6 +62,7 @@ def setdb(request, id):
     request.session['database'] = id
     return redirect('/')
 
+# Show study table
 @require_http_methods(["GET"])
 def study(request):
     # This query has problem
@@ -71,7 +73,7 @@ def study(request):
     rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
 
-
+# Configurations that associate with study id
 @require_http_methods(["GET"])
 def StudyConfig(request,id):
     # If study id is None
@@ -85,6 +87,7 @@ def StudyConfig(request,id):
     rows = selectQuery(request,SQL)
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on"})
 
+# Replicates that associate with study id
 @require_http_methods(["GET"])
 def StudyReplicate(request, id):
     if "None" in id:
@@ -105,7 +108,7 @@ def StudyReplicate(request, id):
             rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
 
-
+# Insert data into study table
 @require_http_methods(["GET"])
 def setStudyInsert(request):
     # Examine the name first
@@ -127,17 +130,21 @@ def setStudyInsert(request):
         messages.success(request, error)
     return redirect('/study')
 
+# Delete data from study table
 @require_http_methods(["GET"])
 def DeleteFail(request, id):
     SQL = "delete from study where id = " + id
     commitQuery(request,SQL)
     return redirect('/study')
 
+# Replicates that associate with configuration id
 @require_http_methods(["GET"])
 def ConfigReplicate(request, id):
+    # If NULL
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from v_replicates where configurationid is NULL order by v_replicates.id"
+    # If a number is received
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from v_replicates where configurationid = " + id + "order by v_replicates.id"
@@ -153,6 +160,7 @@ def ConfigReplicate(request, id):
             rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
 
+# Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @require_http_methods(["GET"])
 def worthToNotice(request):
     # Not within latest 100 and interval > 2 days and not end
