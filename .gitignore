@@ -6,3 +6,6 @@
 # Ignore complied Python
 __pycache__/
 *.pyc
+
+# Ignore Django's database
+**/db.sqlite3
