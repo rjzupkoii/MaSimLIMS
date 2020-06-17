@@ -23,7 +23,7 @@ class DatabaseMiddlewear:
     # Get and return the response
     def __call__(self, request):    
         # Execute before view functions
-        # Set the default database if not already set (i.e. restart the server)
+        # Set the default database if not already set (i.e. restart the server/ a new user access the website from the different browser)
         if not 'database' in request.session:
             # Database id
             request.session['database'] = 1

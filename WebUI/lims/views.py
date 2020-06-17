@@ -78,13 +78,14 @@ def study(request):
 def StudyConfig(request,id):
     # If study id is None
     if "None" in id:
-        SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename," + " concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " + "from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
+        SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename, concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
+        rows = selectQuery(request,SQL)
     # If study ID is a number
     else:
-        SQL = "select configuration.id, configuration.name, configuration.notes, configuration.filename," + " concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " \
-              "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = " + str(id) + ' group by configuration.id order by configuration.id'
-    # Fetch from table
-    rows = selectQuery(request,SQL)
+        SQL = "select configuration.id, configuration.name, configuration.notes, configuration.filename, concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " \
+              "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = %(id)s group by configuration.id order by configuration.id"
+        # Fetch from table
+        rows = selectQueryParameter(request,SQL,{'id':id})
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on"})
 
 # Replicates that associate with study id
@@ -93,10 +94,11 @@ def StudyReplicate(request, id):
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from configuration inner join v_replicates on v_replicates.configurationid = configuration.id where studyid is NULL order by v_replicates.id"
+        rows = selectQuery(request,SQL)
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime from study left join configuration on configuration.studyID = "\
-              + id + "inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = " + id + "order by v_replicates.id"
-    rows = selectQuery(request, SQL)
+            "%(id)s inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = %(id)s order by v_replicates.id"
+        rows = selectQueryParameter(request, SQL,{'id':id})
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -124,17 +126,19 @@ def setStudyInsert(request):
             # Get current database's current last ID
             lastID = rows[-1][0]
             # Do not reuse the primary key
-            SQL = "insert into study values (" + str(lastID+1) + ', \'' + name + "\')"
-            commitQuery(request,SQL)
-    except (psycopg2.DatabaseError) as error:
+            # sql: """SELECT admin FROM users WHERE username = %(username)s"""
+            # parameter: {'username': username}
+            SQL = """insert into study values (%(id)s, %(name)s)"""
+            commitQuery(request,SQL, {'id':str(lastID+1), 'name':name})
+    except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
     return redirect('/study')
 
 # Delete data from study table
 @require_http_methods(["GET"])
 def DeleteFail(request, id):
-    SQL = "delete from study where id = " + id
-    commitQuery(request,SQL)
+    SQL = """delete from study where id = %(id)s"""
+    commitQuery(request,SQL,{'id':id})
     return redirect('/study')
 
 # Replicates that associate with configuration id
@@ -144,11 +148,12 @@ def ConfigReplicate(request, id):
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from v_replicates where configurationid is NULL order by v_replicates.id"
+        rows = selectQuery(request,SQL)
     # If a number is received
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
-              "from v_replicates where configurationid = " + id + "order by v_replicates.id"
-    rows = selectQuery(request,SQL)
+              "from v_replicates where configurationid = %(id)s order by v_replicates.id"
+        rows = selectQueryParameter(request,SQL, {'id':id})
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
