@@ -4,6 +4,7 @@
 # Define methods of use throughout the LIMS codebase.
 ##
 # I keep debug rows
+# All print is used for debugging
 import psycopg2
 
 # No parameter
