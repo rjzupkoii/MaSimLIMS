@@ -3,6 +3,7 @@
 #
 # Define the views that are used by the LIMS.
 ##
+
 import psycopg2
 
 from django.shortcuts import redirect, render

@@ -3,6 +3,7 @@
 #
 # Define methods of use throughout the LIMS codebase.
 ##
+# I keep debug rows
 import psycopg2
 
 # No parameter
