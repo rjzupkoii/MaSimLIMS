@@ -62,6 +62,7 @@ def setdb(request, id):
     request.session['database'] = id
     return redirect('/')
 
+
 # Show study table
 @require_http_methods(["GET"])
 def study(request):
@@ -72,6 +73,7 @@ def study(request):
     " FROM sim.configuration c LEFT JOIN sim.replicate r ON r.configurationid = c.id LEFT JOIN sim.study s ON s.id = c.studyid GROUP BY s.id, studyid, s.name) iq order by id "
     rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
+
 
 # Configurations that associate with study id
 @require_http_methods(["GET"])
@@ -86,6 +88,7 @@ def StudyConfig(request,id):
     # Fetch from table
     rows = selectQuery(request,SQL)
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on"})
+
 
 # Replicates that associate with study id
 @require_http_methods(["GET"])
@@ -107,6 +110,7 @@ def StudyReplicate(request, id):
         if rowsList[ndx][5]:
             rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
 
 # Insert data into study table
 @require_http_methods(["GET"])
@@ -130,12 +134,14 @@ def setStudyInsert(request):
         messages.success(request, error)
     return redirect('/study')
 
+
 # Delete data from study table
 @require_http_methods(["GET"])
 def DeleteFail(request, id):
     SQL = "delete from study where id = " + id
     commitQuery(request,SQL)
     return redirect('/study')
+
 
 # Replicates that associate with configuration id
 @require_http_methods(["GET"])
@@ -159,6 +165,7 @@ def ConfigReplicate(request, id):
         if rowsList[ndx][5]:
             rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @require_http_methods(["GET"])
