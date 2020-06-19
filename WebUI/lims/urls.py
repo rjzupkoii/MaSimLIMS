@@ -13,6 +13,7 @@ urlpatterns = [
     path('study', views.study, name='study'),
     path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),
     path('setdb/<int:id>', views.setdb, name='setdb'),
+    
     # Put id in the urls
     path('StudyConfig/<str:id>',views.StudyConfig,name = 'StudyConfig'),
     path('StudyReplicate/<str:id>',views.StudyReplicate,name = 'StudyReplicate'),

@@ -4,12 +4,16 @@
 # Define the views that are used by the LIMS.
 ##
 
+import datetime
 import psycopg2
 
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from lims.shared import *
+
+# TODO Move this to a better location for settings
+DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @require_http_methods(["GET"])
@@ -28,7 +32,7 @@ def index(request):
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         rowsList[ndx][3] = rowsList[ndx][3]
         rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Currently running for"})
@@ -43,11 +47,11 @@ def replicatesLatest100(request):
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         if rowsList[ndx][3]:
-            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         if rowsList[ndx][5]:
-            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Last 100 replicates on"})
 
 
@@ -63,6 +67,7 @@ def setdb(request, id):
     request.session['database'] = id
     return redirect('/')
 
+
 # Show study table
 @require_http_methods(["GET"])
 def study(request):
@@ -73,6 +78,7 @@ def study(request):
     " FROM sim.configuration c LEFT JOIN sim.replicate r ON r.configurationid = c.id LEFT JOIN sim.study s ON s.id = c.studyid GROUP BY s.id, studyid, s.name) iq order by id "
     rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
+
 
 # Configurations that associate with study id
 @require_http_methods(["GET"])
@@ -89,6 +95,7 @@ def StudyConfig(request,id):
         rows = selectQueryParameter(request,SQL,{'id':id})
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on"})
 
+
 # Replicates that associate with study id
 @require_http_methods(["GET"])
 def StudyReplicate(request, id):
@@ -103,13 +110,14 @@ def StudyReplicate(request, id):
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
-            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         if rowsList[ndx][5]:
-            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
 
 # Insert data into study table
 @require_http_methods(["GET"])
@@ -135,12 +143,14 @@ def setStudyInsert(request):
         messages.success(request, error)
     return redirect('/study')
 
+
 # Delete data from study table
 @require_http_methods(["GET"])
 def DeleteFail(request, id):
     SQL = """delete from study where id = %(id)s"""
     commitQuery(request,SQL,{'id':id})
     return redirect('/study')
+
 
 # Replicates that associate with configuration id
 @require_http_methods(["GET"])
@@ -158,29 +168,30 @@ def ConfigReplicate(request, id):
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
-            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         if rowsList[ndx][5]:
-            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on"})
+
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @require_http_methods(["GET"])
 def worthToNotice(request):
     # Not within latest 100 and interval > 2 days and not end
-    SQL = "select id, filename, starttime, endtime, movement, runningtime from v_replicates " \
-          "where starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
+    SQL = "SELECT id, filename, starttime, endtime, movement, runningtime FROM v_replicates " \
+          "WHERE starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
           "and (now()-starttime) > interval '2 days' and endtime is null order by id desc"
     rows = selectQuery(request, SQL)
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][2] = rowsList[ndx][2].strftime("%m/%d/%Y, %H:%M:%S")
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
-            rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         if rowsList[ndx][5]:
-            rowsList[ndx][5] = int(rowsList[ndx][5].total_seconds() * 1000000)
+            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on"})
