@@ -2,8 +2,6 @@
 {% load static %}
 {% block title %}MaSim LIMS / Studys{% endblock %}
 {% block meta %}
-<!-- Refresh every minute -->
-<meta http-equiv="refresh" content="60">
 {% endblock %}
 {% block content %}
 <table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
@@ -14,6 +12,7 @@
         <th>User</th>
         <th>Date</th>
         <th>Study ID</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -24,6 +23,24 @@
           <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
           <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
           <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
+          <td>
+            <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
+            <div id="popUpWindow-{{r.0}}" class="popUp">
+              <div class="popUpContent">
+                <div class="popUpHeader">
+                  <span id = "close-{{r.0}}" class="close">&times;</span>
+                  <h2>DELETE?</h2>
+                </div>
+                <div class="popUpBody">
+                  <h3>Are you sure that you wish to delete {{r.1}}?</h3>
+                </div>
+                <div class="option">
+                  <a href="/Study/DeleteNotes/{{r.4}}/{{r.0}}">DELETE</a>
+                  <a href="">CANCEL</a>
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
       {% endfor %}
     </tbody>

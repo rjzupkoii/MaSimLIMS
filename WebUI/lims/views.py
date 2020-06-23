@@ -186,6 +186,7 @@ def worthToNotice(request):
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on"})
 
 @require_http_methods(["GET"])
+# id is study id
 def studyNotes(request,id):
     # not work
     #domain = os.environ['userdomain']
@@ -201,6 +202,7 @@ def studyNotes(request,id):
             rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
     return render(request, 'notes.html', {"rows":rowsList,"id": id})
 
+# id is study id
 @require_http_methods(["GET"])
 def studyNotesRecord(request,id):
     SQL = "select id from notes"
@@ -213,3 +215,13 @@ def studyNotesRecord(request,id):
     commitQuery(request,SQL, {'id':str(lastID+1), 'data':notes, 'user': user, 'studyid':id})
     path = "/Study/Notes/" + id
     return redirect(path);
+
+@require_http_methods(["GET"])
+#Study/DeleteNotes/<str: studyid>/<str:id>
+# first parameter is studyid, the second one is id of notes
+def DeleteNotes(request, studyid, id):
+    SQL = """delete from notes where id = %(id)s"""
+    rows = commitQuery(request,SQL, {"id":id})
+    path = "/Study/Notes/" + studyid
+    return redirect(path);
+    

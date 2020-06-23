@@ -22,4 +22,5 @@ urlpatterns = [
     path('worthToNotice', views.worthToNotice, name = "worthToNotice"),
     path('Study/Notes/<str:id>', views.studyNotes, name = "studyNotes"),
     path('Study/NotesRecord/<str:id>', views.studyNotesRecord, name = "studyNotesRecord"),
+    path('Study/DeleteNotes/<str:studyid>/<str:id>', views.DeleteNotes, name = "DeleteNotes"),
 ]
