@@ -11,6 +11,15 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from lims.shared import *
 
+# set cookies to a response
+def setcookie(response, cookieName, value):    
+    response.set_cookie(cookieName, value)  
+    return response  
+# get cookie value based on cookieName
+def getcookie(request,cookieName):  
+    cookie  = request.COOKIES[cookieName]  
+    return cookie 
+
 # The index of the LIMS just shows a basic list of what is running on the default database
 @require_http_methods(["GET"])
 def index(request):
@@ -200,7 +209,13 @@ def studyNotes(request,id):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime("%m/%d/%Y, %H:%M:%S")
-    return render(request, 'notes.html', {"rows":rowsList,"id": id})
+    # If 'username' is cookies, we get cookie
+    if 'username' in request.COOKIES:
+        user = getcookie(request,'username')
+    # If not, make it empty
+    else:
+        user = ""
+    return render(request, 'notes.html', {"rows":rowsList,"id": id,"user":user,"viewType":"Notes on"})
 
 # id is study id
 @require_http_methods(["GET"])
@@ -214,7 +229,11 @@ def studyNotesRecord(request,id):
     SQL = """insert into notes values (%(id)s, %(data)s,%(user)s,now(),%(studyid)s)"""
     commitQuery(request,SQL, {'id':str(lastID+1), 'data':notes, 'user': user, 'studyid':id})
     path = "/Study/Notes/" + id
-    return redirect(path);
+    # set cookies and connect cookies with response
+    response = redirect(path)
+    # cookie is for global
+    setcookie(response,'username',user)
+    return response;
 
 @require_http_methods(["GET"])
 #Study/DeleteNotes/<str: studyid>/<str:id>
