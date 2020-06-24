@@ -12,11 +12,11 @@
 </style>
 <head xmlns="http://www.w3.org/1999/xhtml">
   <title>{% block title %}{% endblock  %}</title>
-  <link rel = "stylesheet" href = "{% static './contenttable.css' %}">
-  <link rel = "stylesheet" href = "{% static './NavBar.css' %}">
-  <link rel = "stylesheet" href = "{% static './style.css' %}">
-  <link rel = "stylesheet" href = "{% static './popup.css' %}">
-  <link rel = "stylesheet" href = "{% static './textarea.css' %}">
+  <link rel = "stylesheet" href = "{% static './css/contenttable.css' %}">
+  <link rel = "stylesheet" href = "{% static './css/NavBar.css' %}">
+  <link rel = "stylesheet" href = "{% static './css/style.css' %}">
+  <link rel = "stylesheet" href = "{% static './css/popup.css' %}">
+  <link rel = "stylesheet" href = "{% static './css/textarea.css' %}">
   {% block meta %}{% endblock  %}
 </head>
 <p id="demo"></p>
@@ -44,8 +44,8 @@
       &nbsp;<em>Boni Lab @ Penn State</em><p />
     </footer>    
   </div>
-  <script src="{% static './popup.js' %}"></script>
-  <script src="{% static './tablesort.js' %}"></script>
-  <script src="{% static './textarea.js' %}"></script>
+  <script src="{% static './js/popup.js' %}"></script>
+  <script src="{% static './js/tablesort.js' %}"></script>
+  <script src="{% static './js/textarea.js' %}"></script>
 </body>
 </html>
