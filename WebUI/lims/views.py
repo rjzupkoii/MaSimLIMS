@@ -6,6 +6,7 @@
 
 import psycopg2
 import os
+
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
@@ -14,21 +15,13 @@ from lims.shared import *
 # TODO Move this to a better location for settings
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 
-# set cookies to a response
-def setcookie(response, cookieName, value):    
-    response.set_cookie(cookieName, value)  
-    return response  
-# get cookie value based on cookieName
-def getcookie(request,cookieName):  
-    cookie  = request.COOKIES[cookieName]  
-    return cookie 
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @require_http_methods(["GET"])
 def index(request):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM (SELECT * FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100 where (now()-starttime) <= interval '2 days' and endtime is null order by id desc"
-    rows = selectQueryParameter(request, SQL)
+    rows = selectQuery(request, SQL)
 
     # Render empty if there are no results
     if len(rows) == 0:
@@ -41,8 +34,6 @@ def index(request):
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
-        rowsList[ndx][3] = rowsList[ndx][3]
-        rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Currently running for"})
 
 
@@ -51,15 +42,13 @@ def index(request):
 def replicatesLatest100(request):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM v_replicates ORDER BY starttime DESC LIMIT 100"
-    rows = selectQueryParameter(request, SQL)
+    rows = selectQuery(request, SQL)
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-        if rowsList[ndx][5]:
-            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Last 100 replicates on"})
 
 
@@ -75,6 +64,7 @@ def setdb(request, id):
     request.session['database'] = id
     return redirect('/')
 
+
 # Show study table
 @require_http_methods(["GET"])
 def study(request):
@@ -83,8 +73,9 @@ def study(request):
     " union SELECT studyid, CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates FROM" \
     " (SELECT s.id, studyid, s.name, COUNT(c.id) configs, COUNT(r.id) replicates"\
     " FROM sim.configuration c LEFT JOIN sim.replicate r ON r.configurationid = c.id LEFT JOIN sim.study s ON s.id = c.studyid GROUP BY s.id, studyid, s.name) iq order by id "
-    rows = selectQueryParameter(request,SQL)
+    rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
+
 
 # Configurations that associate with study id
 @require_http_methods(["GET"])
@@ -92,14 +83,15 @@ def StudyConfig(request,id, studyname):
     # If study id is None
     if "None" in id:
         SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename, concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
-        rows = selectQueryParameter(request,SQL)
+        rows = selectQuery(request, SQL)
     # If study ID is a number
     else:
         SQL = "select configuration.id, configuration.name, configuration.notes, configuration.filename, concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) " \
               "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = %(id)s group by configuration.id order by configuration.id"
         # Fetch from table
-        rows = selectQueryParameter(request,SQL,{'id':id})
+        rows = selectQuery(request, SQL, {'id':id})
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on Study: \""+studyname+'\" - '})
+
 
 # Replicates that associate with study id
 @require_http_methods(["GET"])
@@ -107,11 +99,11 @@ def StudyReplicate(request, id, studyname):
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from configuration inner join v_replicates on v_replicates.configurationid = configuration.id where studyid is NULL order by v_replicates.id"
-        rows = selectQueryParameter(request,SQL)
+        rows = selectQuery(request,SQL)
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime from study left join configuration on configuration.studyID = "\
             "%(id)s inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = %(id)s order by v_replicates.id"
-        rows = selectQueryParameter(request, SQL,{'id':id})
+        rows = selectQuery(request, SQL,{'id':id})
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -119,9 +111,8 @@ def StudyReplicate(request, id, studyname):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-        if rowsList[ndx][5]:
-            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Study: \""+studyname+'\" - '})
+
 
 # Insert data into study table
 @require_http_methods(["GET"])
@@ -132,10 +123,10 @@ def setStudyInsert(request):
         name = request.GET["studyName"]
         # This works but need real database
         if len(name) < 1:
-            messages.success(request, "Please input at least one character!")
+            messages.success(request, "Please input at least one character!") 
         else:
             SQL = "select id from study"
-            rows = selectQueryParameter(request,SQL)
+            rows = selectQuery(request,SQL)
             # Get current database's current last ID
             lastID = rows[-1][0]
             # Do not reuse the primary key
@@ -147,6 +138,7 @@ def setStudyInsert(request):
         messages.success(request, error)
     return redirect('/study')
 
+
 # Delete data from study table
 @require_http_methods(["GET"])
 def DeleteFail(request, id):
@@ -156,6 +148,7 @@ def DeleteFail(request, id):
     commitQuery(request,SQL,{'id':id})
     return redirect('/study')
 
+
 # Replicates that associate with configuration id
 @require_http_methods(["GET"])
 def ConfigReplicate(request, id,configurationName):
@@ -163,12 +156,12 @@ def ConfigReplicate(request, id,configurationName):
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from v_replicates where configurationid is NULL order by v_replicates.id"
-        rows = selectQueryParameter(request,SQL)
+        rows = selectQuery(request,SQL)
     # If a number is received
     else:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from v_replicates where configurationid = %(id)s order by v_replicates.id"
-        rows = selectQueryParameter(request,SQL, {'id': id})
+        rows = selectQuery(request,SQL, {'id': id})
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -176,9 +169,8 @@ def ConfigReplicate(request, id,configurationName):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-        if rowsList[ndx][5]:
-            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName+"\" - "})
+
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @require_http_methods(["GET"])
@@ -187,7 +179,7 @@ def worthToNotice(request):
     SQL = "select id, filename, starttime, endtime, movement, runningtime from v_replicates " \
           "where starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
           "and (now()-starttime) > interval '2 days' and endtime is null order by id desc"
-    rows = selectQueryParameter(request, SQL)
+    rows = selectQuery(request, SQL)
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -195,16 +187,15 @@ def worthToNotice(request):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-        if rowsList[ndx][5]:
-            rowsList[ndx][5] = rowsList[ndx][5]
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on"})
+
 
 @require_http_methods(["GET"])
 # id is study id
 def studyNotes(request,studyId,studyName):
     print(visitor_ip_address(request))
     SQL = "SELECT * from notes where studyid = %(id)s order by date desc"
-    rows = selectQueryParameter(request, SQL,{"id":studyId})
+    rows = selectQuery(request, SQL,{"id":studyId})
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -219,11 +210,12 @@ def studyNotes(request,studyId,studyName):
         user = ""
     return render(request, 'notes.html', {"rows":rowsList,"id": studyId,"user":user, "studyName":studyName,"viewType":"Notes on Study: \""+studyName+"\" - "})
 
+
 # id is study id
 @require_http_methods(["GET"])
 def studyNotesRecord(request,studyId,studyName):
     SQL = "select id from notes"
-    rows = selectQueryParameter(request,SQL)
+    rows = selectQuery(request,SQL)
     # Get current database's current last ID
     lastID = rows[-1][0]
     notes = request.GET["notes"]
@@ -235,7 +227,8 @@ def studyNotesRecord(request,studyId,studyName):
     response = redirect(path)
     # cookie is for global
     setcookie(response,'username',user)
-    return response;
+    return response
+
 
 @require_http_methods(["GET"])
 #Study/DeleteNotes/<str: studyid>/<str:id>
