@@ -39,14 +39,14 @@
       {% for r in  rows%}
         <tr>
           <!--r.0 studyid-->
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/{{r.1}}">{{r.1}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/{{r.1}}">{{r.0}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/{{r.1}}">{{r.2}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}/{{r.1}}">{{r.3}}</a></td>
           <!-- If the count of configurations is 0 and the count of replicates is 0, then a link labeled "[DELETE]" should appear under the "Actions" column for studies.-->
           {% if 0 == r.2 and 0 == r.3 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/{{r.1}}">[NOTES]</a>
               <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
               <div id="popUpWindow-{{r.0}}" class="popUp">
                 <div class="popUpContent">
@@ -67,7 +67,7 @@
           <!--normal operations-->
           {% elif None != r.0 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/{{r.1}}">[NOTES]</a>
             </td>
           {% else %}
             <td>

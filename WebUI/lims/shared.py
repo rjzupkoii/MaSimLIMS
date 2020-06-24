@@ -7,32 +7,17 @@
 # All print is used for debugging
 import psycopg2
 
-# No parameter
-def selectQuery(request, sql):
-    # Open the connection
-    connection = psycopg2.connect(request.session['dbconnection'])
-    cursor = connection.cursor()
-    # Execute the query, note the rows
-    cursor.execute(sql)
-    print('selectQuery')
-    print(cursor.query.decode('utf-8'))
-    rows = cursor.fetchall()
-
-    # Clean-up and return
-    cursor.close()
-    connection.close()
-    return rows
 # Need parameter input
-def selectQueryParameter(request, sql, parameter):
+def selectQueryParameter(request, sql, parameter="Nothing"):
     # Open the connection
     connection = psycopg2.connect(request.session['dbconnection'])
     cursor = connection.cursor()
     # Execute the query, note the rows
-    cursor.execute(sql, parameter)
-    print('selectQueryParameter')
-    print(cursor.query.decode('utf-8'))
+    if parameter=="Nothing":
+        cursor.execute(sql)
+    else:
+        cursor.execute(sql, parameter)
     rows = cursor.fetchall()
-
     # Clean-up and return
     cursor.close()
     connection.close()
