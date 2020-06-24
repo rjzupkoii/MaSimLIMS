@@ -1,0 +1,25 @@
+#remaining{
+    color: #333333;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px;
+    text-align: right;
+}
+#notesInfo{
+    width: 50%;
+    margin: auto;
+}
+#notes{
+    width: 100%;
+    height: 200px;
+}
+label{
+    float: left;
+    padding-bottom: 5px;
+}
+#UserName{
+    padding-bottom: 5px;
+}
+#save{
+    float: left;
+}

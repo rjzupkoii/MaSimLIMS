@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}MaSim LIMS / Studys{% endblock %}
+{% block meta %}
+{% endblock %}
+{% block content %}
+<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+<table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>User</th>
+        <th>Date</th>
+        <th>Study ID</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+        <tr>
+          <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
+          <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
+          <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
+          <td>
+            <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
+            <div id="popUpWindow-{{r.0}}" class="popUp">
+              <div class="popUpContent">
+                <div class="popUpHeader">
+                  <span id = "close-{{r.0}}" class="close">&times;</span>
+                  <h2>DELETE?</h2>
+                </div>
+                <div class="popUpBody">
+                  <h3>Are you sure that you wish to delete {{r.1}}?</h3>
+                </div>
+                <div class="option">
+                  <a href="/Study/DeleteNotes/{{r.4}}/{{r.0}}/{{studyName}}">DELETE</a>
+                  <a href="">CANCEL</a>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+</table>
+<form action="/Study/NotesRecord/{{id}}/{{studyName}}" align = "center" id="notesInfo">
+    {% csrf_token %}
+    <div>
+      <label for="notes">Notes: </label>
+      <textarea name="notes" id="notes" required></textarea>
+    </div>
+    <div id="remaining">32 characters</div>
+    <div>
+        <label for="UserName">User: </label>
+        <input type="text" name="UserName" id="UserName" required value={{user}}>
+    </div>
+    <input type="submit" id="saveNotes" value="Save" style="font-size:0.9em;">
+</form>
+{% endblock %}
