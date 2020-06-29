@@ -7,10 +7,13 @@
 import psycopg2
 import os
 
+from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
-from django.contrib import messages
+
 from lims.shared import *
+from lims.AppDatabase import *
 
 # TODO Move this to a better location for settings
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
@@ -239,3 +242,27 @@ def DeleteNotes(request, studyId, id,studyName):
     path = "/Study/Notes/" + studyId+"/"+studyName
     return redirect(path);
     
+
+# This view creates a new database using the database administrator username and 
+# password supplied, regardless of operation success, the user receives a status
+# message in the same database they are in. 
+@require_http_methods(["POST"])
+def createDatabase(request):
+
+    # Prepare the connection string
+    username = ''    # TODO get the username from the form
+    password = ''    # TODO Get password from the form
+    
+    # Prepare the query
+    database = ''    # TODO Get database from form    
+    
+    # Prepare an updated connection string
+    app = AppDatabase()
+    app.cloneDatabase(username, password, database)
+
+    # Insert the new connection into the databases table
+    SQL = 'INSERT INTO app.database (name, connection) VALUES (%(name)s, %(connection)s)'
+    commitQuery(request, SQL, {'name':database, 'connection':app.createConnectionString(database)}, getApplicationConnectionString())
+
+    # TODO Return something more informative than this
+    return HttpResponse('Called, success')
