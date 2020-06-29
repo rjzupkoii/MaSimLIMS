@@ -120,23 +120,13 @@ def StudyReplicate(request, id, studyname):
 # Insert data into study table
 @require_http_methods(["GET"])
 def setStudyInsert(request):
-    # Examine the name first
-    # When the user clicks "Submit" the form should check to see if a name was entered (i.e., more than 1 character), if it is valid then it is submitted to the server.
     try:
         name = request.GET["studyName"]
-        # This works but need real database
         if len(name) < 1:
-            messages.success(request, "Please input at least one character!") 
+            messages.success(request, "Please input at least one character!")
         else:
-            SQL = "select id from study"
-            rows = selectQuery(request,SQL)
-            # Get current database's current last ID
-            lastID = rows[-1][0]
-            # Do not reuse the primary key
-            # sql: """SELECT admin FROM users WHERE username = %(username)s"""
-            # parameter: {'username': username}
-            SQL = """insert into study values (%(id)s, %(name)s)"""
-            commitQuery(request,SQL, {'id':str(lastID+1), 'name':name})
+            SQL = 'INSERT INTO study (name) VALUES (%(name)s)'
+            commitQuery(request, SQL, {'name':name})
     except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
     return redirect('/study')
