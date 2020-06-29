@@ -9,7 +9,7 @@ class AppDatabase:
     # Connection string for admin users
     ADMIN     = "host=masimdb.vmhost.psu.edu dbname=masim user={} password={}"
     CLONE     = "CREATE DATABASE {} WITH TEMPLATE template_masim"
-    REFERENCE = "host={}.vmhost.psu.edu dbname=masim user=sim password=sim"
+    REFERENCE = "host=masimdb.vmhost.psu.edu dbname={} user=sim password=sim"
 
 
     def cloneDatabase(self, username, password, database):
