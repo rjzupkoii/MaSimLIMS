@@ -71,11 +71,22 @@ def setdb(request, id):
 # Show study table
 @require_http_methods(["GET"])
 def study(request):
-    # This query has problem
-    SQL = "select s.id, s.name, count(c.id) configs, count(r.id) replicates from study s left join configuration c on c.studyid = s.id left join v_replicates r on r.configurationid = c.id group by s.id"\
-    " union SELECT studyid, CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates FROM" \
-    " (SELECT s.id, studyid, s.name, COUNT(c.id) configs, COUNT(r.id) replicates"\
-    " FROM sim.configuration c LEFT JOIN sim.replicate r ON r.configurationid = c.id LEFT JOIN sim.study s ON s.id = c.studyid GROUP BY s.id, studyid, s.name) iq order by id "
+    SQL = """
+    SELECT s.id, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates 
+    FROM sim.study s 
+      LEFT JOIN sim.configuration c ON c.studyid = s.id 
+      LEFT JOIN v_replicates r on r.configurationid = c.id 
+    GROUP BY s.id
+    UNION
+    SELECT studyid, 
+      CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates 
+    FROM
+    (SELECT s.id, studyid, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates
+     FROM sim.configuration c 
+       LEFT JOIN sim.replicate r ON r.configurationid = c.id 
+       LEFT JOIN sim.study s ON s.id = c.studyid 
+     GROUP BY s.id, studyid, s.name) iq order by id"""
+
     rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
 
