@@ -20,7 +20,7 @@
   </div>
 
   <!-- Input: Add an empty text box on the studies page that allows the user to enter a study name, there should also be a "Submit" button that the user can click.-->
-  <form action="/study/InsertFail" align = "center">
+  <form action="/study/InsertFail" align = "center" method="POST">
     {% csrf_token %}
     Study Name: <input type="text" name="studyName" style="font-size:0.9em; margin: 10px;"><br>
     <input type="submit" id = "Submit" value="Submit" style="font-size:0.9em;">
@@ -39,14 +39,14 @@
       {% for r in  rows%}
         <tr>
           <!--r.0 studyid-->
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/{{r.1}}">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/{{r.1}}">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/{{r.1}}">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}/{{r.1}}">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.1}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.0}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.2}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">{{r.3}}</a></td>
           <!-- If the count of configurations is 0 and the count of replicates is 0, then a link labeled "[DELETE]" should appear under the "Actions" column for studies.-->
           {% if 0 == r.2 and 0 == r.3 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/{{r.1}}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}">[NOTES]</a>
               <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
               <div id="popUpWindow-{{r.0}}" class="popUp">
                 <div class="popUpContent">
@@ -67,7 +67,7 @@
           <!--normal operations-->
           {% elif None != r.0 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/{{r.1}}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}">[NOTES]</a>
             </td>
           {% else %}
             <td>

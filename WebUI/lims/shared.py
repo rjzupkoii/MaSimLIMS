@@ -10,7 +10,7 @@ import psycopg2
 
 # Get the cookie based upon the name
 def getcookie(request, cookieName):  
-    cookie  = request.COOKIES[cookieName]  
+    cookie  = request.COOKIES[cookieName]
     return cookie 
 
 
@@ -35,7 +35,7 @@ def selectQuery(request, sql, parameter = None):
 
 # Set the cookie
 def setcookie(response, cookieName, value):    
-    response.set_cookie(cookieName, value)  
+    response.set_cookie(cookieName, value)
     return response  
 
 

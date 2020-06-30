@@ -11,10 +11,23 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from lims.shared import *
+from psycopg2 import sql
 
 # TODO Move this to a better location for settings
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+def error_404_view(request, exception):
+    return render(request,'404.html')
 
+# Select specific unit
+def getInfo(request,table, colName, id = 'None'):
+    # If does not specify id, return defualt value
+    if 'None' in id:
+        return [["Unassigned"]]
+    # If specify id, return unit value in table
+    else:
+        SQL= sql.SQL("select {} from {} where id = %(id)s").format(sql.Identifier(colName),sql.Identifier(table))
+        result = selectQuery(request,SQL,{'id':id})
+        return result
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @require_http_methods(["GET"])
@@ -79,7 +92,7 @@ def study(request):
 
 # Configurations that associate with study id
 @require_http_methods(["GET"])
-def StudyConfig(request,id, studyname):
+def StudyConfig(request,id):
     # If study id is None
     if "None" in id:
         SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename, concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
@@ -90,12 +103,14 @@ def StudyConfig(request,id, studyname):
               "from configuration left join replicate on replicate.configurationid = configuration.id where studyid = %(id)s group by configuration.id order by configuration.id"
         # Fetch from table
         rows = selectQuery(request, SQL, {'id':id})
-    return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on Study: \""+studyname+'\" - '})
+        # Based on study id -> get study name
+    studyname = getInfo(request,'study','name', id)
+    return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on Study: \""+studyname[0][0]+'\" - '})
 
 
 # Replicates that associate with study id
 @require_http_methods(["GET"])
-def StudyReplicate(request, id, studyname):
+def StudyReplicate(request, id):
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from configuration inner join v_replicates on v_replicates.configurationid = configuration.id where studyid is NULL order by v_replicates.id"
@@ -104,6 +119,7 @@ def StudyReplicate(request, id, studyname):
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime from study left join configuration on configuration.studyID = "\
             "%(id)s inner join v_replicates on v_replicates.configurationid = configuration.id where study.id = %(id)s order by v_replicates.id"
         rows = selectQuery(request, SQL,{'id':id})
+        # Based on study id -> get study name
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -111,29 +127,26 @@ def StudyReplicate(request, id, studyname):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Study: \""+studyname+'\" - '})
+    studyname = getInfo(request,'study','name', id)
+    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Study: \""+studyname[0][0]+'\" - '})
 
 
 # Insert data into study table
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def setStudyInsert(request):
     # Examine the name first
     # When the user clicks "Submit" the form should check to see if a name was entered (i.e., more than 1 character), if it is valid then it is submitted to the server.
     try:
-        name = request.GET["studyName"]
+        name = request.POST["studyName"]
         # This works but need real database
         if len(name) < 1:
             messages.success(request, "Please input at least one character!") 
         else:
-            SQL = "select id from study"
-            rows = selectQuery(request,SQL)
-            # Get current database's current last ID
-            lastID = rows[-1][0]
             # Do not reuse the primary key
             # sql: """SELECT admin FROM users WHERE username = %(username)s"""
             # parameter: {'username': username}
-            SQL = """insert into study values (%(id)s, %(name)s)"""
-            commitQuery(request,SQL, {'id':str(lastID+1), 'name':name})
+            SQL = """insert into study (name) values (%(name)s)"""
+            commitQuery(request,SQL, {'name':name})
     except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
     return redirect('/study')
@@ -151,7 +164,7 @@ def DeleteFail(request, id):
 
 # Replicates that associate with configuration id
 @require_http_methods(["GET"])
-def ConfigReplicate(request, id,configurationName):
+def ConfigReplicate(request, id):
     # If NULL
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
@@ -169,7 +182,8 @@ def ConfigReplicate(request, id,configurationName):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName+"\" - "})
+    configurationName = getInfo(request,'configuration','filename',id)
+    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName[0][0]+"\" - "})
 
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
@@ -192,7 +206,7 @@ def worthToNotice(request):
 
 @require_http_methods(["GET"])
 # id is study id
-def studyNotes(request,studyId,studyName):
+def studyNotes(request,studyId):
     print(visitor_ip_address(request))
     SQL = "SELECT * from notes where studyid = %(id)s order by date desc"
     rows = selectQuery(request, SQL,{"id":studyId})
@@ -208,21 +222,19 @@ def studyNotes(request,studyId,studyName):
     # If not, make it empty
     else:
         user = ""
-    return render(request, 'notes.html', {"rows":rowsList,"id": studyId,"user":user, "studyName":studyName,"viewType":"Notes on Study: \""+studyName+"\" - "})
+    studyName = getInfo(request,'study','name',studyId)
+    return render(request, 'notes.html', {"rows":rowsList,"id": studyId,"user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - "})
 
 
 # id is study id
-@require_http_methods(["GET"])
-def studyNotesRecord(request,studyId,studyName):
-    SQL = "select id from notes"
-    rows = selectQuery(request,SQL)
-    # Get current database's current last ID
-    lastID = rows[-1][0]
-    notes = request.GET["notes"]
-    user = request.GET["UserName"]
-    SQL = """insert into notes values (%(id)s, %(data)s,%(user)s,now(),%(studyid)s)"""
-    commitQuery(request,SQL, {'id':str(lastID+1), 'data':notes, 'user': user, 'studyid':studyId})
-    path = "/Study/Notes/" + studyId + "/"+studyName
+@require_http_methods(["POST"])
+def studyNotesRecord(request,studyId):
+    notes = request.POST["notes"]
+    user = request.POST["UserName"]
+    # user is reserved in postgresql, so use "user" to avoid this.
+    SQL = """insert into notes (data, "user", date, studyid) values (%(data)s,%(user)s,now(),%(studyid)s)"""
+    commitQuery(request,SQL, {'data':notes, 'user': user, 'studyid':studyId})
+    path = "/Study/Notes/" + studyId
     # set cookies and connect cookies with response
     response = redirect(path)
     # cookie is for global
@@ -233,9 +245,9 @@ def studyNotesRecord(request,studyId,studyName):
 @require_http_methods(["GET"])
 #Study/DeleteNotes/<str: studyid>/<str:id>
 # first parameter is studyid, the second one is id of notes
-def DeleteNotes(request, studyId, id,studyName):
+def DeleteNotes(request, studyId, id):
     SQL = """delete from notes where id = %(id)s"""
     rows = commitQuery(request,SQL, {"id":id})
-    path = "/Study/Notes/" + studyId+"/"+studyName
+    path = "/Study/Notes/" + studyId
     return redirect(path);
     
