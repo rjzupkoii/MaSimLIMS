@@ -12,11 +12,6 @@ def getcookie(request, cookieName):
     return cookie 
 
 
-# Get the connection string for the application's reference database
-def getApplicationConnectionString():
-    return "host=masimdb.vmhost.psu.edu dbname=masim user=sim password=sim"
-
-
 # Need parameter input
 def selectQuery(request, sql, parameter = None):
     # Open the connection

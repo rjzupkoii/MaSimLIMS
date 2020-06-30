@@ -261,9 +261,5 @@ def createDatabase(request):
     app = AppDatabase()
     app.cloneDatabase(username, password, database)
 
-    # Insert the new connection into the databases table
-    SQL = 'INSERT INTO app.database (name, connection) VALUES (%(name)s, %(connection)s)'
-    commitQuery(request, SQL, {'name':database, 'connection':app.createConnectionString(database)}, getApplicationConnectionString())
-
     # TODO Return something more informative than this
     return HttpResponse('Called, success')

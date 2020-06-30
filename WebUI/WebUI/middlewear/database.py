@@ -13,11 +13,7 @@ class DatabaseMiddlewear:
     # Prepare the middlewear
     def __init__(self, get_response):
         self.get_response = get_response
-        # get that dictionary which contains database connection informations.
-        self.databases = self.getDatabases()
-        # Load the databases if not set
-        if self.databases is None:
-            self.databases = self.getDatabases()
+        self.refresh()
 
 
     # Get and return the response
@@ -69,3 +65,8 @@ class DatabaseMiddlewear:
         connection.close()
 
         return result
+
+
+    # Refresh all relevent information
+    def refresh(self):
+        self.databases = self.getDatabases()
