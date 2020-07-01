@@ -106,7 +106,7 @@ def StudyConfig(request,id):
         # Fetch from table
         rows = selectQuery(request, SQL, {'id':id})
         # Based on study id -> get study name
-    studyname = getInfo(request,'study','name', id)
+    studyname = getStudyName(request, id)
     return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on Study: \""+studyname[0][0]+'\" - '})
 
 
@@ -129,7 +129,7 @@ def StudyReplicate(request, id):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    studyname = getInfo(request,'study','name', id)
+    studyname = getStudyName(request, id)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Study: \""+studyname[0][0]+'\" - '})
 
 
@@ -178,7 +178,7 @@ def ConfigReplicate(request, id):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    configurationName = getInfo(request,'configuration','filename',id)
+    configurationName = getStudyName(request, id)
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName[0][0]+"\" - "})
 
 
@@ -218,7 +218,7 @@ def studyNotes(request,studyId):
     # If not, make it empty
     else:
         user = ""
-    studyName = getInfo(request,'study','name',studyId)
+    studyName = getStudyName(request, studyId)
     return render(request, 'notes.html', {"rows":rowsList,"id": studyId,"user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - "})
 
 

@@ -3,18 +3,19 @@
 #
 # Define methods of use throughout the LIMS codebase.
 ##
-from psycopg2 import sql
+import psycopg2
 
 # Select specific unit
-def getInfo(request,table, colName, id = 'None'):
-    # If does not specify id, return defualt value
+def getStudyName(request, id = 'None'):
+    # If there is not an ID, return default value
     if 'None' in id:
         return [["Unassigned"]]
-    # If specify id, return unit value in table
-    else:
-        SQL= sql.SQL("select {} from {} where id = %(id)s").format(sql.Identifier(colName),sql.Identifier(table))
-        result = selectQuery(request,SQL,{'id':id})
-        return result
+
+    # Return the study name
+    query = "SELECT name FROM study WHERE id = %(id)s"
+    result = selectQuery(request, query, {'id':id})
+    return result
+
 
 # Get the cookie based upon the name
 def getcookie(request, cookieName):  
