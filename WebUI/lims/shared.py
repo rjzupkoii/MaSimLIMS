@@ -3,12 +3,22 @@
 #
 # Define methods of use throughout the LIMS codebase.
 ##
-import psycopg2
+from psycopg2 import sql
 
+# Select specific unit
+def getInfo(request,table, colName, id = 'None'):
+    # If does not specify id, return defualt value
+    if 'None' in id:
+        return [["Unassigned"]]
+    # If specify id, return unit value in table
+    else:
+        SQL= sql.SQL("select {} from {} where id = %(id)s").format(sql.Identifier(colName),sql.Identifier(table))
+        result = selectQuery(request,SQL,{'id':id})
+        return result
 
 # Get the cookie based upon the name
 def getcookie(request, cookieName):  
-    cookie  = request.COOKIES[cookieName]  
+    cookie  = request.COOKIES[cookieName]
     return cookie 
 
 
@@ -33,7 +43,7 @@ def selectQuery(request, sql, parameter = None):
 
 # Set the cookie
 def setcookie(response, cookieName, value):    
-    response.set_cookie(cookieName, value)  
+    response.set_cookie(cookieName, value)
     return response  
 
 
