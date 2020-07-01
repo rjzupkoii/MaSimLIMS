@@ -15,6 +15,9 @@ urlpatterns = [
     path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),
     path('worthToNotice', views.worthToNotice, name = "worthToNotice"),
 
+    # POST with form parameters views
+    path('createDatabase', views.createDatabase, name='createDatabase'),
+
     path('setdb/<int:id>', views.setdb, name='setdb'),
     path('study/DeleteFail/<str:id>', views.DeleteFail, name='DeleteFaile'),
    

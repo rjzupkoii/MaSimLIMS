@@ -7,10 +7,13 @@
 import psycopg2
 import os
 
+from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
-from django.contrib import messages
+
 from lims.shared import *
+from lims.AppDatabase import *
 
 # TODO Move this to a better location for settings
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
@@ -69,11 +72,22 @@ def setdb(request, id):
 # Show study table
 @require_http_methods(["GET"])
 def study(request):
-    # This query has problem
-    SQL = "select s.id, s.name, count(c.id) configs, count(r.id) replicates from study s left join configuration c on c.studyid = s.id left join v_replicates r on r.configurationid = c.id group by s.id"\
-    " union SELECT studyid, CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates FROM" \
-    " (SELECT s.id, studyid, s.name, COUNT(c.id) configs, COUNT(r.id) replicates"\
-    " FROM sim.configuration c LEFT JOIN sim.replicate r ON r.configurationid = c.id LEFT JOIN sim.study s ON s.id = c.studyid GROUP BY s.id, studyid, s.name) iq order by id "
+    SQL = """
+    SELECT s.id, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates 
+    FROM sim.study s 
+      LEFT JOIN sim.configuration c ON c.studyid = s.id 
+      LEFT JOIN v_replicates r on r.configurationid = c.id 
+    GROUP BY s.id
+    UNION
+    SELECT studyid, 
+      CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates 
+    FROM
+    (SELECT s.id, studyid, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates
+     FROM sim.configuration c 
+       LEFT JOIN sim.replicate r ON r.configurationid = c.id 
+       LEFT JOIN sim.study s ON s.id = c.studyid 
+     GROUP BY s.id, studyid, s.name) iq order by id"""
+
     rows = selectQuery(request,SQL)
     return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
 
@@ -122,19 +136,13 @@ def StudyReplicate(request, id):
 # Insert data into study table
 @require_http_methods(["POST"])
 def setStudyInsert(request):
-    # Examine the name first
-    # When the user clicks "Submit" the form should check to see if a name was entered (i.e., more than 1 character), if it is valid then it is submitted to the server.
     try:
         name = request.POST["studyName"]
-        # This works but need real database
         if len(name) < 1:
-            messages.success(request, "Please input at least one character!") 
+            messages.success(request, "Please input at least one character!")
         else:
-            # Do not reuse the primary key
-            # sql: """SELECT admin FROM users WHERE username = %(username)s"""
-            # parameter: {'username': username}
-            SQL = """insert into study (name) values (%(name)s)"""
-            commitQuery(request,SQL, {'name':name})
+            SQL = 'INSERT INTO study (name) VALUES (%(name)s)'
+            commitQuery(request, SQL, {'name':name})
     except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
     return redirect('/study')
@@ -239,3 +247,23 @@ def DeleteNotes(request, studyId, id):
     path = "/Study/Notes/" + studyId
     return redirect(path);
     
+
+# This view creates a new database using the database administrator username and 
+# password supplied, regardless of operation success, the user receives a status
+# message in the same database they are in. 
+@require_http_methods(["POST"])
+def createDatabase(request):
+
+    # Prepare the connection string
+    username = ''    # TODO get the username from the form
+    password = ''    # TODO Get password from the form
+    
+    # Prepare the query
+    database = ''    # TODO Get database from form    
+    
+    # Prepare an updated connection string
+    app = AppDatabase()
+    app.cloneDatabase(username, password, database)
+
+    # TODO Return something more informative than this
+    return HttpResponse('Called, success')

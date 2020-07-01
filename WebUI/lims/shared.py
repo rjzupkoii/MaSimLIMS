@@ -3,10 +3,8 @@
 #
 # Define methods of use throughout the LIMS codebase.
 ##
-# I keep debug rows
-# All print is used for debugging
 from psycopg2 import sql
-import psycopg2
+
 # Select specific unit
 def getInfo(request,table, colName, id = 'None'):
     # If does not specify id, return defualt value
@@ -49,14 +47,13 @@ def setcookie(response, cookieName, value):
     return response  
 
 
-# Some SQL syntaxs need to be commited. i.e. insertion and delete
-# cursor.execute("""SELECT admin FROM users WHERE username = %(username)s""", {'username': username})
-# sql: """SELECT admin FROM users WHERE username = %(username)s"""
-# parameter: {'username': username}
-# modern database adapters, come with built-in tools for preventing Python SQL injection by using query parameters.
-def commitQuery(request, sql, parameter):
+# Execute SQL queries that need to be committed (e.g., INSERT or DELETE) 
+# parameters are assumed to prevent SQL injection
+def commitQuery(request, sql, parameter, connectionString = None):
     # Open the connection
-    connection = psycopg2.connect(request.session['dbconnection'])
+    if connectionString is None:
+        connectionString = request.session['dbconnection']
+    connection = psycopg2.connect(connectionString)
     cursor = connection.cursor()
 
     # Execute the query and commit
