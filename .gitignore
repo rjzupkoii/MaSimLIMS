@@ -2,7 +2,7 @@
 # Ignore IDE environmental data
 .idea/
 .vs/
-!.vscode/settings.json
+.vscode/
 
 # Ignore complied Python
 __pycache__/
