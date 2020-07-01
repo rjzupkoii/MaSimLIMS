@@ -5,8 +5,18 @@
 ##
 # I keep debug rows
 # All print is used for debugging
+from psycopg2 import sql
 import psycopg2
-
+# Select specific unit
+def getInfo(request,table, colName, id = 'None'):
+    # If does not specify id, return defualt value
+    if 'None' in id:
+        return [["Unassigned"]]
+    # If specify id, return unit value in table
+    else:
+        SQL= sql.SQL("select {} from {} where id = %(id)s").format(sql.Identifier(colName),sql.Identifier(table))
+        result = selectQuery(request,SQL,{'id':id})
+        return result
 
 # Get the cookie based upon the name
 def getcookie(request, cookieName):  

@@ -11,23 +11,11 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from lims.shared import *
-from psycopg2 import sql
 
 # TODO Move this to a better location for settings
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 def error_404_view(request, exception):
     return render(request,'404.html')
-
-# Select specific unit
-def getInfo(request,table, colName, id = 'None'):
-    # If does not specify id, return defualt value
-    if 'None' in id:
-        return [["Unassigned"]]
-    # If specify id, return unit value in table
-    else:
-        SQL= sql.SQL("select {} from {} where id = %(id)s").format(sql.Identifier(colName),sql.Identifier(table))
-        result = selectQuery(request,SQL,{'id':id})
-        return result
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @require_http_methods(["GET"])
