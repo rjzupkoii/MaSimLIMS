@@ -21,3 +21,4 @@ urlpatterns = [
     path('', include('lims.urls')),
     path('admin/', admin.site.urls),    
 ]
+handler404 = 'lims.views.error_404_view'

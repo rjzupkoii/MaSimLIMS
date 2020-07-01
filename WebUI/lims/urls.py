@@ -21,10 +21,11 @@ urlpatterns = [
     path('setdb/<int:id>', views.setdb, name='setdb'),
     path('study/DeleteFail/<str:id>', views.DeleteFail, name='DeleteFaile'),
    
-    path('ConfigReplicate/<str:id>/<str:configurationName>', views.ConfigReplicate, name = "ConfigReplicate"),
-    path('Study/Notes/<str:studyId>/<str:studyName>', views.studyNotes, name = "studyNotes"),
-    path('StudyConfig/<str:id>/<str:studyname>',views.StudyConfig,name = 'StudyConfig'),
-    path('StudyReplicate/<str:id>/<str:studyname>',views.StudyReplicate,name = 'StudyReplicate'),
-    path('Study/NotesRecord/<str:studyId>/<str:studyName>', views.studyNotesRecord, name = "studyNotesRecord"),
-    path('Study/DeleteNotes/<str:studyId>/<str:id>/<str:studyName>', views.DeleteNotes, name = "DeleteNotes"),
+    path('ConfigReplicate/<str:id>', views.ConfigReplicate, name = "ConfigReplicate"),
+    path('Study/Notes/<str:studyId>', views.studyNotes, name = "studyNotes"),
+
+    path('StudyConfig/<str:id>',views.StudyConfig,name = 'StudyConfig'),
+    path('StudyReplicate/<str:id>',views.StudyReplicate,name = 'StudyReplicate'),
+    path('Study/NotesRecord/<str:studyId>', views.studyNotesRecord, name = "studyNotesRecord"),
+    path('Study/DeleteNotes/<str:studyId>/<str:id>', views.DeleteNotes, name = "DeleteNotes"),
 ]

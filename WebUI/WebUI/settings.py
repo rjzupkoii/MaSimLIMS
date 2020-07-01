@@ -22,9 +22,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '2lr1sdqkdl==*-na*%v@ky3k$e8y(qvv5tg)kb!!eu!71ix6y*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# https://stackoverflow.com/questions/48276444/django-css-file-not-loading-in-production-debug-false/49398021
+# DEBUG = False is used to show 404 error page
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
