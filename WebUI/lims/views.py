@@ -146,9 +146,9 @@ def setStudyInsert(request):
 # Delete data from study table
 @require_http_methods(["GET"])
 def DeleteFail(request, id):
-    SQL = """delete from notes where studyid = %(id)s"""
-    commitQuery(request,SQL,{'id':id})
-    SQL = """delete from study where id = %(id)s"""
+    # Note two queries being run in same transaction
+    SQL = """DELETE FROM notes WHERE studyid = %(id)s;
+             DELETE FROM study WHERE id = %(id)s"""
     commitQuery(request,SQL,{'id':id})
     return redirect('/study')
 
