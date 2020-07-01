@@ -12,12 +12,27 @@
 }
 
 #content-wrap {
-    padding-bottom: 2.5rem;    /* Footer height */
+    padding-bottom: 2.5rem;
 }
 
 #footer {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 2.5rem;            /* Footer height */
+    height: 2.5rem;
+}
+
+/* Used on 404 page */
+.center > a{
+    text-decoration: none;
+    font-weight: bold;
+    color: #041E42;
+    font-size: medium;
+}
+
+/* Used on 404 page */
+.center > h1 > a{
+    text-decoration: none;
+    font-weight: bold;
+    color: red;
 }
