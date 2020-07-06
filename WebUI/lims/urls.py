@@ -17,6 +17,7 @@ urlpatterns = [
 
     # POST with form parameters views
     path('createDatabase', views.createDatabase, name='createDatabase'),
+    path('createNewDatabase', views.createNewDatabase, name='createNewDatabase'),
 
     path('setdb/<int:id>', views.setdb, name='setdb'),
     path('study/DeleteFail/<str:id>', views.DeleteFail, name='DeleteFaile'),

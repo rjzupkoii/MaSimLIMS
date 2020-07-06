@@ -247,6 +247,9 @@ def DeleteNotes(request, studyId, id):
     path = "/Study/Notes/" + studyId
     return redirect(path);
     
+@require_http_methods(["GET"])
+def createNewDatabase(request):
+    return render(request,'createDatabase.html',{"viewType":"Creating Database"})
 
 # This view creates a new database using the database administrator username and 
 # password supplied, regardless of operation success, the user receives a status
@@ -255,15 +258,25 @@ def DeleteNotes(request, studyId, id):
 def createDatabase(request):
 
     # Prepare the connection string
-    username = ''    # TODO get the username from the form
-    password = ''    # TODO Get password from the form
+    username = request.POST['userName']    # TODO get the username from the form
+    password = request.POST['Password']    # TODO Get password from the form
     
     # Prepare the query
-    database = ''    # TODO Get database from form    
-    
+    database = request.POST['databaseName']    # TODO Get database from form
+    # Database name should be checked for compliance with SQL lexicon before the operation takes place
+    # Effectively, 1 to 31 characters, start with letter or underscore (_) may contain letters, numbers, or underscores after that.
+    result = regCheck("^[A-Za-z_][A-Za-z\d_]{0,31}$",database)
+    # If database name does not satisfy the requirements
+    if not result:
+        messages.success(request, "Please input an database name that satisfies requirements: 1 to 31 characters and start with letter or underscore may contain letters, numbers, or underscores after that")
+        return redirect("/createNewDatabase")
     # Prepare an updated connection string
-    app = AppDatabase()
-    app.cloneDatabase(username, password, database)
-
+    # If satisfy the requirements
+    try:
+        app = AppDatabase()
+        app.cloneDatabase(request,username, password, database)
+    except (Exception,psycopg2.DatabaseError) as error:
+        messages.success(request, error)
+        return redirect("/createNewDatabase")
     # TODO Return something more informative than this
-    return HttpResponse('Called, success')
+    return redirect('/')
