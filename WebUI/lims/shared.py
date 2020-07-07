@@ -5,6 +5,8 @@
 ##
 import psycopg2
 import re
+
+DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 # Select specific unit
 def getStudyName(request, id = 'None'):
     # If there is not an ID, return default value
@@ -74,19 +76,3 @@ def visitor_ip_address(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
-
-'''
-[]	A set of characters
-\	Signals a special sequence (can also be used to escape special characters)
-.	Any character (except newline character)
-^	Starts with	
-$	Ends with	
-*	Zero or more occurrences
-+	One or more occurrences
-{}	Exactly the specified number of occurrences
-|	Either or	
-()	Capture and group
-'''
-def regCheck(regularExp,stringIn):
-    result = re.search(regularExp, stringIn)
-    return result

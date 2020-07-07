@@ -15,8 +15,6 @@ from django.views.decorators.http import require_http_methods
 from lims.shared import *
 from lims.AppDatabase import *
 
-# TODO Move this to a better location for settings
-DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 def error_404_view(request, exception):
     return render(request,'404.html')
 
@@ -258,16 +256,15 @@ def createNewDatabase(request):
 def createDatabase(request):
 
     # Prepare the connection string
-    username = request.POST['userName']    # TODO get the username from the form
-    password = request.POST['Password']    # TODO Get password from the form
+    username = request.POST['userName']
+    password = request.POST['Password']
     
     # Prepare the query
-    database = request.POST['databaseName']    # TODO Get database from form
+    database = request.POST['databaseName']
     # Database name should be checked for compliance with SQL lexicon before the operation takes place
     # Effectively, 1 to 31 characters, start with letter or underscore (_) may contain letters, numbers, or underscores after that.
-    result = regCheck("^[A-Za-z_][A-Za-z\d_]{0,31}$",database)
     # If database name does not satisfy the requirements
-    if not result:
+    if not re.search("^[A-Za-z_][A-Za-z\d_]{0,31}$",database):
         messages.success(request, "Please input an database name that satisfies requirements: 1 to 31 characters and start with letter or underscore may contain letters, numbers, or underscores after that")
         return redirect("/createNewDatabase")
     # Prepare an updated connection string
@@ -278,5 +275,4 @@ def createDatabase(request):
     except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
         return redirect("/createNewDatabase")
-    # TODO Return something more informative than this
     return redirect('/')
