@@ -4,7 +4,9 @@
 # Define methods of use throughout the LIMS codebase.
 ##
 import psycopg2
+import re
 
+DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 # Select specific unit
 def getStudyName(request, id = 'None'):
     # If there is not an ID, return default value

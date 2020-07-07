@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}MaSim LIMS / Create Database{% endblock %}
+{% block content %}
+<div class="center"><strong>{{ viewType }}</strong></div>
+  <div align="center">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+  
+  <!--The back-end should require that the operation take place via an HTTP POST.-->
+  <form action="/createDatabase" method="POST" id="login">
+    {% csrf_token %}
+    <div>
+        <label for="databaseName">Database Name: </label>
+        <input type="text" name="databaseName" id="databaseName" required><br>
+    </div>
+    <div>
+        <label for="userName">User Name: </label>
+        <input type="text" name="userName" id="userName" required><br>
+    </div>
+    <div>
+        <!--The password field should be masked so that it is not reviewed when typing.-->
+        <label for="Password">Password: </label>
+        <input type="password" name="Password" id="Password" required><br>
+    </div>
+    <input type="submit" id = "Submit" value="Submit" style="font-size:0.9em;">
+  </form>  
+{% endblock %}
