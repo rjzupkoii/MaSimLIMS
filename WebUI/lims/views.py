@@ -15,8 +15,10 @@ from django.views.decorators.http import require_http_methods
 from lims.shared import *
 from lims.AppDatabase import *
 
+
 def error_404_view(request, exception):
     return render(request,'404.html')
+
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @require_http_methods(["GET"])
@@ -243,32 +245,30 @@ def DeleteNotes(request, studyId, id):
     SQL = """delete from notes where id = %(id)s"""
     rows = commitQuery(request,SQL, {"id":id})
     path = "/Study/Notes/" + studyId
-    return redirect(path);
-    
+    return redirect(path)
+
+
 @require_http_methods(["GET"])
 def createNewDatabase(request):
     return render(request,'createDatabase.html',{"viewType":"Creating Database"})
+
 
 # This view creates a new database using the database administrator username and 
 # password supplied, regardless of operation success, the user receives a status
 # message in the same database they are in. 
 @require_http_methods(["POST"])
 def createDatabase(request):
-
-    # Prepare the connection string
+    # Get the information from the request
     username = request.POST['userName']
     password = request.POST['Password']
-    
-    # Prepare the query
     database = request.POST['databaseName']
+
     # Database name should be checked for compliance with SQL lexicon before the operation takes place
-    # Effectively, 1 to 31 characters, start with letter or underscore (_) may contain letters, numbers, or underscores after that.
-    # If database name does not satisfy the requirements
     if not re.search("^[A-Za-z_][A-Za-z\d_]{0,31}$",database):
         messages.success(request, "Please input an database name that satisfies requirements: 1 to 31 characters and start with letter or underscore may contain letters, numbers, or underscores after that")
         return redirect("/createNewDatabase")
-    # Prepare an updated connection string
-    # If satisfy the requirements
+        
+    # Clone the database and respond to errors
     try:
         app = AppDatabase()
         app.cloneDatabase(request,username, password, database)
