@@ -24,6 +24,7 @@ mkvirtualenv test
 ``` 
 python -m pip install django 
 python -m pip install psycopg2
+python -m pip install djangorestframework
 ```
 
 5. Check the django version

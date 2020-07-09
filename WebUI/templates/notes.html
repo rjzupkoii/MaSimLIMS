@@ -4,6 +4,22 @@
 {% block meta %}
 {% endblock %}
 {% block content %}
+<script>
+  function deleteNote(id, study) {
+    if (confirm("Are you sure you wish to delete the note?")) {
+      $.ajax({
+        url: '/Study/DeleteNotes/'.concat(study, '/', id),
+        type: 'DELETE',
+        success: function(result) {
+          alert("Note deleted!");
+          location.reload();
+        }
+      });
+    }
+    return false;
+  }
+</script>
+
 <div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 <table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
     <thead>
@@ -23,6 +39,7 @@
           <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
           <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
           <td>
+            <button id="delete" onclick="return deleteNote({{r.0}}, {{r.4}});">[DELETE]</button>
             <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
             <div id="popUpWindow-{{r.0}}" class="popUp">
               <div class="popUpContent">

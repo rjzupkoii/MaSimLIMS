@@ -10,7 +10,7 @@ import os
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view
 
 from lims.shared import *
 from lims.AppDatabase import *
@@ -21,7 +21,7 @@ def error_404_view(request, exception):
 
 
 # The index of the LIMS just shows a basic list of what is running on the default database
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def index(request):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM (SELECT * FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100 where (now()-starttime) <= interval '2 days' and endtime is null order by id desc"
@@ -42,7 +42,7 @@ def index(request):
 
 
 # This view will render the last 100 replicates that ran on the database
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def replicatesLatest100(request):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM v_replicates ORDER BY starttime DESC LIMIT 100"
@@ -57,7 +57,7 @@ def replicatesLatest100(request):
 
 
 # setup connection "session"
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def setdb(request, id):
     # Validate the ID provided
     if id not in request.session['databases'].keys():
@@ -70,7 +70,7 @@ def setdb(request, id):
 
 
 # Show study table
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def study(request):
     SQL = """
     SELECT s.id, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates 
@@ -93,7 +93,7 @@ def study(request):
 
 
 # Configurations that associate with study id
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def StudyConfig(request,id):
     # If study id is None
     if "None" in id:
@@ -111,7 +111,7 @@ def StudyConfig(request,id):
 
 
 # Replicates that associate with study id
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def StudyReplicate(request, id):
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
@@ -134,7 +134,7 @@ def StudyReplicate(request, id):
 
 
 # Insert data into study table
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def setStudyInsert(request):
     try:
         name = request.POST["studyName"]
@@ -149,7 +149,7 @@ def setStudyInsert(request):
 
 
 # Delete data from study table
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def DeleteFail(request, id):
     # Note two queries being run in same transaction
     SQL = """DELETE FROM notes WHERE studyid = %(id)s;
@@ -159,7 +159,7 @@ def DeleteFail(request, id):
 
 
 # Replicates that associate with configuration id
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def ConfigReplicate(request, id):
     # If NULL
     if "None" in id:
@@ -183,7 +183,7 @@ def ConfigReplicate(request, id):
 
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def worthToNotice(request):
     # Not within latest 100 and interval > 2 days and not end
     SQL = "select id, filename, starttime, endtime, movement, runningtime from v_replicates " \
@@ -200,7 +200,7 @@ def worthToNotice(request):
     return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on"})
 
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 # id is study id
 def studyNotes(request,studyId):
     print(visitor_ip_address(request))
@@ -223,7 +223,7 @@ def studyNotes(request,studyId):
 
 
 # id is study id
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def studyNotesRecord(request,studyId):
     notes = request.POST["notes"]
     user = request.POST["UserName"]
@@ -238,17 +238,16 @@ def studyNotesRecord(request,studyId):
     return response
 
 
-@require_http_methods(["GET"])
+@api_view(["DELETE"])
 #Study/DeleteNotes/<str: studyid>/<str:id>
 # first parameter is studyid, the second one is id of notes
 def DeleteNotes(request, studyId, id):
     SQL = """delete from notes where id = %(id)s"""
     rows = commitQuery(request,SQL, {"id":id})
-    path = "/Study/Notes/" + studyId
-    return redirect(path)
+    return HttpResponse("OK")
 
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def createNewDatabase(request):
     return render(request,'createDatabase.html',{"viewType":"Creating Database"})
 
@@ -256,7 +255,7 @@ def createNewDatabase(request):
 # This view creates a new database using the database administrator username and 
 # password supplied, regardless of operation success, the user receives a status
 # message in the same database they are in. 
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def createDatabase(request):
     # Get the information from the request
     username = request.POST['userName']

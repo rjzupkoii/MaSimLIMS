@@ -33,14 +33,15 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    # If you want to use "session", you have to include this line.
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Use the REST framework
+    'rest_framework',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # If you want to use "session", include this line.
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
