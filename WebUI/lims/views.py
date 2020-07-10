@@ -22,28 +22,33 @@ def error_404_view(request, exception):
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @api_view(["GET"])
-def index(request):
+def index(request,pageNum):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM (SELECT * FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100 where (now()-starttime) <= interval '2 days' and endtime is null order by id desc"
     rows = selectQuery(request, SQL)
-
     # Render empty if there are no results
     if len(rows) == 0:
         # Get the dbname
         message = "{0}, no replicates running".format(request.session['dbname'])
         return render(request, "empty.html", {"message": message})
-
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     # Render the rows        
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Currently running for"})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    newPathPart = '/'
+    return render(request, 'replicate.html', {"rows": newRow,"newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Currently running for"})
 
 
 # This view will render the last 100 replicates that ran on the database
 @api_view(["GET"])
-def replicatesLatest100(request):
+def replicatesLatest100(request,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM v_replicates ORDER BY starttime DESC LIMIT 100"
     rows = selectQuery(request, SQL)
@@ -53,7 +58,8 @@ def replicatesLatest100(request):
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Last 100 replicates on"})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    return render(request, 'replicate.html', {"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Last 100 replicates on"})
 
 
 # setup connection "session"
@@ -66,12 +72,15 @@ def setdb(request, id):
     
     # Set the id and redirect to home
     request.session['database'] = id
-    return redirect('/')
+    return redirect('/1')
 
 
 # Show study table
 @api_view(["GET"])
-def study(request):
+def study(request,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     SQL = """
     SELECT s.id, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates 
     FROM sim.study s 
@@ -87,14 +96,17 @@ def study(request):
        LEFT JOIN sim.replicate r ON r.configurationid = c.id 
        LEFT JOIN sim.study s ON s.id = c.studyid 
      GROUP BY s.id, studyid, s.name) iq order by id"""
-
     rows = selectQuery(request,SQL)
-    return render(request, 'index.html',{"rows": rows, "viewType": "Studies on"})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rows)
+    return render(request, 'index.html',{"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext), "viewType": "Studies on"})
 
 
 # Configurations that associate with study id
 @api_view(["GET"])
-def StudyConfig(request,id):
+def StudyConfig(request,id,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     # If study id is None
     if "None" in id:
         SQL="select configuration.id, configuration.name, configuration.notes, configuration.filename, concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id) from configuration left join replicate on replicate.configurationid = configuration.id where studyid is NULL group by configuration.id order by configuration.id"
@@ -107,12 +119,16 @@ def StudyConfig(request,id):
         rows = selectQuery(request, SQL, {'id':id})
         # Based on study id -> get study name
     studyname = getStudyName(request, id)
-    return render(request,"Config.html",{"rows":rows, "viewType": "Configurations on Study: \""+studyname[0][0]+'\" - '})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rows)
+    return render(request,"Config.html",{"rows":newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Configurations on Study: \""+studyname[0][0]+'\" - '})
 
 
 # Replicates that associate with study id
 @api_view(["GET"])
-def StudyReplicate(request, id):
+def StudyReplicate(request, id,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
               "from configuration inner join v_replicates on v_replicates.configurationid = configuration.id where studyid is NULL order by v_replicates.id"
@@ -130,7 +146,8 @@ def StudyReplicate(request, id):
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
     studyname = getStudyName(request, id)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Study: \""+studyname[0][0]+'\" - '})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    return render(request, 'replicate.html', {"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Replicates on Study: \""+studyname[0][0]+'\" - '})
 
 
 # Insert data into study table
@@ -145,22 +162,25 @@ def setStudyInsert(request):
             commitQuery(request, SQL, {'name':name})
     except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
-    return redirect('/study')
+    return redirect('/study/1')
 
 
 # Delete data from study table
-@api_view(["GET"])
+@api_view(["DELETE"])
 def DeleteFail(request, id):
     # Note two queries being run in same transaction
     SQL = """DELETE FROM notes WHERE studyid = %(id)s;
              DELETE FROM study WHERE id = %(id)s"""
     commitQuery(request,SQL,{'id':id})
-    return redirect('/study')
+    return HttpResponse("OK")
 
 
 # Replicates that associate with configuration id
 @api_view(["GET"])
-def ConfigReplicate(request, id):
+def ConfigReplicate(request, id,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     # If NULL
     if "None" in id:
         SQL = "select v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime " \
@@ -178,13 +198,19 @@ def ConfigReplicate(request, id):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    configurationName = getStudyName(request, id)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName[0][0]+"\" - "})
+    configurationName = getConfigName(request, id)
+    # Get next page number and new row value
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    return render(request, 'replicate.html', {"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), 
+        "pageNumberNext":str(pageNumberNext), "viewType": "Replicates on Configuration: \""+configurationName[0][0]+"\" - "})
 
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @api_view(["GET"])
-def worthToNotice(request):
+def worthToNotice(request,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     # Not within latest 100 and interval > 2 days and not end
     SQL = "select id, filename, starttime, endtime, movement, runningtime from v_replicates " \
           "where starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
@@ -197,13 +223,17 @@ def worthToNotice(request):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    return render(request, 'replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on"})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    return render(request, 'replicate.html', {"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), 
+        "pageNumberNext":str(pageNumberNext),"viewType": "Long Running Replicates on"})
 
 
 @api_view(["GET"])
 # id is study id
-def studyNotes(request,studyId):
-    print(visitor_ip_address(request))
+def studyNotes(request,studyId,pageNum):
+    newPathPart = pathReformateNoLast(request.path)
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     SQL = "SELECT * from notes where studyid = %(id)s order by date desc"
     rows = selectQuery(request, SQL,{"id":studyId})
     rowsList = []
@@ -219,7 +249,9 @@ def studyNotes(request,studyId):
     else:
         user = ""
     studyName = getStudyName(request, studyId)
-    return render(request, 'notes.html', {"rows":rowsList,"id": studyId,"user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - "})
+    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    return render(request, 'notes.html', {"rows":newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), 
+        "pageNumberNext":str(pageNumberNext),"id": studyId,"user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - "})
 
 
 # id is study id
@@ -230,7 +262,7 @@ def studyNotesRecord(request,studyId):
     # user is reserved in postgresql, so use "user" to avoid this.
     SQL = """insert into notes (data, "user", date, studyid) values (%(data)s,%(user)s,now(),%(studyid)s)"""
     commitQuery(request,SQL, {'data':notes, 'user': user, 'studyid':studyId})
-    path = "/Study/Notes/" + studyId
+    path = "/Study/Notes/" + studyId+'/1'
     # set cookies and connect cookies with response
     response = redirect(path)
     # cookie is for global
@@ -274,4 +306,4 @@ def createDatabase(request):
     except (Exception,psycopg2.DatabaseError) as error:
         messages.success(request, error)
         return redirect("/createNewDatabase")
-    return redirect('/')
+    return redirect('/1')
