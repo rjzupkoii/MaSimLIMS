@@ -10,7 +10,9 @@ from . import views
 
 # Add urls, their implementation function in views, and their names.
 urlpatterns = [
+    path('', views.index, name='index'),
     path('<int:pageNum>', views.index, name='index'),
+
     path('study/<int:pageNum>', views.study, name='study'),
     path('study/InsertFail', views.setStudyInsert, name='setStudyInsert'),
     path('replicatesLatest100/<int:pageNum>', views.replicatesLatest100, name='replicatesLatest100'),

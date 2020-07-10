@@ -22,7 +22,7 @@ def error_404_view(request, exception):
 
 # The index of the LIMS just shows a basic list of what is running on the default database
 @api_view(["GET"])
-def index(request,pageNum):
+def index(request, pageNum = None):
     SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
           "FROM (SELECT * FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100 where (now()-starttime) <= interval '2 days' and endtime is null order by id desc"
     rows = selectQuery(request, SQL)

@@ -18,6 +18,7 @@ def getStudyName(request, id = 'None'):
     result = selectQuery(request, query, {'id':id})
     return result
 
+
 def getConfigName(request, id = 'None'):
     # If there is not an ID, return default value
     if 'None' in id:
@@ -112,9 +113,14 @@ def nextPage_newRow(pageNum,rowsList):
     else:
         pageNumberNext = pageNum
     return pageNumberNext, newRow
+
+
 def pagePrev(pageNum):
-    if pageNum - 1 == 0:
-        pageNumberPrev = 1
-    else:
-        pageNumberPrev = pageNum - 1
-    return pageNumberPrev
+    # None resolves as the first page
+    if pageNum == None: return 1
+
+    # Can't navigate before the first page
+    if pageNum - 1 == 0: return 1
+
+    # Just navigage back one
+    return pageNum - 1
