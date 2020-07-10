@@ -18,6 +18,14 @@ def getStudyName(request, id = 'None'):
     result = selectQuery(request, query, {'id':id})
     return result
 
+def getConfigName(request, id = 'None'):
+    # If there is not an ID, return default value
+    if 'None' in id:
+        return [["Unassigned"]]
+    # Return the configuration name
+    query = "SELECT filename FROM configuration WHERE id = %(id)s"
+    result = selectQuery(request, query, {'id':id})
+    return result
 
 # Get the cookie based upon the name
 def getcookie(request, cookieName):  
@@ -76,3 +84,37 @@ def visitor_ip_address(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+def pathReformateNoLast(pathPrepare):
+    pathPrepare = pathPrepare.split('/')
+    newPathPart = ""
+    # Now we have new path
+    for i in range(1,len(pathPrepare)-1):
+        newPathPart += '/'
+        newPathPart += pathPrepare[i]
+    return newPathPart
+
+    
+def nextPage_newRow(pageNum,rowsList):
+    newRow = []
+    # if nextPage is 1, we can move to the next page, else stop moving
+    nextPage = 1
+    for i in range((pageNum-1)*20,pageNum*20):
+        # this means that we reach the last element of the table, next page is empty and no need to show
+        if i == len(rowsList)-1:
+            nextPage = 0
+        if i >= len(rowsList):
+            nextPage = 0
+            break
+        newRow.append(rowsList[i])
+    if nextPage:
+        pageNumberNext = pageNum + 1
+    else:
+        pageNumberNext = pageNum
+    return pageNumberNext, newRow
+def pagePrev(pageNum):
+    if pageNum - 1 == 0:
+        pageNumberPrev = 1
+    else:
+        pageNumberPrev = pageNum - 1
+    return pageNumberPrev

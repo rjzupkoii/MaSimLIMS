@@ -40,7 +40,8 @@
           <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
           <td>
             <button id="delete" onclick="return deleteNote({{r.0}}, {{r.4}});">[DELETE]</button>
-            <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
+            <!-- We do not need popup window now -->
+            <!-- <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
             <div id="popUpWindow-{{r.0}}" class="popUp">
               <div class="popUpContent">
                 <div class="popUpHeader">
@@ -55,12 +56,16 @@
                   <a href="">CANCEL</a>
                 </div>
               </div>
-            </div>
+            </div> -->
           </td>
         </tr>
       {% endfor %}
     </tbody>
 </table>
+<div class="previousNext">
+  <a href="{{newPathPart}}/{{pageNumberPrev}}" class="previous">&laquo; Previous</a>
+  <a href="{{newPathPart}}/{{pageNumberNext}}" class="next">&nbsp;&nbsp;&nbsp;Next&raquo;&nbsp;&nbsp;&nbsp;</a>
+</div>
 <form action="/Study/NotesRecord/{{id}}" align = "center" id="notesInfo" method = "POST">
     {% csrf_token %}
     <div>

@@ -17,6 +17,7 @@
   <link rel = "stylesheet" href = "{% static './css/style.css' %}">
   <link rel = "stylesheet" href = "{% static './css/popup.css' %}">
   <link rel = "stylesheet" href = "{% static './css/textarea.css' %}">
+  <link rel = "stylesheet" href = "{% static './css/previousNext.css' %}">
 
   <!-- Use the Google hosted jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -29,7 +30,7 @@
     <div id="content-wrap">
   <h1>&nbsp;MaSim LIMS</h1>
   <ul class="nav">
-    <li><a href = "/">Home</a></li>
+    <li><a href = "/1">Home</a></li>
     <li><a>Select Database</a>
       <ul class="subnav">
         {% for key, value in request.session.databases.items %}
@@ -38,9 +39,9 @@
         {% endfor %}
       </ul>
     </li>
-    <li><a href="/study">Study</a>
-    <li><a href="/worthToNotice">Long Running Replicates</a>
-    <li><a href="/replicatesLatest100">Last 100 Replicates</a></li>
+    <li><a href="/study/1">Study</a>
+    <li><a href="/worthToNotice/1">Long Running Replicates</a>
+    <li><a href="/replicatesLatest100/1">Last 100 Replicates</a></li>
     <li><a href="/createNewDatabase">Create New Databases</a></li>
   </ul>
     {% block content %}{% endblock %}

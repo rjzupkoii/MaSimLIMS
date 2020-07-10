@@ -2,6 +2,21 @@
 {% load static %}
 {% block title %}MaSim LIMS / Studys{% endblock %}
 {% block meta %}
+<script>
+  function deleteNote(id) {
+    if (confirm("Are you sure you wish to delete the study?")) {
+      $.ajax({
+        url: '/study/DeleteFail/'.concat(id),
+        type: 'DELETE',
+        success: function(result) {
+          alert("Study deleted!");
+          location.reload();
+        }
+      });
+    }
+    return false;
+  }
+</script>
 <!-- Refresh every minute -->
 <meta http-equiv="refresh" content="60">
 {% endblock %}
@@ -39,15 +54,17 @@
       {% for r in  rows%}
         <tr>
           <!--r.0 studyid-->
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/1">{{r.1}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/1">{{r.0}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}/1">{{r.2}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}/1">{{r.3}}</a></td>
           <!-- If the count of configurations is 0 and the count of replicates is 0, then a link labeled "[DELETE]" should appear under the "Actions" column for studies.-->
           {% if 0 == r.2 and 0 == r.3 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}">[NOTES]</a>
-              <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
+              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/1">[NOTES]</a>
+              <button id="delete" onclick="return deleteNote({{r.0}});">[DELETE]</button>
+              <!-- We do not need popup window now -->
+              <!-- <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
               <div id="popUpWindow-{{r.0}}" class="popUp">
                 <div class="popUpContent">
                   <div class="popUpHeader">
@@ -62,12 +79,12 @@
                         <a href="">CANCEL</a>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </td> 
           <!--normal operations-->
           {% elif None != r.0 %}
             <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}">[NOTES]</a>
+              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/1">[NOTES]</a>
             </td>
           {% else %}
             <td>
@@ -78,4 +95,8 @@
       {% endfor %}
     </tbody>
   </table>
+  <div class="previousNext">
+    <a href="{{newPathPart}}/{{pageNumberPrev}}" class="previous">&laquo; Previous</a>
+    <a href="{{newPathPart}}/{{pageNumberNext}}" class="next">&nbsp;&nbsp;&nbsp;Next&raquo;&nbsp;&nbsp;&nbsp;</a>
+  </div>
 {% endblock %}
