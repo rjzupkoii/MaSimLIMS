@@ -35,7 +35,11 @@ class DatabaseMiddlewear:
         # Note the ID (get the database id)
         database = request.session['database']
 
-        # Raise an error if not found
+        # If the database isn't there then refresh since it might have just been created
+        if database not in self.databases:
+            self.refresh()
+
+        # If it's still not there, it might not exist so flush the session incase we have stale data and raise an error
         if database not in self.databases:
             request.session.flush()
             raise Exception("Database {} not found in registry".format(database))
@@ -50,11 +54,12 @@ class DatabaseMiddlewear:
     def getDatabases(self):
         SQL = "SELECT id, name, connection FROM app.database ORDER BY name"
 
-        # connect to database
+        # Query for the list of database
         connection = psycopg2.connect(self.default)
         cursor = connection.cursor()
         cursor.execute(SQL)
-        # dictionary: key is id, value is another dictionary which contains database connection information
+
+        # Parse the results into the dictionary
         result = {}
         for row in cursor.fetchall():
             id = int(row[0])
@@ -62,9 +67,9 @@ class DatabaseMiddlewear:
             result[id]['Name'] = row[1]
             result[id]['Connection'] = row[2]
 
+        # Clean-up and return
         cursor.close()
         connection.close()
-
         return result
 
 
