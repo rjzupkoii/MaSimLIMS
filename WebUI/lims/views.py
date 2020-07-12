@@ -19,9 +19,7 @@ from lims.AppDatabase import *
 def error_404_view(request, exception):
     return render(request,'404.html')
 
-@api_view(["GET"])
-def home(request):
-    return redirect('/1')
+
 # The index of the LIMS just shows a basic list of what is running on the default database
 @api_view(["GET"])
 def index(request, pageNum = None):
