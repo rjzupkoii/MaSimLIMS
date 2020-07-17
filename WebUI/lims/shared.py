@@ -96,7 +96,10 @@ def pathReformateNoLast(pathPrepare):
     return newPathPart
 
     
-def nextPage_newRow(pageNum,rowsList):
+def nextPage_newRow(pageNum, rowsList):
+    # If pageNum is None assume we are on the first page
+    if pageNum == None: pageNum = 1
+
     newRow = []
     # if nextPage is 1, we can move to the next page, else stop moving
     nextPage = 1
