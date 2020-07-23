@@ -21,7 +21,8 @@
 
   <!-- Use the Google hosted jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+  
+  <script src="{% static './js/test.js' %}"></script>
   {% block meta %}{% endblock  %}
 </head>
 <p id="demo"></p>
@@ -31,18 +32,22 @@
   <h1>&nbsp;MaSim LIMS</h1>
   <ul class="nav">
     <li><a href = "/1">Home</a></li>
-    <li><a>Select Database</a>
+    <li><a>Database</a>
       <ul class="subnav">
-        {% for key, value in request.session.databases.items %}
-          <!--Here setdb is called-->
-          <li><a href="/setdb/{{ key }}">{{ value.Name }}</a></li>
-        {% endfor %}
+        <li><a>Select Database</a>
+          <ul id="sideNav">
+            {% for key, value in request.session.databases.items %}
+              <!--Here setdb is called-->
+              <li><a href="/setdb/{{ key }}">{{ value.Name }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        <li><a href="/createNewDatabase">Create New Databases</a></li>
       </ul>
     </li>
     <li><a href="/study/1">Study</a>
     <li><a href="/worthToNotice/1">Long Running Replicates</a>
-    <li><a href="/replicatesLatest100/1">Last 100 Replicates</a></li>
-    <li><a href="/createNewDatabase">Create New Databases</a></li>
+    <li><button onclick="last100();" id="last100Btn">Last 100 Replicates</button></li> 
   </ul>
     {% block content %}{% endblock %}
     </div>
@@ -50,8 +55,24 @@
       &nbsp;<em>Boni Lab @ Penn State</em><p />
     </footer>    
   </div>
+  <script>
+    var tableDataTmp = []
+    function last100(){
+      $.ajax({
+          url: '/replicatesLatest100',
+          type: 'POST',
+          success: function(result) {
+            location.replace('/replicatesLatest100')
+          }
+        });
+    }
+  </script>
   <script src="{% static './js/popup.js' %}"></script>
   <script src="{% static './js/tablesort.js' %}"></script>
   <script src="{% static './js/textarea.js' %}"></script>
+  <script src="{% static './js/tableDisplay.js' %}"></script>
+  <script src="{% static './js/last100Sort.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+  <script src="{% static './js/ChartLast100.js' %}"></script>
 </body>
 </html>

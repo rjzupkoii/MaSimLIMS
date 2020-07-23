@@ -6,12 +6,12 @@
 
 import psycopg2
 import os
-
+from django.http import JsonResponse
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view
-
+from datetime import datetime
 from lims.shared import *
 from lims.AppDatabase import *
 
@@ -38,28 +38,59 @@ def index(request, pageNum = None):
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
+    if not pageNum:
+        return redirect('/1')
     pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
-    newPathPart = '/'
+    newPathPart = ''
     return render(request, 'replicate.html', {"rows": newRow,"newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Currently running for"})
 
-
 # This view will render the last 100 replicates that ran on the database
-@api_view(["GET"])
-def replicatesLatest100(request,pageNum):
-    newPathPart = pathReformateNoLast(request.path)
-    #Page Number cannot be smaller than 1
-    pageNumberPrev = pagePrev(pageNum)
-    SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
-          "FROM v_replicates ORDER BY starttime DESC LIMIT 100"
+@api_view(["POST","GET"])
+def replicatesLatest100(request):
+    SQL = "select * from (SELECT id, filename, starttime, endtime, movement, runningtime " \
+        "FROM v_replicates ORDER BY starttime DESC LIMIT 100) as output order by id DESC"
     rows = selectQuery(request, SQL)
     rowsList = []
+    runningTimeListFinished = []
+    runningTimeListUnfinished = []
+    runningTimeListWorth = []
+    ReplicateID = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
+        # start time
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
-    return render(request, 'replicate.html', {"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Last 100 replicates on"})
+    for i in range(0, len(rowsList)):
+        ReplicateID.append(rowsList[i][0])
+        runningTime = 0
+        # If we have running time, finished
+        if rowsList[i][-1]:
+            rowsList[i][-1] = str(rowsList[i][-1])
+            runningTimeTmp = rowsList[i][-1].split(':')
+            runningTime = float(runningTimeTmp[0])*3600 + float(runningTimeTmp[1])*60+ float(runningTimeTmp[2])
+            runningTimeListFinished.append(runningTime)
+            runningTimeListUnfinished.append(None)
+        # If the data is still running
+        # running time = current time - start time
+        else:
+            runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][2],DATEFORMAT)).total_seconds()
+            runningTimeListUnfinished.append(runningTime)
+            runningTimeListFinished.append(None)
+        if runningTime >= 2*24*3600:
+            runningTimeListWorth.append(runningTime)
+        else:
+            runningTimeListWorth.append(None)
+    if request.method == "POST":
+        return JsonResponse({'rowsList': rowsList,'runningTimeListWorth':runningTimeListWorth,'runningTimeListFinished':runningTimeListFinished,'runningTimeListUnfinished':runningTimeListUnfinished,
+                            'ReplicateID':ReplicateID})
+    # add else or change into else 
+    elif request.method == "GET":
+        return render(request, 'last100.html', {"rows": rowsList,"viewType": "Last 100 replicates on"})
+    # error case
+    else:
+        message = "{0}, request.method is not either \"GET\" or \"POST\"".format(request.session['dbname'])
+        return render(request, "empty.html", {"message": message})
 
 
 # setup connection "session"
@@ -216,6 +247,10 @@ def worthToNotice(request,pageNum):
           "where starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
           "and (now()-starttime) > interval '2 days' and endtime is null order by id desc"
     rows = selectQuery(request, SQL)
+    if len(rows) == 0:
+        # Get the dbname
+        message = "{0}, no replicates needs to be noticed".format(request.session['dbname'])
+        return render(request, "empty.html", {"message": message})
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
@@ -231,6 +266,7 @@ def worthToNotice(request,pageNum):
 @api_view(["GET"])
 # id is study id
 def studyNotes(request,studyId,pageNum):
+    tableNeed = True
     newPathPart = pathReformateNoLast(request.path)
     #Page Number cannot be smaller than 1
     pageNumberPrev = pagePrev(pageNum)
@@ -242,6 +278,8 @@ def studyNotes(request,studyId,pageNum):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
+    if len(rowsList) == 0:
+        tableNeed = False
     # If 'username' is cookies, we get cookie
     if 'username' in request.COOKIES:
         user = getcookie(request,'username')
@@ -250,7 +288,7 @@ def studyNotes(request,studyId,pageNum):
         user = ""
     studyName = getStudyName(request, studyId)
     pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
-    return render(request, 'notes.html', {"rows":newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), 
+    return render(request, 'notes.html', {"rows":newRow, "tableNeed":tableNeed,"newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), 
         "pageNumberNext":str(pageNumberNext),"id": studyId,"user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - "})
 
 
@@ -275,7 +313,7 @@ def studyNotesRecord(request,studyId):
 # first parameter is studyid, the second one is id of notes
 def DeleteNotes(request, studyId, id):
     SQL = """delete from notes where id = %(id)s"""
-    rows = commitQuery(request,SQL, {"id":id})
+    commitQuery(request,SQL, {"id":id})
     return HttpResponse("OK")
 
 
