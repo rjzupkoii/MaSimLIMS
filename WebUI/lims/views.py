@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view
 from datetime import datetime
+
 from lims.shared import *
 from lims.AppDatabase import *
 
@@ -23,9 +24,9 @@ def error_404_view(request, exception):
 # The index of the LIMS just shows a basic list of what is running on the default database
 @api_view(["GET"])
 def index(request, pageNum = None):
-    SQL = "SELECT id, filename, starttime, endtime, movement, runningtime " \
-          "FROM (SELECT * FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100 where (now()-starttime) <= interval '2 days' and endtime is null order by id desc"
-    rows = selectQuery(request, SQL)
+    # Get the data for the view
+    rows = AppDatabase.getReplicates(request, True)
+
     # Render empty if there are no results
     if len(rows) == 0:
         # Get the dbname
@@ -42,31 +43,32 @@ def index(request, pageNum = None):
     if not pageNum:
         return redirect('/1')
     pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
-    newPathPart = ''
-    return render(request, 'replicate.html', {"rows": newRow,"newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Currently running for"})
+    return render(request, 'replicate.html', {"rows": newRow,"newPathPart":'', "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext),"viewType": "Currently running for"})
+
 
 # This view will render the last 100 replicates that ran on the database
 @api_view(["POST","GET"])
 def replicatesLatest100(request):
-    SQL = "select * from (SELECT id, filename, starttime, endtime, movement, runningtime " \
-        "FROM v_replicates ORDER BY starttime DESC LIMIT 100) as output order by id DESC"
-    rows = selectQuery(request, SQL)
+    # Get the data for the view
+    rows = AppDatabase.getReplicates(request, False, 100)
+
     rowsList = []
-    runningTimeListFinished = []
-    runningTimeListUnfinished = []
-    runningTimeListWorth = []
-    ReplicateID = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         # start time
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
+
+    ReplicateID = []
+    runningTimeListFinished = []
+    runningTimeListUnfinished = []
+    runningTimeListWorth = []
     for i in range(0, len(rowsList)):
         ReplicateID.append(rowsList[i][0])
         runningTime = 0
-        # If we have running time, finished
-        if rowsList[i][-1]:
+        # If we have an end time, finished
+        if rowsList[i][3]:
             rowsList[i][-1] = str(rowsList[i][-1])
             runningTimeTmp = rowsList[i][-1].split(':')
             runningTime = float(runningTimeTmp[0])*3600 + float(runningTimeTmp[1])*60+ float(runningTimeTmp[2])
@@ -82,16 +84,17 @@ def replicatesLatest100(request):
             runningTimeListWorth.append(runningTime)
         else:
             runningTimeListWorth.append(None)
+
+    # Return the results based upon how we were called
     if request.method == "POST":
-        return JsonResponse({'rowsList': rowsList,'runningTimeListWorth':runningTimeListWorth,'runningTimeListFinished':runningTimeListFinished,'runningTimeListUnfinished':runningTimeListUnfinished,
-                            'ReplicateID':ReplicateID})
-    # add else or change into else 
+        return JsonResponse({'rowsList': rowsList, 'runningTimeListWorth': runningTimeListWorth, 'runningTimeListFinished': runningTimeListFinished, 
+            'runningTimeListUnfinished': runningTimeListUnfinished, 'ReplicateID': ReplicateID})
     elif request.method == "GET":
         return render(request, 'last100.html', {"rows": rowsList,"viewType": "Last 100 replicates on"})
     # error case
     else:
-        message = "{0}, request.method is not either \"GET\" or \"POST\"".format(request.session['dbname'])
-        return render(request, "empty.html", {"message": message})
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(replicatesLatest100.__name__,))
 
 
 # setup connection "session"
@@ -110,26 +113,13 @@ def setdb(request, id):
 # Show study table
 @api_view(["GET"])
 def study(request,pageNum):
-    newPathPart = pathReformateNoLast(request.path)
+    # Get the data for the view
+    rows = AppDatabase.getStudies(request)
+    
     #Page Number cannot be smaller than 1
     pageNumberPrev = pagePrev(pageNum)
-    SQL = """
-    SELECT s.id, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates 
-    FROM sim.study s 
-      LEFT JOIN sim.configuration c ON c.studyid = s.id 
-      LEFT JOIN v_replicates r on r.configurationid = c.id 
-    GROUP BY s.id
-    UNION
-    SELECT studyid, 
-      CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates 
-    FROM
-    (SELECT s.id, studyid, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates
-     FROM sim.configuration c 
-       LEFT JOIN sim.replicate r ON r.configurationid = c.id 
-       LEFT JOIN sim.study s ON s.id = c.studyid 
-     GROUP BY s.id, studyid, s.name) iq order by id"""
-    rows = selectQuery(request,SQL)
     pageNumberNext, newRow = nextPage_newRow(pageNum,rows)
+    newPathPart = pathReformateNoLast(request.path)
     return render(request, 'index.html',{"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), "pageNumberNext":str(pageNumberNext), "viewType": "Studies on"})
 
 
@@ -240,26 +230,25 @@ def ConfigReplicate(request, id,pageNum):
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @api_view(["GET"])
 def worthToNotice(request,pageNum):
-    newPathPart = pathReformateNoLast(request.path)
-    #Page Number cannot be smaller than 1
-    pageNumberPrev = pagePrev(pageNum)
-    # Not within latest 100 and interval > 2 days and not end
-    SQL = "select id, filename, starttime, endtime, movement, runningtime from v_replicates " \
-          "where starttime < (SELECT min(starttime) FROM (SELECT starttime FROM v_replicates ORDER BY starttime DESC LIMIT 100) last100) " \
-          "and (now()-starttime) > interval '2 days' and endtime is null order by id desc"
-    rows = selectQuery(request, SQL)
+    # Get the data for the view
+    rows  = AppDatabase.getLongRunningReplicates(request)
+
+    # Return if we have no records
     if len(rows) == 0:
-        # Get the dbname
         message = "{0}, no replicates needs to be noticed".format(request.session['dbname'])
         return render(request, "empty.html", {"message": message})
+
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
-        if rowsList[ndx][3]:
-            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
+        if rowsList[ndx][3]: rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
+
+    #Page Number cannot be smaller than 1
+    pageNumberPrev = pagePrev(pageNum)
     pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
+    newPathPart = pathReformateNoLast(request.path)
     return render(request, 'replicate.html', {"rows": newRow, "newPathPart":newPathPart, "pageNumberPrev":str(pageNumberPrev), 
         "pageNumberNext":str(pageNumberNext),"viewType": "Long Running Replicates on"})
 

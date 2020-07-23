@@ -5,7 +5,7 @@
 ##
 import psycopg2
 
-from lims.shared import commitQuery
+from lims.shared import commitQuery, selectQuery
 
 class AppDatabase:
     # Connection string for the application's database
@@ -53,3 +53,49 @@ class AppDatabase:
         cursor.execute(query)
         cursor.close()
         connection.close()
+
+
+    # Get the replicates based upon if they are running (or not) with an upper limit for how many (default 1000)
+    @staticmethod
+    def getReplicates(request, running, limit = 1000):
+        SQL = """
+            SELECT id, filename, starttime, endtime, movement,
+                CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
+            FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
+        WHERE = "WHERE (now() - starttime) <= interval '3 days' AND endtime IS NULL"
+
+        # Update the query and return the results
+        append = WHERE if running else ""
+        return selectQuery(request, SQL.format(append), {'limit': limit})
+    
+
+    # Get the replicates that have been running longer than two days
+    @staticmethod
+    def getLongRunningReplicates(request):
+        SQL = """
+            SELECT id, filename, starttime, endtime, movement, (now() - starttime) AS runningtime
+            FROM v_replicates 
+            WHERE endtime IS null AND (now() - starttime) > interval '2 days'
+            ORDER BY runningtime DESC"""
+        return selectQuery(request, SQL)
+
+
+    # Get list of study names, count of study configurations and replicates; as well as unassigned counts
+    @staticmethod
+    def getStudies(request):
+        SQL = """
+            SELECT s.id, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates 
+            FROM sim.study s 
+                LEFT JOIN sim.configuration c ON c.studyid = s.id 
+                LEFT JOIN v_replicates r on r.configurationid = c.id 
+            GROUP BY s.id
+            UNION
+            SELECT studyid, CASE WHEN name IS NULL THEN 'Unassigned' ELSE name END, configs, replicates 
+            FROM (
+                SELECT s.id, studyid, s.name, COUNT(DISTINCT c.id) configs, COUNT(DISTINCT r.id) replicates
+                FROM sim.configuration c 
+                    LEFT JOIN sim.replicate r ON r.configurationid = c.id 
+                    LEFT JOIN sim.study s ON s.id = c.studyid 
+                GROUP BY s.id, studyid, s.name) iq order by id"""
+        return selectQuery(request, SQL)
+            
