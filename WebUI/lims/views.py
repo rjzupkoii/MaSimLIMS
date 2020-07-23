@@ -65,11 +65,14 @@ def replicatesLatest100(request):
     runningTimeListUnfinished = []
     runningTimeListWorth = []
     for i in range(0, len(rowsList)):
+        # The database provides running time, format it as a string
+        rowsList[i][-1] = str(rowsList[i][-1])
+
         ReplicateID.append(rowsList[i][0])
         runningTime = 0
+        
         # If we have an end time, finished
         if rowsList[i][3]:
-            rowsList[i][-1] = str(rowsList[i][-1])
             runningTimeTmp = rowsList[i][-1].split(':')
             runningTime = float(runningTimeTmp[0])*3600 + float(runningTimeTmp[1])*60+ float(runningTimeTmp[2])
             runningTimeListFinished.append(runningTime)
