@@ -38,6 +38,7 @@ def index(request, pageNum = None):
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
+    # Let's keep this feature for now, I will find a better way to solve this.
     if not pageNum:
         return redirect('/1')
     pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
@@ -266,7 +267,6 @@ def worthToNotice(request,pageNum):
 @api_view(["GET"])
 # id is study id
 def studyNotes(request,studyId,pageNum):
-    tableNeed = True
     newPathPart = pathReformateNoLast(request.path)
     #Page Number cannot be smaller than 1
     pageNumberPrev = pagePrev(pageNum)
@@ -278,8 +278,7 @@ def studyNotes(request,studyId,pageNum):
         # Only when endtime and runningtime exist, we process the data
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-    if len(rowsList) == 0:
-        tableNeed = False
+    tableNeed = len(rowsList) != 0
     # If 'username' is cookies, we get cookie
     if 'username' in request.COOKIES:
         user = getcookie(request,'username')
