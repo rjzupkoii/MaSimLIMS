@@ -63,23 +63,6 @@
             <td>
               <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/1">[NOTES]</a>
               <button id="delete" onclick="return deleteNote({{r.0}});">[DELETE]</button>
-              <!-- We do not need popup window now -->
-              <!-- <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
-              <div id="popUpWindow-{{r.0}}" class="popUp">
-                <div class="popUpContent">
-                  <div class="popUpHeader">
-                    <span id = "close-{{r.0}}" class="close">&times;</span>
-                    <h2>DELETE?</h2>
-                  </div>
-                  <div class="popUpBody">
-                    <h3>Are you sure that you wish to delete {{r.1}}?</h3>
-                  </div>
-                  <div class="option">
-                        <a href="/study/DeleteFail/{{ r.0 }}">DELETE</a>
-                        <a href="">CANCEL</a>
-                  </div>
-                </div>
-              </div> -->
             </td> 
           <!--normal operations-->
           {% elif None != r.0 %}

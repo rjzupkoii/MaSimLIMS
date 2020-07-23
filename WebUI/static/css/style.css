@@ -36,3 +36,26 @@
     font-weight: bold;
     color: red;
 }
+
+#tableLast100{
+    display: none;
+}
+#pagination-wrapper{
+    margin-top: -50px;
+    text-align: center;
+}
+.pageNum{
+    background-color: #041E42;
+    color: white;
+    margin: 0px,2px,0px,2px;
+    padding: 0 10px;
+    border: 1px solid;
+    border-radius: 5px;
+    line-height: 2;
+}
+
+.container{
+    height: auto;
+    width: 1000px;
+    margin: auto;
+}

@@ -21,51 +21,36 @@
 </script>
 
 <div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-<table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>User</th>
-        <th>Date</th>
-        <th>Study ID</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
+{% if tableNeed %}
+  <table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+      <thead>
         <tr>
-          <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
-          <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
-          <td>
-            <button id="delete" onclick="return deleteNote({{r.0}}, {{r.4}});">[DELETE]</button>
-            <!-- We do not need popup window now -->
-            <!-- <button id="popUpButton-{{r.0}}" class="button">[DELETE]</button>
-            <div id="popUpWindow-{{r.0}}" class="popUp">
-              <div class="popUpContent">
-                <div class="popUpHeader">
-                  <span id = "close-{{r.0}}" class="close">&times;</span>
-                  <h2>DELETE?</h2>
-                </div>
-                <div class="popUpBody">
-                  <h3>Are you sure that you wish to delete {{r.1}}?</h3>
-                </div>
-                <div class="option">
-                  <a href="/Study/DeleteNotes/{{r.4}}/{{r.0}}">DELETE</a>
-                  <a href="">CANCEL</a>
-                </div>
-              </div>
-            </div> -->
-          </td>
+          <th>Data</th>
+          <th>User</th>
+          <th>Date</th>
+          <th>Study ID</th>
+          <th>Action</th>
         </tr>
-      {% endfor %}
-    </tbody>
-</table>
-<div class="previousNext">
-  <a href="{{newPathPart}}/{{pageNumberPrev}}" class="previous">&laquo; Previous</a>
-  <a href="{{newPathPart}}/{{pageNumberNext}}" class="next">&nbsp;&nbsp;&nbsp;Next&raquo;&nbsp;&nbsp;&nbsp;</a>
-</div>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
+            <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
+            <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
+            <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
+            <td>
+              <button id="delete" onclick="return deleteNote({{r.0}}, {{r.4}});">[DELETE]</button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+  </table>
+  <div class="previousNext">
+    <a href="{{newPathPart}}/{{pageNumberPrev}}" class="previous">&laquo; Previous</a>
+    <a href="{{newPathPart}}/{{pageNumberNext}}" class="next">&nbsp;&nbsp;&nbsp;Next&raquo;&nbsp;&nbsp;&nbsp;</a>
+  </div>
+{%endif%}
 <form action="/Study/NotesRecord/{{id}}" align = "center" id="notesInfo" method = "POST">
     {% csrf_token %}
     <div>

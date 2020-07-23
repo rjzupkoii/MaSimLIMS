@@ -9,6 +9,9 @@
     width: 50%;
     margin: auto;
 }
+#notesInfo{
+    margin-top: 20px;
+}
 #notes{
     width: 100%;
     height: 200px;

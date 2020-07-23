@@ -15,7 +15,7 @@ urlpatterns = [
 
     path('study/<int:pageNum>', views.study, name='study'),
     path('study/InsertFail', views.setStudyInsert, name='setStudyInsert'),
-    path('replicatesLatest100/<int:pageNum>', views.replicatesLatest100, name='replicatesLatest100'),
+    path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),
     path('worthToNotice/<int:pageNum>', views.worthToNotice, name = "worthToNotice"),
 
     # POST with form parameters views

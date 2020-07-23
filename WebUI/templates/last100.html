@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MaSim LIMS / Replicates{% endblock %}
+
+{% block meta %}
+<!-- Refresh every minute -->
+<meta http-equiv="refresh" content="60">
+{% endblock %}
+
+{% block content %}
+<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+
+<div class="container">
+  <canvas id="last100Chart"></canvas>
+</div>
+
+<table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>File Name</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Movement</th>
+      <th>Running Time</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <td colspan = "4">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
+    </tr>
+  </tfoot>
+  <tbody id = "table-body">
+  </tbody>
+</table>
+<!-- reference: https://dennis-sourcecode.herokuapp.com/7/ -->
+<div>
+  <div id="pagination-wrapper"></div>
+</div>
+
+{% endblock %}
