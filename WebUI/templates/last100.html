@@ -6,6 +6,20 @@
 {% block meta %}
 <!-- Refresh every minute -->
 <meta http-equiv="refresh" content="60">
+<script src="{% static './js/ChartLast100.js' %}"></script>
+
+<script>
+  var tableDataTmp = []
+  function last100(){
+    $.ajax({
+        url: '/replicatesLatest100',
+        type: 'POST',
+        success: function(result) {
+          location.replace('/replicatesLatest100')
+        }
+      });
+  }
+</script>
 {% endblock %}
 
 {% block content %}
@@ -38,5 +52,4 @@
 <div>
   <div id="pagination-wrapper"></div>
 </div>
-
 {% endblock %}

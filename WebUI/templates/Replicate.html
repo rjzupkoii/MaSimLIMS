@@ -6,11 +6,29 @@
 {% block meta %} 
 <!-- Refresh every minute -->
 <meta http-equiv="refresh" content="60">
+<script type="text/javascript">
+  // Sort by the start time once loaded
+  $(document).ready(function() {
+    sortTableByColumn(document.getElementById('replicateTable'), 1, false);
+  })
+  
+  // AJAX function for the last 100 replicates
+  var tableDataTmp = []
+  function last100(){
+    $.ajax({
+      url: '/replicatesLatest100',
+      type: 'POST',
+      success: function(result) {
+        location.replace('/replicatesLatest100')
+      }
+    });
+  }
+  </script>
 {% endblock %}
 
 {% block content %}
 <div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-<table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+<table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
     <tr>
       <th>File Name</th>

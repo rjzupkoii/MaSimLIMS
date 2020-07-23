@@ -2,7 +2,9 @@
 {% load static %}
 {% block title %}MaSim LIMS / Notes{% endblock %}
 {% block meta %}
+<script src="{% static './js/textarea.js' %}"></script>
 {% endblock %}
+
 {% block content %}
 <script>
   function deleteNote(id, study) {
