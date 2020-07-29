@@ -1,10 +1,11 @@
+// textarea bug fixed
 const Notes = document.getElementById('notes');
 const Remaining = document.getElementById('remaining');
 var saveNotes = document.getElementById('saveNotes');
 /* disable the input button*/
-saveNotes.disabled = true
+document.getElementById('saveNotes').disabled = true;
 const max = 32;
-notes.addEventListener('input',() =>{
+Notes.addEventListener('input',() =>{
     const r = max - Notes.value.length;
     const total = Notes.value.length;
     if(r <= 0){
@@ -13,5 +14,6 @@ notes.addEventListener('input',() =>{
     }
     else{
         Remaining.textContent = `${r} characters remaining`;
+        document.getElementById('saveNotes').disabled = true;
     }
 })

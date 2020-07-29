@@ -21,7 +21,9 @@
     width: 100%;
     height: 2.5rem;
 }
-
+.center{
+    margin: auto;
+}
 /* Used on 404 page */
 .center > a{
     text-decoration: none;

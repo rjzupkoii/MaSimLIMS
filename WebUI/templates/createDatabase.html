@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}MaSim LIMS / Create Database{% endblock %}
 {% block content %}
-<div class="center"><strong>{{ viewType }}</strong></div>
+<div class="center" id="createDBMessage"><strong>{{ viewType }}</strong></div>
   <div align="center">
     {% if messages %}
       <ul class="messages">
@@ -30,5 +30,8 @@
         <input type="password" name="Password" id="Password" required><br>
     </div>
     <input type="submit" id = "Submit" value="Submit" style="font-size:0.9em;">
-  </form>  
+  </form>
+  <script>
+    messageBoxAdjust("createDBMessage","login");
+  </script>
 {% endblock %}

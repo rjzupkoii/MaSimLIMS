@@ -6,29 +6,37 @@
 <meta http-equiv="refresh" content="60">
 {% endblock %}
 {% block content %}
-<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-  <table class="content-table" style="margin-left:auto;margin-right:auto;">
+<div class="center" id="configMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+  <table id="configTable" class="content-table" style="margin-left:auto;margin-right:auto;margin-top: 1em">
     <thead>
       <tr>
-        <th> ID </th>
         <th> Filename </th>
         <th> Spatial Parameter: (ncols, nrows, xllcorner, yllcorner, cellsize) </th>
         <th> Replicate Number </th>
       </tr>
     </thead>
-    <tbody>
-      {% for r in rows %}
+    <tbody id = "table-body">
+      <!-- {% for r in rows %}
         <tr>
-          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}/1">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}/1">{{r.3}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}/1">{{r.4}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}/1">{{r.5}}</a></td>
+          <td><button onclick="pageRedirection('/ConfigReplicate/{{r.0}}');" id="ReplicateBtn">{{r.0}}</button></td>
+          <td><button onclick="pageRedirection('/ConfigReplicate/{{r.0}}');" id="ReplicateBtn">{{r.1}}</button></td>
+          <td><button onclick="pageRedirection('/ConfigReplicate/{{r.0}}');" id="ReplicateBtn">{{r.2}}</button></td>
+          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}">{{r.0}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}">{{r.3}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}">{{r.4}}</a></td>
+          <td><a style="text-decoration:none; color:#000000" href="/ConfigReplicate/{{r.0}}">{{r.5}}</a></td>
         </tr>
-      {% endfor %}
+      {% endfor %} -->
     </tbody>
   </table>
-  <div class="previousNext">
-    <a href="{{newPathPart}}/{{pageNumberPrev}}" class="previous">&laquo; Previous</a>
-    <a href="{{newPathPart}}/{{pageNumberNext}}" class="next">&nbsp;&nbsp;&nbsp;Next&raquo;&nbsp;&nbsp;&nbsp;</a>
+  <div>
+    <div id="pagination-wrapper"></div>
   </div>
+  <script src="{% static './js/tableDisplay.js' %}"></script>
+  <script src="{% static './js/last100Sort.js' %}"></script>
+  <script>
+    messageBoxAdjust("configMessage","configTable");
+    tableDisplay('{{localURL}}');
+    setTargetURL('{{localURL}}');
+  </script>
   {% endblock %}

@@ -59,19 +59,31 @@
 
 #sideNav{
     top:0;
-    right: 0;
+    right: 1px;
     transform: translate(100%,0);
 }
 .subnav li{
     position: relative;
 }
-#last100Btn{
+#studyBtn,#last100Btn, #worthToNoticeBtn{
     color: white;
     text-decoration: none;
     border: none ;
-    font-size: medium;
+    cursor: pointer;
+    outline: none;
+    font-size: 17px;
     background-color: #041E42;
 }
-#last100Btn:hover{
+#studyBtn:hover,#ConfigBtn:hover,#ReplicateBtn:hover,#last100Btn:hover, #worthToNoticeBtn:hover{
     color: #c1c1c1;
+}
+
+#ReplicateBtn,#ConfigBtn{
+    color: black;
+    text-decoration: none;
+    border: none ;
+    cursor: pointer;
+    outline: none;
+    font-size: 14px;
+    background-color: white;
 }

@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
 {% block meta %}
 <!-- Refresh every minute -->
 <meta http-equiv="refresh" content="60">
-<script src="{% static './js/ChartLast100.js' %}"></script>
+<!-- <script src="{% static './js/ChartLast100.js' %}"></script> -->
 
-<script>
+<!-- <script>
   var tableDataTmp = []
   function last100(){
     $.ajax({
@@ -19,17 +18,17 @@
         }
       });
   }
-</script>
+</script> -->
 {% endblock %}
 
 {% block content %}
-<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+<div class="center" id="last100Message"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 
 <div class="container">
   <canvas id="last100Chart"></canvas>
 </div>
 
-<table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+<table id="last100Table" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
     <tr>
       <th>ID</th>
@@ -52,4 +51,13 @@
 <div>
   <div id="pagination-wrapper"></div>
 </div>
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/ChartLast100.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
+<script>
+  // Spread
+  messageBoxAdjust('last100Message','last100Table');
+  tableDisplay('{{localURL}}');
+  setTargetURL('{{localURL}}');
+</script>
 {% endblock %}

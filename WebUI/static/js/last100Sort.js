@@ -1,11 +1,12 @@
-var tableData = []
-var previousHeaderInder = 0
+var tableData = [];
+var targetURL;
+var previousHeaderInder = 0;
 var state = {
   'querySet': tableData,
   'page': 1,
-  'rows': 10,
+  'rows': 20,
   'window': 5,
-}
+};
 var currentIsAscending = false;
 
 // Transfer table date to string type
@@ -51,6 +52,7 @@ function Sort(column, orignal,asc=true) {
 
 // compare two inputs: if aColText > bColText, return true, else return false.
 function compareFunc(aColText,bColText){
+  var index;
   const aTime = new Date(aColText);
   const bTime = new Date(bColText);
   // Time
@@ -59,10 +61,46 @@ function compareFunc(aColText,bColText){
   }
   else{
       // If it is not a time, separate by ":"
+      // For running time
       if(aColText.includes(':')){
           var idA = aColText.split(":");
           var idB = bColText.split(":");
-          var index = 0;
+          // A has day, B does not have. A > B
+          if(idA[0].includes('day') && !idB.includes('day')){
+            return true;
+          }
+          // A does not have day, B has day. B > A
+          else if(!idA[0].includes('day') && idB.includes('day')){
+            return false;
+          }
+          // Both have day
+          else if(idA[0].includes('day') && idB.includes('day')){
+            var splitBySpaceA = idA[0].split(' ');
+            var splitBySpaceB = idB[0].split(' ');
+            // day in A > day in B.
+            if(parseFloat(splitBySpaceA[0]) > parseFloat(splitBySpaceB[0])){
+              return true;
+            }else if(parseFloat(splitBySpaceA[0]) < parseFloat(splitBySpaceB[0])){
+              return false;
+            }
+            // day in A == day in B
+            else{
+              // hour in A > hour in B
+              if(parseFloat(splitBySpaceA[2]) > parseFloat(splitBySpaceB[2])){
+                return true;
+              }else if(parseFloat(splitBySpaceA[2]) < parseFloat(splitBySpaceB[2])){
+                return false;
+              }
+              // idA[0] = idB[0] (both same day and same hour) --> continue comparison
+              else{
+                index = 1;
+              }
+            }
+          }
+          // Both does not have day
+          else{
+            index = 0
+          }
           // Fetch each part and compare.
           for(index; index < idA.length; index++){
               if(parseFloat(idA[index]) > parseFloat(idB[index])){
@@ -92,19 +130,26 @@ $(".content-table th").click(function() {
 
 // ajax code to send request, get data, sort, build table.
 // ajax has its own range, value changes only works within ajax code range
-function last100Sort(headerIndex){
+function tableSort(headerIndex){
   $.ajax({
-      url: '/replicatesLatest100',
+      url: targetURL,
       type: 'POST',
       success: function(result) {
+        // Fix here
         tableData = result.rowsList
         tableDataToString()
         Sort(headerIndex,tableData,currentIsAscending)
         state.querySet = tableData
-        buildTable()
+        buildTable(targetURL)
       }
     });
 }
+
+
+function setTargetURL(urlInput){
+  targetURL = urlInput;
+}
+
 
 // header click event listener
 document.querySelectorAll(".content-table th").forEach(headerCell => {
@@ -118,7 +163,7 @@ document.querySelectorAll(".content-table th").forEach(headerCell => {
         currentIsAscending = true
       }
       // sort data and clear tableData
-      last100Sort(headerIndex)
+      tableSort(headerIndex)
       tableData=[]
   });
 });

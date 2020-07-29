@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}MaSim LIMS / Notes{% endblock %}
 {% block meta %}
-<script src="{% static './js/textarea.js' %}"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -22,9 +22,9 @@
   }
 </script>
 
-<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+<div class="center" id="notesMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 {% if tableNeed %}
-  <table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+  <table id="notesTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
       <thead>
         <tr>
           <th>Data</th>
@@ -67,4 +67,8 @@
     </div>
     <input type="submit" id="saveNotes" value="Save" style="font-size:0.9em;">
 </form>
+<script>
+  messageBoxAdjust('notesMessage','notesTable');
+</script>
+<script src="{% static './js/textarea.js' %}"></script>
 {% endblock %}
