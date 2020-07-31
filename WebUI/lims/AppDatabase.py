@@ -40,6 +40,28 @@ class AppDatabase:
         commitQuery(request, SQL, {'name':database, 'connection':self.createConnectionString(database)}, self.APPCONN)
 
 
+    # Deletes the replicate indicated from the database, returns True if the operation was successful
+    def deleteReplicate(self, request, replicateId):
+        # Open the connection
+        connection = psycopg2.connect(request.session['dbconnection'])
+        connection.autocommit = True
+        cursor = connection.cursor()
+
+        # Run the stored procedure
+        SQL = 'CALL delete_replicate(%(replicateId)s'
+        cursor.execute(sql, {'replicateId': replicateId})
+
+        # Parse the messages
+        success = False
+        for notice in connection.notices:
+            if "NOTICE:  Complete" in notice.contains: success = True
+
+        # Clean-up and return
+        cursor.close()
+        connection.close()
+        return success
+
+
     # Return a valid connection string for the LIMS for the database name indicated
     def createConnectionString(self, database):
         return self.REFERENCE.format(database.lower())
