@@ -17,6 +17,15 @@
     return false;
   }
 </script>
+<script>
+  // OK
+  setInterval(function(){
+      $('#table-body').empty();
+      $('#pagination-wrapper').empty();
+      tableDisplay('{{localURL}}','indexMessage','indexTable');
+      setTargetURL('{{localURL}}');
+  }, 60000);
+</script>
 <!-- Refresh every minute -->
 <meta http-equiv="refresh" content="60">
 {% endblock %}
@@ -91,8 +100,7 @@
   <script src="{% static './js/last100Sort.js' %}"></script>
   <script>
     // Spread
-    tableDisplay('{{localURL}}');
-    messageBoxAdjust('indexMessage','indexTable');
+    tableDisplay('{{localURL}}','indexMessage','indexTable');
     setTargetURL('{{localURL}}');
   </script>
 {% endblock %}

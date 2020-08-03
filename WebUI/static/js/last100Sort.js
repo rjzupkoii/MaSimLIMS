@@ -66,15 +66,15 @@ function compareFunc(aColText,bColText){
           var idA = aColText.split(":");
           var idB = bColText.split(":");
           // A has day, B does not have. A > B
-          if(idA[0].includes('day') && !idB.includes('day')){
+          if(idA[0].includes('day') && !idB[0].includes('day')){
             return true;
           }
           // A does not have day, B has day. B > A
-          else if(!idA[0].includes('day') && idB.includes('day')){
+          else if(!idA[0].includes('day') && idB[0].includes('day')){
             return false;
           }
           // Both have day
-          else if(idA[0].includes('day') && idB.includes('day')){
+          else if(idA[0].includes('day') && idB[0].includes('day')){
             var splitBySpaceA = idA[0].split(' ');
             var splitBySpaceB = idB[0].split(' ');
             // day in A > day in B.

@@ -36,7 +36,6 @@
         });
     }
   </script>
-  <script src="{% static './js/messageBox.js' %}"></script>
   <script src="{% static './js/popup.js' %}"></script>
   <!-- <script src="{% static './js/tablesort.js' %}"></script> -->
   {% block meta %}{% endblock  %}
@@ -46,7 +45,8 @@
     <div id="content-wrap">
   <h1>&nbsp;MaSim LIMS</h1>
   <ul class="nav">
-    <li><a href = "/">Home</a></li>
+    <!-- <li><a href = "/">Home</a></li> -->
+    <li><button onclick="pageRedirection('/');" id="studyBtn">Home</button></li> 
     <li><a>Database</a>
       <ul class="subnav">
         <li><a>Select Database ></a>
@@ -60,6 +60,7 @@
         <li><a href="/createNewDatabase">Create New Databases</a></li>
       </ul>
     </li>
+    
     <li><button onclick="pageRedirection('/study');" id="studyBtn">Study</button></li> 
     <!-- <li><a href="/study">Study</a> -->
     <!-- <li><a href="/worthToNotice/1">Long Running Replicates</a> -->

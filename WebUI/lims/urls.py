@@ -11,26 +11,24 @@ from . import views
 # Add urls, their implementation function in views, and their names.
 urlpatterns = [
     path('', views.index, name='index'),
-    path('<int:pageNum>', views.index, name='index'),
+    # path('<int:pageNum>', views.index, name='index'),
 
     path('study', views.study, name='study'),
     path('study/InsertFail', views.setStudyInsert, name='setStudyInsert'),
     path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),
-    # path('worthToNotice/<int:pageNum>', views.worthToNotice, name = "worthToNotice"),
     path('worthToNotice', views.worthToNotice, name = "worthToNotice"),
-
     # POST with form parameters views
     path('createDatabase', views.createDatabase, name='createDatabase'),
     path('createNewDatabase', views.createNewDatabase, name='createNewDatabase'),
-
     path('setdb/<int:id>', views.setdb, name='setdb'),
     path('study/DeleteFail/<str:id>', views.DeleteFail, name='DeleteFaile'),
-   
     path('ConfigReplicate/<str:id>', views.ConfigReplicate, name = "ConfigReplicate"),
-    path('Study/Notes/<str:studyId>/<int:pageNum>', views.studyNotes, name = "studyNotes"),
-
+    path('Study/Notes/<str:studyId>', views.studyNotes, name = "studyNotes"),
     path('StudyConfig/<str:id>',views.StudyConfig,name = 'StudyConfig'),
     path('StudyReplicate/<str:id>',views.StudyReplicate,name = 'StudyReplicate'),
     path('Study/NotesRecord/<str:studyId>', views.studyNotesRecord, name = "studyNotesRecord"),
+
+    path('Study/Chart/<str:studyId>', views.studyChart, name = "studyChart"),
+    
     path('Study/DeleteNotes/<str:studyId>/<str:id>', views.DeleteNotes, name = "DeleteNotes"),
 ]

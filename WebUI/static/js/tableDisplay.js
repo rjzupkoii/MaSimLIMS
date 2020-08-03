@@ -8,7 +8,7 @@ var state = {
 }
 
 // send request, get data, store data, and build table
-function tableDisplay(targetURL){
+function tableDisplay(targetURL,boxID, tableID){
   $.ajax({
       url: targetURL,
       type: 'POST',
@@ -16,9 +16,18 @@ function tableDisplay(targetURL){
         tableDataTmp = result.rowsList
         state.querySet = tableDataTmp
         buildTable(targetURL)
+        messageBoxAdjust(boxID, tableID)
       }
     });
 }
+
+
+function messageBoxAdjust(boxID, tableID){
+  // Spread
+  var offsetWidth = document.getElementById(tableID).offsetWidth;
+  document.getElementById(boxID).style.width = String(offsetWidth).concat("px");
+}
+
 
 // pagination
 function pagination(querySet, page, rows) {
@@ -77,6 +86,7 @@ function pageButtons(pages, targetURL) {
 
 // build table dynamically
 function buildTable(targetURL) {
+  console.log("IN")
   var table = $('#table-body')
   var data = pagination(state.querySet, state.page, state.rows)
   var myList = data.querySet
@@ -118,19 +128,33 @@ function buildTable(targetURL) {
               <td><button onclick="pageRedirection('/StudyReplicate/'+'${studyID}');" id="ReplicateBtn">${myList[i][3]}</button></td>
               `
       if(parseInt(myList[i][2])==0 &&  parseInt(myList[i][3])==0 && myList[i][1]){
+        // myList[i][1] is id
         row = row + `<td>
-                      <a style="text-decoration:none; color:#000000" href="/Study/Notes/${myList[i][1]}/1">[NOTES]</a>
+                      <button onclick="pageRedirection('/Study/Notes/'+'${myList[i][1]}');" id="ReplicateBtn">[NOTES]</button>
+                      <button onclick="pageRedirection('/Study/Chart/'+'${myList[i][1]}');" id="ReplicateBtn">[CHART]</button>
                       <button id="delete" onclick="return deleteNote('${myList[i][1]}');">[DELETE]</button>
                       </td>`
       }else if(myList[i][1]){
         row = row + `<td>
-                     <a style="text-decoration:none; color:#000000" href="/Study/Notes/${myList[i][1]}/1">[NOTES]</a>
+                      <button onclick="pageRedirection('/Study/Notes/'+'${myList[i][1]}');" id="ReplicateBtn">[NOTES]</button>
+                      <button onclick="pageRedirection('/Study/Chart/'+'${myList[i][1]}');" id="ReplicateBtn">[CHART]</button>
                     </td>`
       }else{
         row = row + `<td>
                       <a style="text-decoration:none; color:#000000">No Notes Available</a>
                     </td>`
       }
+    }else if(targetURL.includes('/Study/Notes/')){
+      // working
+      var row = `<tr>
+                  <td><a style="text-decoration:none; color:#000000">${myList[i][0]}</a></td>
+                  <td><a style="text-decoration:none; color:#000000">${myList[i][1]}</a></td>
+                  <td><a style="text-decoration:none; color:#000000">${myList[i][2]}</a></td>
+                  <td>
+                    <button id="delete" onclick="return deleteNote(${myList[i][4]}, ${myList[i][3]});">[DELETE]</button>
+                  </td>`
+    }else if(targetURL.includes('/Study/Chart/')){
+      row += `<td>${myList[i][4]}</td>`
     }else{
       console.log(targetURL)
     }

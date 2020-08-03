@@ -3,7 +3,17 @@
 {% block title %}MaSim LIMS / Configurations{% endblock %}
 {% block meta %}
 <!-- Refresh every minute -->
-<meta http-equiv="refresh" content="60">
+<!-- <meta http-equiv="refresh" content="60"> -->
+<script>
+  // OK
+  setInterval(function(){
+      $('#table-body').empty();
+      $('#pagination-wrapper').empty();
+      tableDisplay('{{localURL}}','configMessage','configTable');
+      setTargetURL('{{localURL}}');
+  }, 60000);
+
+</script>
 {% endblock %}
 {% block content %}
 <div class="center" id="configMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
@@ -35,8 +45,8 @@
   <script src="{% static './js/tableDisplay.js' %}"></script>
   <script src="{% static './js/last100Sort.js' %}"></script>
   <script>
-    messageBoxAdjust("configMessage","configTable");
-    tableDisplay('{{localURL}}');
+    // messageBoxAdjust("configMessage","configTable");
+    tableDisplay('{{localURL}}',"configMessage","configTable");
     setTargetURL('{{localURL}}');
   </script>
   {% endblock %}

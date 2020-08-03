@@ -61,3 +61,12 @@
     width: 1000px;
     margin: auto;
 }
+
+#chartPlace{
+    width:75%;
+}
+
+#statistics{
+    text-align: center;
+    font-weight: bold;
+}

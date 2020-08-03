@@ -40,6 +40,28 @@ class AppDatabase:
         commitQuery(request, SQL, {'name':database, 'connection':self.createConnectionString(database)}, self.APPCONN)
 
 
+    # Deletes the replicate indicated from the database, returns True if the operation was successful
+    def deleteReplicate(self, request, replicateId):
+        # Open the connection
+        connection = psycopg2.connect(request.session['dbconnection'])
+        connection.autocommit = True
+        cursor = connection.cursor()
+
+        # Run the stored procedure
+        SQL = 'CALL delete_replicate(%(replicateId)s'
+        cursor.execute(SQL, {'replicateId': replicateId})
+
+        # Parse the messages
+        success = False
+        for notice in connection.notices:
+            if "NOTICE:  Complete" in notice.contains: success = True
+
+        # Clean-up and return
+        cursor.close()
+        connection.close()
+        return success
+
+
     # Return a valid connection string for the LIMS for the database name indicated
     def createConnectionString(self, database):
         return self.REFERENCE.format(database.lower())
@@ -58,10 +80,16 @@ class AppDatabase:
     # Get the replicates based upon if they are running (or not) with an upper limit for how many (default 1000)
     @staticmethod
     def getReplicates(request, running, limit = 1000):
-        SQL = """
-            SELECT id, filename, starttime, endtime, movement,
-                CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
-            FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
+        if running:
+            SQL = """
+                SELECT filename, starttime, movement,
+                    CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
+                FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
+        else:
+            SQL = """
+                SELECT id, filename, starttime, endtime, movement,
+                    CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
+                FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
         WHERE = "WHERE (now() - starttime) <= interval '3 days' AND endtime IS NULL"
 
         # Update the query and return the results
@@ -98,12 +126,12 @@ class AppDatabase:
             SQL = """
                 SELECT v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime FROM study 
                 LEFT JOIN configuration ON configuration.studyID = %(id)s INNER JOIN v_replicates ON v_replicates.configurationid = configuration.id 
-                WHERE study.id = %(id)s ORDER BY v_replicates.id"""
+                WHERE study.id = %(id)s ORDER BY v_replicates.starttime desc"""
             return selectQuery(request, SQL,{'id':studyid})
         else:
             SQL = """
                 SELECT v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime
-                FROM configuration INNER JOIN v_replicates ON v_replicates.configurationid = configuration.id WHERE studyid IS NULL ORDER BY v_replicates.id"""
+                FROM configuration INNER JOIN v_replicates ON v_replicates.configurationid = configuration.id WHERE studyid IS NULL ORDER BY v_replicates.starttime desc"""
             return selectQuery(request,SQL)
 
 
