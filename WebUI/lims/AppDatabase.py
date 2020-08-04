@@ -46,16 +46,16 @@ class AppDatabase:
         connection = psycopg2.connect(request.session['dbconnection'])
         connection.autocommit = True
         cursor = connection.cursor()
-        # Run the stored procedure
-        SQL = 'CALL delete_replicate(%(replicateId)s'
-        cursor.execute(SQL, {'replicateId': replicateId})
+
         # Run the stored procedure
         SQL = 'CALL delete_replicate(%(replicateId)s'
         cursor.execute(sql, {'replicateId': replicateId})
+
         # Parse the messages
         success = False
         for notice in connection.notices:
             if "NOTICE:  Complete" in notice.contains: success = True
+
         # Clean-up and return
         cursor.close()
         connection.close()
@@ -80,16 +80,10 @@ class AppDatabase:
     # Get the replicates based upon if they are running (or not) with an upper limit for how many (default 1000)
     @staticmethod
     def getReplicates(request, running, limit = 1000):
-        if running:
-            SQL = """
-                SELECT filename, starttime, movement,
-                    CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
-                FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
-        else:
-            SQL = """
-                SELECT id, filename, starttime, endtime, movement,
-                    CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
-                FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
+        SQL = """
+            SELECT id, filename, starttime, endtime, movement,
+                CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
+            FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""                
         WHERE = "WHERE (now() - starttime) <= interval '3 days' AND endtime IS NULL"
 
         # Update the query and return the results
