@@ -119,7 +119,6 @@ function buildTable(targetURL) {
       }else{
         studyID = 'None'
       }
-      console.log(studyID)
       var row = `
               <tr>
               <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${myList[i][0]}</button></td> 
@@ -127,6 +126,7 @@ function buildTable(targetURL) {
               <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${myList[i][2]}</button></td>
               <td><button onclick="pageRedirection('/StudyReplicate/'+'${studyID}');" id="ReplicateBtn">${myList[i][3]}</button></td>
               `
+      // If a study does not have any replicates and configurations, we can add delete. (but it should have study id)
       if(parseInt(myList[i][2])==0 &&  parseInt(myList[i][3])==0 && myList[i][1]){
         // myList[i][1] is id
         row = row + `<td>
@@ -134,12 +134,16 @@ function buildTable(targetURL) {
                       <button onclick="pageRedirection('/Study/Chart/'+'${myList[i][1]}');" id="ReplicateBtn">[CHART]</button>
                       <button id="delete" onclick="return deleteNote('${myList[i][1]}');">[DELETE]</button>
                       </td>`
-      }else if(myList[i][1]){
+      }
+      // If a study has configurations and replicates. (have study id)
+      else if(myList[i][1]){
         row = row + `<td>
                       <button onclick="pageRedirection('/Study/Notes/'+'${myList[i][1]}');" id="ReplicateBtn">[NOTES]</button>
                       <button onclick="pageRedirection('/Study/Chart/'+'${myList[i][1]}');" id="ReplicateBtn">[CHART]</button>
                     </td>`
-      }else{
+      }
+      // If a study does not have id. (last row of the table)
+      else{
         row = row + `<td>
                       <a style="text-decoration:none; color:#000000">No Notes Available</a>
                     </td>`

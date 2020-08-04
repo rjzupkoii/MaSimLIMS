@@ -46,11 +46,9 @@ class AppDatabase:
         connection = psycopg2.connect(request.session['dbconnection'])
         connection.autocommit = True
         cursor = connection.cursor()
-
         # Run the stored procedure
         SQL = 'CALL delete_replicate(%(replicateId)s'
         cursor.execute(SQL, {'replicateId': replicateId})
-
         # Parse the messages
         success = False
         for notice in connection.notices:
@@ -99,7 +97,7 @@ class AppDatabase:
 
     # Get configurations that associate with specific study id.
     @staticmethod
-    def getStudyConfigurations(request,studyid = False):
+    def getStudyConfigurations(request,studyid = None):
         # If studyid is a number.
         if studyid:
             SQL = """
@@ -113,8 +111,8 @@ class AppDatabase:
             SQL="""
                 SELECT configuration.filename, 
                 concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id), configuration.id 
-                FROM configuration left join replicate on replicate.configurationid = configuration.id WHERE studyid is NULL 
-                group by configuration.id order by configuration.id"""
+                FROM configuration left join replicate on replicate.configurationid = configuration.id 
+                WHERE studyid is NULL group by configuration.id order by configuration.id"""
             return selectQuery(request, SQL)
 
     
