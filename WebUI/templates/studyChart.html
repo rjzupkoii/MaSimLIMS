@@ -3,6 +3,8 @@
 {% block title %}MaSim LIMS / Study Chart{% endblock %}
 <!-- Working -->
 {% block meta %}
+<script src="https://unpkg.com/mathjs/dist/math.min.js"></script>
+
 <script>
   // OK
   setInterval(function(){
@@ -55,7 +57,6 @@
 <!-- <script src="{% static './js/ChartLast100.js' %}"></script> -->
 <script src="{% static './js/last100Sort.js' %}"></script>
 <script src="{% static './js/studyReplicateChart.js' %}"></script>
-<script src="https://unpkg.com/mathjs/dist/math.min.js"></script>
 <script>
   // Spread
   tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');

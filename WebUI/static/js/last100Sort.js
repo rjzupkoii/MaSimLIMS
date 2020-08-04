@@ -26,7 +26,6 @@ function Sort(column, orignal,asc=true) {
   for(bIndex; bIndex <= (orignal.length-1);bIndex++){
     track = bIndex
     for(aIndex=bIndex-1; aIndex >= 0; aIndex--){
-//      var returnVal = compareFunc(tableData[aIndex][column].trim(),tableData[track][column].trim())
       var returnVal = compare(tableData[aIndex][column].trim(),tableData[track][column].trim())
       if(asc){
         if(returnVal){
