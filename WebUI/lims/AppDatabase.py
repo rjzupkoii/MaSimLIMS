@@ -49,6 +49,9 @@ class AppDatabase:
         # Run the stored procedure
         SQL = 'CALL delete_replicate(%(replicateId)s'
         cursor.execute(SQL, {'replicateId': replicateId})
+        # Run the stored procedure
+        SQL = 'CALL delete_replicate(%(replicateId)s'
+        cursor.execute(sql, {'replicateId': replicateId})
         # Parse the messages
         success = False
         for notice in connection.notices:
