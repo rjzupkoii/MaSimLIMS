@@ -81,9 +81,6 @@ function compareRunning(a, b) {
       one = a.match(/^(\d*) days, (.*)$/);
       two = b.match(/^(\d*) days, (.*)$/);
 
-      console.log(one);
-      console.log(two);
-
       // Does only one option have a day group?
       if (one === null || two === null) {
         return one !== null;
