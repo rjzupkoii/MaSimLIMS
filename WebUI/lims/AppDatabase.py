@@ -53,7 +53,6 @@ class AppDatabase:
         success = False
         for notice in connection.notices:
             if "NOTICE:  Complete" in notice.contains: success = True
-
         # Clean-up and return
         cursor.close()
         connection.close()
