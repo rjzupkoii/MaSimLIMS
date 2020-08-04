@@ -5,7 +5,6 @@
 ##
 import psycopg2
 import re
-
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 # Select specific unit
 def getStudyName(request, id = 'None'):
@@ -127,3 +126,49 @@ def pagePrev(pageNum):
 
     # Just navigage back one
     return pageNum - 1
+
+def blankSet(rowsList):
+    for row in range(0,len(rowsList)):
+        for column in range(0, len(rowsList[row])):
+            if not rowsList[row][column]:
+                rowsList[row][column] =' '
+    return rowsList
+
+
+# input should be a list which contains seconds as elements
+def timeAlgorithm(timeListSeconds):
+    sum = 0
+    for i in range(0,len(timeListSeconds)):
+        sum += float(timeListSeconds[i])
+    mean = round(sum/len(timeListSeconds))
+    # seconds
+    if mean <= 300:
+        for i in range(0, len(timeListSeconds)):
+            timeListSeconds[i] = round(timeListSeconds[i])
+        return timeListSeconds, 'in seconds'
+    elif mean <= 7200:
+        timeListMinutes = []
+        for i in range(0, len(timeListSeconds)):
+            timeListMinutes.append(round(timeListSeconds[i]/60))
+        return timeListMinutes, 'in minutes'
+    else:
+        timeListHours = []
+        for i in range(0, len(timeListSeconds)):
+            timeListHours.append(round(timeListSeconds[i]/3600,2))
+        return timeListHours, 'in hours'
+
+
+def manageTime(timeListSeconds,units):
+    if 'seconds' in units:
+        for i in range(0, len(timeListSeconds)):
+            if timeListSeconds[i]:
+                timeListSeconds[i] = round(timeListSeconds[i])
+    elif 'minutes' in units:
+        for i in range(0,len(timeListSeconds)):
+            if timeListSeconds[i]:
+                timeListSeconds[i] = round(timeListSeconds[i]/60)
+    else:
+        for i in range(0,len(timeListSeconds)):
+            if timeListSeconds[i]:
+                timeListSeconds[i] = round(timeListSeconds[i]/3600,2)
+    return timeListSeconds

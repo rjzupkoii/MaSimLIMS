@@ -21,7 +21,9 @@
     width: 100%;
     height: 2.5rem;
 }
-
+.center{
+    margin: auto;
+}
 /* Used on 404 page */
 .center > a{
     text-decoration: none;
@@ -58,4 +60,13 @@
     height: auto;
     width: 1000px;
     margin: auto;
+}
+
+#chartPlace{
+    width:75%;
+}
+
+#statistics{
+    text-align: center;
+    font-weight: bold;
 }

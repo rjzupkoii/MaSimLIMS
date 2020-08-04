@@ -23,7 +23,21 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <!-- Use the Cloudflare hosted Chart library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>  
-
+  <!-- JavaScript used by all pages that requires the HTML be done loading -->
+  <script>
+    var tableDataTmp = []
+    function pageRedirection(targetURL){
+      $.ajax({
+          url: targetURL,
+          type: 'POST',
+          success: function(result) {
+            location.replace(targetURL)
+          }
+        });
+    }
+  </script>
+  <script src="{% static './js/popup.js' %}"></script>
+  <!-- <script src="{% static './js/tablesort.js' %}"></script> -->
   {% block meta %}{% endblock  %}
 </head>
 <body>
@@ -31,7 +45,8 @@
     <div id="content-wrap">
   <h1>&nbsp;MaSim LIMS</h1>
   <ul class="nav">
-    <li><a href = "/">Home</a></li>
+    <!-- <li><a href = "/">Home</a></li> -->
+    <li><button onclick="pageRedirection('/');" id="studyBtn">Home</button></li> 
     <li><a>Database</a>
       <ul class="subnav">
         <li><a>Select Database ></a>
@@ -45,9 +60,13 @@
         <li><a href="/createNewDatabase">Create New Databases</a></li>
       </ul>
     </li>
-    <li><a href="/study/1">Study</a>
-    <li><a href="/worthToNotice/1">Long Running Replicates</a>
-    <li><button onclick="last100();" id="last100Btn">Last 100 Replicates</button></li> 
+    
+    <li><button onclick="pageRedirection('/study');" id="studyBtn">Study</button></li> 
+    <!-- <li><a href="/study">Study</a> -->
+    <!-- <li><a href="/worthToNotice/1">Long Running Replicates</a> -->
+    
+    <li><button onclick="pageRedirection('/worthToNotice');" id="worthToNoticeBtn">Long Running Replicates</button></li> 
+    <li><button onclick="pageRedirection('/replicatesLatest100');" id="last100Btn">Last 100 Replicates</button></li> 
   </ul>
     {% block content %}{% endblock %}
     </div>
@@ -58,11 +77,5 @@
 
   <!-- This is a bit of a hack and should be removed -->
   <p id="demo" style="visibility: hidden;"></p>
-
-  <!-- JavaScript used by all pages that requires the HTML be done loading -->
-  <script src="{% static './js/popup.js' %}"></script>
-  <script src="{% static './js/tablesort.js' %}"></script>
-  <script src="{% static './js/tableDisplay.js' %}"></script>
-  <script src="{% static './js/last100Sort.js' %}"></script>
 </body>
 </html>

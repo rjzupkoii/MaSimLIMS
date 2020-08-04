@@ -1,22 +1,24 @@
-last100DisplayChart()
-function last100DisplayChart(){
+function studyReplicateChart(targetURL){
     $.ajax({
-        url: '/replicatesLatest100',
+        url: targetURL,
         type: 'POST',
         success: function(result) {
             var runningTimeListFinished = result.runningTimeListFinished
-            var ReplicateID = result.ReplicateID
             var runningTimeListUnfinished = result.runningTimeListUnfinished
             var runningTimeListWorth = result.runningTimeListWorth
             var filesName = result.filesName
             var units = result.units
-            var last100Time = result.last100Time
-            let last100Chart = document.getElementById('last100Chart').getContext('2d');
+            var ReplicateID = result.ReplicateID
+            var studyName = result.studyname
+            var allRunningTime = result.allRunningTime
+            var finishedCount = result.finishedCount
+            statistics(allRunningTime,studyName,units,finishedCount)
+            let last100Chart = document.getElementById('studyReplicateChart').getContext('2d');
             let runningTimeChart = new Chart(last100Chart, {
               type: 'line',
                 data: {
                     datasets: [{
-                        label: 'Last 100 Replicates Finished',
+                        label: 'Replicates Finished',
                         data: runningTimeListFinished,
                         fill: true,
                         borderColor:"rgb(11,102,35,1)",
@@ -28,7 +30,7 @@ function last100DisplayChart(){
                         spanGaps: false,
                         showLine: false
                     },{
-                        label: 'Last 100 Replicates Unfinished',
+                        label: 'Replicates Unfinished',
                         data: runningTimeListUnfinished,
                         fill: true,
                         borderColor: "rgba(0,0,255,1)",
@@ -40,7 +42,7 @@ function last100DisplayChart(){
                         spanGaps:false,
                         showLine: false
                     },{
-                        label: 'Last 100 Replicates Worth to Notice',
+                        label: 'Replicates Worth to Notice',
                         data: runningTimeListWorth,
                         fill: true,
                         borderColor: "rgba(255,0,0,1)",
@@ -57,7 +59,7 @@ function last100DisplayChart(){
                 options: {
                     title: { 
                         display: true,
-                        text: "Lastest 100 replicates"
+                        text: '\'' + studyName + '\'' + " - replicates"
                     },
                     scales:{
                         yAxes: [{
@@ -81,7 +83,7 @@ function last100DisplayChart(){
                                 }
                                 // second line
                                 // Can be used as index
-                                label += last100Time[tooltipItem.xLabel-1];
+                                label += allRunningTime[tooltipItem.xLabel-1];
                                 return label;
                             },
                             // First line
@@ -95,4 +97,16 @@ function last100DisplayChart(){
             });
         }
     });
+}
+
+function statistics(allRunningTime,studyname,units,finishedCount){
+  // standard deviation for all.
+  var standard = math.round(math.std(allRunningTime, 'uncorrected'),2);
+  var max = math.round(math.max(allRunningTime),2);
+  var min = math.round(math.min(allRunningTime),2);
+  var mean = math.round(math.mean(allRunningTime),2);
+  var statisticsPlace = $('#statistics');
+  var rows = `<p>Statistics of replicates on study (${units}) - \'${studyname}\' </p>
+            <p>Number that finished: ${finishedCount};&nbsp&nbspStandard deviation for all data: ${standard};&nbsp&nbspMaximum for all data: ${max};&nbsp&nbspMinimum for all data: ${min};&nbsp&nbspMean for all data: ${mean}</p>`
+  statisticsPlace.append(rows);
 }

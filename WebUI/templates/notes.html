@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}MaSim LIMS / Notes{% endblock %}
 {% block meta %}
-<script src="{% static './js/textarea.js' %}"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -22,20 +22,29 @@
   }
 </script>
 
-<div class="center"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+<script>
+  // OK
+  setInterval(function(){
+      $('#table-body').empty();
+      $('#pagination-wrapper').empty();
+      tableDisplay('{{localURL}}','notesMessage','notesTable');
+      setTargetURL('{{localURL}}');
+  }, 60000);
+</script>
+
+<div class="center" id="notesMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 {% if tableNeed %}
-  <table class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+  <table id="notesTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
       <thead>
         <tr>
           <th>Data</th>
           <th>User</th>
           <th>Date</th>
-          <th>Study ID</th>
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        {% for r in rows %}
+      <tbody id = "table-body">
+        <!-- {% for r in rows %}
           <tr>
             <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
             <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
@@ -45,12 +54,11 @@
               <button id="delete" onclick="return deleteNote({{r.0}}, {{r.4}});">[DELETE]</button>
             </td>
           </tr>
-        {% endfor %}
+        {% endfor %} -->
       </tbody>
   </table>
-  <div class="previousNext">
-    <a href="{{newPathPart}}/{{pageNumberPrev}}" class="previous">&laquo; Previous</a>
-    <a href="{{newPathPart}}/{{pageNumberNext}}" class="next">&nbsp;&nbsp;&nbsp;Next&raquo;&nbsp;&nbsp;&nbsp;</a>
+  <div>
+    <div id="pagination-wrapper"></div>
   </div>
 {%endif%}
 <form action="/Study/NotesRecord/{{id}}" align = "center" id="notesInfo" method = "POST">
@@ -67,4 +75,11 @@
     </div>
     <input type="submit" id="saveNotes" value="Save" style="font-size:0.9em;">
 </form>
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
+<script src="{% static './js/textarea.js' %}"></script>
+<script>
+  tableDisplay('{{localURL}}','notesMessage','notesTable');
+  setTargetURL('{{localURL}}');
+</script>
 {% endblock %}
