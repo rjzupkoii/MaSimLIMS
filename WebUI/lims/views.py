@@ -35,10 +35,9 @@ def index(request):
 
     # Render the rows        
     rowsList = []
-    for ndx in range(0, len(rows)):
-        rowsList.append(list(rows[ndx]))
-        rowsList[ndx][1] = rowsList[ndx][1].strftime(DATEFORMAT)
-        rowsList[ndx][-1] = str(rowsList[ndx][-1])
+    for row in rows:
+        values = [row[1], row[2].strftime(DATEFORMAT), row[4], str(row[5])]
+        rowsList.append(values)
 
     # Adjust how the results are returned based upon the request method
     if request.method == "POST":
