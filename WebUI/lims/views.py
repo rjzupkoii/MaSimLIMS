@@ -53,6 +53,7 @@ def index(request):
 @api_view(["POST","GET"])
 def replicatesLatest100(request):
     # Get the data for the view
+    timeWorth = 2*24*3600
     rows = AppDatabase.getReplicates(request, False, 100)
     ReplicateID = []
     runningTimeListFinished = []
@@ -89,7 +90,7 @@ def replicatesLatest100(request):
         else:
             runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][2],DATEFORMAT)).total_seconds()
             runningTimeListFinished.append(None)
-            if runningTime >= 2*24*3600:
+            if runningTime >= timeWorth:
                 runningTimeListUnfinished.append(None)
                 runningTimeListWorth.append(runningTime)
             else:
@@ -257,8 +258,6 @@ def ConfigReplicate(request, id):
 def worthToNotice(request):
     if request.method == 'POST':
         some_var = request.POST.getlist('checks')
-        print(some_var)
-        print("=====================================")
     # Get the data for the view
     rows  = AppDatabase.getLongRunningReplicates(request)
 
@@ -277,17 +276,16 @@ def worthToNotice(request):
     if request.method == "POST":
         return JsonResponse({'rowsList':rowsList})
     elif request.method == "GET":
-        return render(request, 'Replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on", "localURL":'/worthToNotice'})
+        return render(request, 'longRunningReplicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on", "localURL":'/worthToNotice'})
 
 
 @api_view(["DELETE"])
 # Used for delete long running replicates (individualy)
 def deleteLongRunning(request,replicateID):
     app = AppDatabase()
-    if(app.deleteReplicate(request,replicateID)):
-        return HttpResponse("OK")
-    else:
-        return HttpResponse("Fail")
+    # Return a boolean
+    success = app.deleteReplicate(request,replicateID)
+    return JsonResponse({"success":success})
 
 
 
@@ -328,6 +326,7 @@ def studyNotes(request,studyId):
 # statistics only for finished
 @api_view(["GET","POST"])
 def studyChart(request,studyId):
+    timeWorth = 2*24*3600
     rows = AppDatabase.getStudyReplicates(request,studyId)
     runningTimeListFinished = []
     runningTimeListUnfinished = []
@@ -377,7 +376,7 @@ def studyChart(request,studyId):
             runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][1],DATEFORMAT)).total_seconds()
             runningTimeListFinished.append(None)
             # If worth to notice, no need to mark as unfinished
-            if runningTime >= 2*24*3600:
+            if runningTime >= timeWorth:
                 runningTimeListUnfinished.append(None)
                 runningTimeListWorth.append(runningTime)
             else:

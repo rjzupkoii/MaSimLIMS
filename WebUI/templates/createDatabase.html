@@ -36,9 +36,6 @@
     messageBoxAdjust("createDBMessage","login");
   </script>
   <script>
-    window.addEventListener('load', function () {
-      const loader = document.querySelector(".pageLoading");
-      $(".pageLoading").fadeOut();
-    });
+    $(document).ready(function() { $(".pageLoading").fadeOut(); });
   </script>
 {% endblock %}
