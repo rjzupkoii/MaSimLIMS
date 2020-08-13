@@ -1,24 +1,36 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}MaSim LIMS / Study Chart{% endblock %}
-<!-- Working -->
 {% block meta %}
 <script src="https://unpkg.com/mathjs/dist/math.min.js"></script>
-<!-- Study Chart does not need to be refreshed -->
+
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
+<script src="{% static './js/studyReplicateChart.js' %}"></script>
+
+<script>
+  $(document).ready(function() {
+    studyReplicateChart('{{localURL}}');
+    tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');
+    setTargetURL('{{localURL}}');
+  })
+</script>
 {% endblock %}
 
 {% block content %}
 
 <div class="center" id="chartMessage"><strong>{{ viewType }} {{ studyname }}</strong></div>
 
+<!-- This page will take awhile to load -->
+<div class="center" id="pageLoading" style="padding-top: 2em; width: 66%"><strong>Chart Loading...</strong></div>
+
 <div class="container", id="chartPlace">
   <canvas id="studyReplicateChart"></canvas>
 </div>
 
-<div id="statistics">
-</div>
+<div id="statistics"></div>
 
-<table id="studyReplicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
+<table id="studyReplicateTable" class="content-table" style="visibility: hidden;">
   <thead>
     <tr>
       <th>File Name</th>
@@ -36,18 +48,10 @@
   <tbody id = "table-body">
   </tbody>
 </table>
+
 <!-- reference: https://dennis-sourcecode.herokuapp.com/7/ -->
 <div>
   <div id="pagination-wrapper"></div>
 </div>
-<script src="{% static './js/tableDisplay.js' %}"></script>
-<!-- <script src="{% static './js/ChartLast100.js' %}"></script> -->
-<script src="{% static './js/last100Sort.js' %}"></script>
-<script src="{% static './js/studyReplicateChart.js' %}"></script>
-<script>
-  // Spread
-  studyReplicateChart('{{localURL}}');
-  tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');
-  setTargetURL('{{localURL}}');
-</script>
+
 {% endblock %}

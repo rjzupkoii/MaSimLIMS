@@ -3,9 +3,15 @@
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
 {% block meta %}
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/ChartLast100.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
+
 <script>
-  // OK
-  setInterval(function(){
+  $(document).ready(function() {
+    tableDisplay('{{localURL}}','last100Message','last100Table');
+    setTargetURL('{{localURL}}');
+    setInterval(function(){
       $('#table-body').empty();
       $('#pagination-wrapper').empty();
       $('#chartPlace').empty();
@@ -15,6 +21,7 @@
       tableDisplay('{{localURL}}','last100Message','last100Table');
       setTargetURL('{{localURL}}');
   }, 60000);
+  });
 </script>
 {% endblock %}
 
@@ -48,12 +55,4 @@
 <div>
   <div id="pagination-wrapper"></div>
 </div>
-<script src="{% static './js/tableDisplay.js' %}"></script>
-<script src="{% static './js/ChartLast100.js' %}"></script>
-<script src="{% static './js/last100Sort.js' %}"></script>
-<script>
-  // Spread
-  tableDisplay('{{localURL}}','last100Message','last100Table');
-  setTargetURL('{{localURL}}');
-</script>
 {% endblock %}

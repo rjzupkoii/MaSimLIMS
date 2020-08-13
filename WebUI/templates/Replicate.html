@@ -4,19 +4,23 @@
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
 {% block meta %} 
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
+<script>
+  $(document).ready(function() {
+    tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
+    setTargetURL('{{localURL}}');
+    setInterval(function(){
+        $('#table-body').empty();
+        $('#pagination-wrapper').empty();
+        tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
+        setTargetURL('{{localURL}}');
+    }, 60000);
+  });
+</script>
 {% endblock %}
 
 {% block content %}
-<script>
-  // OK
-  setInterval(function(){
-      $('#table-body').empty();
-      $('#pagination-wrapper').empty();
-      tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
-      setTargetURL('{{localURL}}');
-  }, 60000);
-</script>
-
 <div class="center" id="replicateMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 <table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
@@ -43,10 +47,4 @@
 <div>
   <div id="pagination-wrapper"></div>
 </div>
-<script src="{% static './js/tableDisplay.js' %}"></script>
-<script src="{% static './js/last100Sort.js' %}"></script>
-<script>
-  tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
-  setTargetURL('{{localURL}}');
-</script>
 {% endblock %}

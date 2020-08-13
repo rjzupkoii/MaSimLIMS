@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}MaSim LIMS / Create Database{% endblock %}
+
 {% block content %}
 <div class="center" id="createDBMessage"><strong>{{ viewType }}</strong></div>
-  <div align="center">
+  <div class="center">
     {% if messages %}
       <ul class="messages">
         {% for message in messages %}

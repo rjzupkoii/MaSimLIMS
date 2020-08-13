@@ -17,20 +17,12 @@ function tableDisplay(targetURL,boxID, tableID){
         state.querySet = tableDataTmp
         buildTable(targetURL)
         messageBoxAdjust(boxID, tableID)
+
         const loader = document.querySelector(".pageLoading");
-        // loader.className += " hidden"; // class "loader hidden"
         $(".pageLoading").fadeOut();
       }
     });
 }
-
-
-function messageBoxAdjust(boxID, tableID){
-  // Spread
-  var offsetWidth = document.getElementById(tableID).offsetWidth;
-  document.getElementById(boxID).style.width = String(offsetWidth).concat("px");
-}
-
 
 // pagination
 function pagination(querySet, page, rows) {

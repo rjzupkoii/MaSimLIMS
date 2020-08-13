@@ -2,7 +2,24 @@
 {% load static %}
 {% block title %}MaSim LIMS / Studys{% endblock %}
 {% block meta %}
+<!-- Refresh every minute -->
+<meta http-equiv="refresh" content="60">
+
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
+
 <script>
+  $(document).ready(function() {
+    tableDisplay('{{localURL}}','indexMessage','indexTable');
+    setTargetURL('{{localURL}}');
+    setInterval(function(){
+      $('#table-body').empty();
+      $('#pagination-wrapper').empty();
+      tableDisplay('{{localURL}}','indexMessage','indexTable');
+      setTargetURL('{{localURL}}');
+  }, 60000);
+  });
+
   function deleteNote(id) {
     if (confirm("Are you sure you wish to delete the study?")) {
       $.ajax({
@@ -17,23 +34,11 @@
     return false;
   }
 </script>
-<script>
-  // OK
-  setInterval(function(){
-      $('#table-body').empty();
-      $('#pagination-wrapper').empty();
-      tableDisplay('{{localURL}}','indexMessage','indexTable');
-      setTargetURL('{{localURL}}');
-  }, 60000);
-</script>
-<!-- Refresh every minute -->
-<meta http-equiv="refresh" content="60">
 {% endblock %}
- <!--margin-top margin-right margin-bottom margin-left-->
 
 {% block content %}
 <div class="center" id="indexMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-  <div align="center">
+  <div style="align-content: center">
     {% if messages %}
       <ul class="messages">
         {% for message in messages %}
@@ -44,7 +49,7 @@
   </div>
 
   <!-- Input: Add an empty text box on the studies page that allows the user to enter a study name, there should also be a "Submit" button that the user can click.-->
-  <form action="/study/InsertFail" align = "center" method="POST">
+  <form action="/study/InsertFail" style="text-align: center;" method="POST">
     {% csrf_token %}
     Study Name: <input type="text" name="studyName" style="font-size:0.9em; margin: 10px;"><br>
     <input type="submit" id = "Submit" value="Submit" style="font-size:0.9em;">
@@ -60,47 +65,9 @@
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody id = "table-body">
-      <!-- {% for r in  rows%}
-        <tr>
-          r.0 studyid
-          <td><button onclick="pageRedirection('/StudyConfig/{{ r.0 }}');" id="ConfigBtn">{{r.1}}</button></td> 
-          <td><button onclick="pageRedirection('/StudyConfig/{{ r.0 }}');" id="ConfigBtn">{{r.0}}</button></td> 
-          <td><button onclick="pageRedirection('/StudyConfig/{{ r.0 }}');" id="ConfigBtn">{{r.2}}</button></td> 
-
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.1}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.0}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyConfig/{{ r.0 }}">{{r.2}}</a></td>
-          <td><a style="text-decoration:none; color:#000000" href="/StudyReplicate/{{ r.0 }}">{{r.3}}</a></td>
-          <td><button onclick="pageRedirection('/StudyReplicate/{{ r.0 }}');" id="ReplicateBtn">{{r.3}}</button></td> 
-          If the count of configurations is 0 and the count of replicates is 0, then a link labeled "[DELETE]" should appear under the "Actions" column for studies.
-          {% if 0 == r.2 and 0 == r.3 %}
-            <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/1">[NOTES]</a>
-              <button id="delete" onclick="return deleteNote('{{r.0}}');">[DELETE]</button>
-            </td> 
-          normal operations
-          {% elif None != r.0 %}
-            <td>
-              <a style="text-decoration:none; color:#000000" href="/Study/Notes/{{r.0}}/1">[NOTES]</a>
-            </td>
-          {% else %}
-            <td>
-              <a style="text-decoration:none; color:#000000">No Notes Available</a>
-            </td>
-          {% endif %}
-        </tr>
-      {% endfor %} -->
-    </tbody>
+    <tbody id = "table-body"></tbody>
   </table>
   <div>
     <div id="pagination-wrapper"></div>
   </div>
-  <script src="{% static './js/tableDisplay.js' %}"></script>
-  <script src="{% static './js/last100Sort.js' %}"></script>
-  <script>
-    // Spread
-    tableDisplay('{{localURL}}','indexMessage','indexTable');
-    setTargetURL('{{localURL}}');
-  </script>
 {% endblock %}
