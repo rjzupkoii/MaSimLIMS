@@ -11,7 +11,6 @@
 <script>
   $(document).ready(function() {
     studyReplicateChart('{{localURL}}');
-    tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');
     setTargetURL('{{localURL}}');
   })
 </script>
@@ -19,10 +18,10 @@
 
 {% block content %}
 
-<div class="center" id="chartMessage"><strong>{{ viewType }} {{ studyname }}</strong></div>
+<div class="center" id="chartMessage" style="width: 66%; display: none;"><strong>{{ viewType }} {{ studyname }}</strong></div>
 
 <!-- This page will take awhile to load -->
-<div class="center" id="pageLoading" style="padding-top: 2em; width: 66%"><strong>Chart Loading...</strong></div>
+<div class="center" id="pageLoading" style="margin-top: 5em; width: 66%"><strong>Chart Loading...</strong></div>
 
 <div class="container", id="chartPlace">
   <canvas id="studyReplicateChart"></canvas>
