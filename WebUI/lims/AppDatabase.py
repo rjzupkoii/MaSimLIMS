@@ -49,13 +49,14 @@ class AppDatabase:
         cursor = connection.cursor()
 
         # Run the stored procedure
-
         SQL = 'CALL delete_replicate(%(replicateId)s)'
         cursor.execute(SQL, {'replicateId': replicateId})
+        
         # Parse the messages
         success = False
         for notice in connection.notices:
             if "NOTICE:  Complete" in notice: success = True
+
         # Clean-up and return
         cursor.close()
         connection.close()
@@ -94,9 +95,9 @@ class AppDatabase:
 
     # Get configurations that associate with specific study id.
     @staticmethod
-    def getStudyConfigurations(request,studyid = None):
+    def getStudyConfigurations(request, studyid = None):
         # If studyid is a number.
-        if studyid:
+        if studyid and not 'None' in studyid:
             SQL = """
                 SELECT configuration.filename, 
                 concat('(', ncols, ', ', nrows, ', ', xllcorner, ', ', yllcorner, ', ', cellsize, ')') as spatial, count(replicate.id), configuration.id
@@ -115,9 +116,9 @@ class AppDatabase:
     
     # Get replicates that associate with specific study id
     @staticmethod
-    def getStudyReplicates(request,studyid = False):
+    def getStudyReplicates(request, studyid = False):
         # if studyid is a number
-        if studyid:
+        if studyid and not 'None' in studyid:
             SQL = """
                 SELECT v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime FROM study 
                 LEFT JOIN configuration ON configuration.studyID = %(id)s INNER JOIN v_replicates ON v_replicates.configurationid = configuration.id 
@@ -169,9 +170,9 @@ class AppDatabase:
 
     # Get replicates that associate with configuration
     @staticmethod
-    def getConfigReplicate(request, id = False):
+    def getConfigReplicate(request, id = None):
         # If id is a number
-        if id:
+        if id and not 'None' in id:
             SQL = """
                 SELECT v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime
                 FROM v_replicates WHERE configurationid = %(id)s ORDER BY v_replicates.id"""
@@ -206,6 +207,5 @@ class AppDatabase:
     # delete study, but before deleting study, we need to delete all notes that associate to it.
     @staticmethod
     def deleteStudy(request,id):
-        SQL = """DELETE FROM notes WHERE studyid = %(id)s;
-             DELETE FROM study WHERE id = %(id)s"""
-        commitQuery(request,SQL,{'id':id})
+        SQL = """DELETE FROM notes WHERE studyid = %(id)s; DELETE FROM study WHERE id = %(id)s"""
+        commitQuery(request, SQL, {'id':id})
