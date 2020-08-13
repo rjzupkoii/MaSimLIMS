@@ -4,8 +4,27 @@
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
 {% block meta %} 
+  <script>
+    // delete long running replicates
+    function deleteReplicate(id) {
+      if (confirm("Are you sure you wish to delete this replicate?")) {
+        $.ajax({
+          url: '/deleteLongRunning'.concat('/', id),
+          type: 'DELETE',
+          success: function(result) {
+            if(result.success){
+              alert("Replicate deleted!");
+            }else{
+              alert("Replicate Delete Operation Fail!");
+            }
+            location.reload();
+          }
+        });
+      }
+      return false;
+    }
+  </script>
 {% endblock %}
-
 {% block content %}
 <script>
   // OK
@@ -23,12 +42,9 @@
     <tr>
       <th>File Name</th>
       <th>Start Time</th>
-
-      <!--- Don't display the end time if the replicates are running  --->
-      {% if localURL != '/worthToNotice' and localURL != '/' %} <th>End Time</th> {% endif %}
-
       <th>Movement</th>
       <th>Running Time</th>
+      <th>Action</th>
     </tr>
   </thead>
   <tfoot>

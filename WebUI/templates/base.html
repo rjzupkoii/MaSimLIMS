@@ -31,21 +31,26 @@
           url: targetURL,
           type: 'POST',
           success: function(result) {
-            location.replace(targetURL)
+            // Open in a new tab
+            var redirectWindow = window.open(targetURL, '_blank');
+            redirectWindow.location;
+            // location.replace(targetURL)
           }
         });
     }
   </script>
   <script src="{% static './js/popup.js' %}"></script>
-  <!-- <script src="{% static './js/tablesort.js' %}"></script> -->
   {% block meta %}{% endblock  %}
 </head>
 <body>
+  <!-- modified -->
+  <div class="pageLoading">
+    <p>This Page is Loading...</p>
+  </div>
   <div id="page-container">
     <div id="content-wrap">
   <h1>&nbsp;MaSim LIMS</h1>
   <ul class="nav">
-    <!-- <li><a href = "/">Home</a></li> -->
     <li><button onclick="pageRedirection('/');" id="studyBtn">Home</button></li> 
     <li><a>Database</a>
       <ul class="subnav">
@@ -62,8 +67,6 @@
     </li>
     
     <li><button onclick="pageRedirection('/study');" id="studyBtn">Study</button></li> 
-    <!-- <li><a href="/study">Study</a> -->
-    <!-- <li><a href="/worthToNotice/1">Long Running Replicates</a> -->
     
     <li><button onclick="pageRedirection('/worthToNotice');" id="worthToNoticeBtn">Long Running Replicates</button></li> 
     <li><button onclick="pageRedirection('/replicatesLatest100');" id="last100Btn">Last 100 Replicates</button></li> 

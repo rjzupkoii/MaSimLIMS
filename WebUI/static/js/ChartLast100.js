@@ -61,12 +61,15 @@ function last100DisplayChart(){
                     },
                     scales:{
                         yAxes: [{
-                            gridLines: { display: false },
+                            gridLines: { display: true },
                             barPercentage: 0.2, maintainAspectRatio: false,
                             scaleLabel: {
                                 display: true,
                                 labelString: 'running time ('+units+')'
                             }
+                        }],
+                        xAxes: [{
+                            gridLines: {display: false},
                         }]
                     },
                     tooltips: {

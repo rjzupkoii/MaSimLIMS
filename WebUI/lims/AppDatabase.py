@@ -41,6 +41,7 @@ class AppDatabase:
 
 
     # Deletes the replicate indicated from the database, returns True if the operation was successful
+    # Minor syntax error fixed
     def deleteReplicate(self, request, replicateId):
         # Open the connection
         connection = psycopg2.connect(request.session['dbconnection'])
@@ -48,14 +49,13 @@ class AppDatabase:
         cursor = connection.cursor()
 
         # Run the stored procedure
-        SQL = 'CALL delete_replicate(%(replicateId)s'
-        cursor.execute(sql, {'replicateId': replicateId})
 
+        SQL = 'CALL delete_replicate(%(replicateId)s)'
+        cursor.execute(SQL, {'replicateId': replicateId})
         # Parse the messages
         success = False
         for notice in connection.notices:
-            if "NOTICE:  Complete" in notice.contains: success = True
-
+            if "NOTICE:  Complete" in notice: success = True
         # Clean-up and return
         cursor.close()
         connection.close()
@@ -78,6 +78,7 @@ class AppDatabase:
 
 
     # Get the replicates based upon if they are running (or not) with an upper limit for how many (default 1000)
+    # Here are two situations, if running is true we do not need end time, when running is false we need endtime. So this is why we have two SQL
     @staticmethod
     def getReplicates(request, running, limit = 1000):
         SQL = """
@@ -139,7 +140,7 @@ class AppDatabase:
     @staticmethod
     def getLongRunningReplicates(request):
         SQL = """
-            SELECT filename, starttime, movement, (now() - starttime) AS runningtime
+            SELECT filename, starttime, movement, (now() - starttime) AS runningtime, id
             FROM v_replicates 
             WHERE endtime IS null AND (now() - starttime) > interval '2 days'
             ORDER BY runningtime DESC"""
@@ -201,3 +202,10 @@ class AppDatabase:
     def deleteNotes(request, id):
         SQL = """delete from notes where id = %(id)s"""
         commitQuery(request,SQL, {"id":id})
+    
+    # delete study, but before deleting study, we need to delete all notes that associate to it.
+    @staticmethod
+    def deleteStudy(request,id):
+        SQL = """DELETE FROM notes WHERE studyid = %(id)s;
+             DELETE FROM study WHERE id = %(id)s"""
+        commitQuery(request,SQL,{'id':id})

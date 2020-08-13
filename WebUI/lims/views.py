@@ -47,9 +47,11 @@ def index(request):
 
 
 # This view will render the last 100 replicates that ran on the database
-@api_view(["POST", "GET"])
+
+@api_view(["POST","GET"])
 def replicatesLatest100(request):
     # Get the data for the view
+    timeWorth = 2*24*3600
     rows = AppDatabase.getReplicates(request, False, 100)
     ReplicateID = []
     runningTimeListFinished = []
@@ -72,12 +74,11 @@ def replicatesLatest100(request):
 
         ReplicateID.append(i+1)
         runningTime = 0
-        
         # If we have an end time, finished
         # when finished --> unfinished and worthtonotice are None
         if rowsList[i][3]:
-            runningTimeTmp = rowsList[i][-1].split(':')
-            runningTime = float(runningTimeTmp[0])*3600 + float(runningTimeTmp[1])*60+ float(runningTimeTmp[2])
+            # Days need to be fixed
+            runningTime = rows[i][-1].total_seconds()
             runningTimeListFinished.append(runningTime)
             runningTimeListUnfinished.append(None)
             runningTimeListWorth.append(None)
@@ -86,11 +87,12 @@ def replicatesLatest100(request):
         # running time = current time - start time
         else:
             runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][2],DATEFORMAT)).total_seconds()
-            runningTimeListUnfinished.append(runningTime)
             runningTimeListFinished.append(None)
-            if runningTime >= 2*24*3600:
+            if runningTime >= timeWorth:
+                runningTimeListUnfinished.append(None)
                 runningTimeListWorth.append(runningTime)
             else:
+                runningTimeListUnfinished.append(runningTime)
                 runningTimeListWorth.append(None)
         last100Time.append(runningTime)
     rowsList = blankSet(rowsList)
@@ -118,7 +120,7 @@ def replicatesLatest100(request):
         raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(replicatesLatest100.__name__,))
 
 
-# setup connection "session"    OK
+# setup connection "session"
 @api_view(["GET"])
 def setdb(request, id):
     # Validate the ID provided
@@ -131,7 +133,7 @@ def setdb(request, id):
     return redirect('/')
 
 
-# Show study table  OK
+# Show study table
 @api_view(["GET","POST"])
 def study(request):
     # Get the data for the view
@@ -147,7 +149,7 @@ def study(request):
         return render(request, 'index.html',{"rows": rows, "viewType": "Studies on","localURL":"/study"})
 
 
-# Configurations that associate with study id   OK
+# Configurations that associate with study id
 @api_view(["GET","POST"])
 def StudyConfig(request,id):
     # newPathPart = pathReformateNoLast(request.path)
@@ -169,7 +171,7 @@ def StudyConfig(request,id):
         return render(request,"Config.html",{"rows":rows,"viewType": "Configurations on Study: \""+studyname[0][0]+'\" - ',"localURL":'/StudyConfig/'+str(id)})
 
 
-# Replicates that associate with study id   OK
+# Replicates that associate with study id
 @api_view(["GET", "POST"])
 def StudyReplicate(request, id):
     # newPathPart = pathReformateNoLast(request.path)
@@ -197,7 +199,7 @@ def StudyReplicate(request, id):
         return render(request, 'replicate.html', {"rows": rowsList,"viewType": "Replicates on Study: \""+studyname[0][0]+'\" - ',"localURL":'/StudyReplicate/'+str(id)})
 
 
-# Insert data into study table      OK
+# Insert data into study table
 @api_view(["POST"])
 def setStudyInsert(request):
     try:
@@ -210,18 +212,16 @@ def setStudyInsert(request):
         messages.success(request, error)
     return redirect('/study')
 
-# Need more details, when we delete study, do we need to delete study notes also?????   OK
+
 # Delete data from study table
 @api_view(["DELETE"])
 def DeleteFail(request, id):
     # Note two queries being run in same transaction
-    SQL = """DELETE FROM notes WHERE studyid = %(id)s;
-             DELETE FROM study WHERE id = %(id)s"""
-    commitQuery(request,SQL,{'id':id})
+    AppDatabase.deleteStudy(request,id)
     return HttpResponse("OK")
 
 
-# Replicates that associate with configuration id   OK
+# Replicates that associate with configuration id
 @api_view(["GET","POST"])
 def ConfigReplicate(request, id):
     # newPathPart = pathReformateNoLast(request.path)
@@ -251,9 +251,11 @@ def ConfigReplicate(request, id):
         return render(request, 'Replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName[0][0]+"\" - ","localURL":'/ConfigReplicate/'+str(id)})
 
 
-# Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future  OK
+# Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @api_view(["GET","POST"])
 def worthToNotice(request):
+    if request.method == 'POST':
+        some_var = request.POST.getlist('checks')
     # Get the data for the view
     rows  = AppDatabase.getLongRunningReplicates(request)
 
@@ -267,16 +269,21 @@ def worthToNotice(request):
         rowsList.append(list(rows[ndx]))
         rowsList[ndx][1] = rowsList[ndx][1].strftime(DATEFORMAT)
         # The database provides running time, format it as a string
-        rowsList[ndx][-1] = str(rowsList[ndx][-1])
-
-    # #Page Number cannot be smaller than 1
-    # pageNumberPrev = pagePrev(pageNum)
-    # pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
-    # newPathPart = pathReformateNoLast(request.path)
+        rowsList[ndx][-2] = str(rowsList[ndx][-2])
+        rowsList[ndx].append(rows[ndx][-2].total_seconds())
     if request.method == "POST":
         return JsonResponse({'rowsList':rowsList})
     elif request.method == "GET":
-        return render(request, 'Replicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on", "localURL":'/worthToNotice'})
+        return render(request, 'longRunningReplicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on", "localURL":'/worthToNotice'})
+
+
+@api_view(["DELETE"])
+# Used for delete long running replicates (individualy)
+def deleteLongRunning(request,replicateID):
+    app = AppDatabase()
+    # Return a boolean
+    success = app.deleteReplicate(request,replicateID)
+    return JsonResponse({"success":success})
 
 
 @api_view(["GET","POST"])
@@ -313,8 +320,10 @@ def studyNotes(request,studyId):
                             "id": studyId, "user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - ","localURL":'/Study/Notes/'+str(studyId)})
 
 
+# statistics only for finished
 @api_view(["GET","POST"])
 def studyChart(request,studyId):
+    timeWorth = 2*24*3600
     rows = AppDatabase.getStudyReplicates(request,studyId)
     runningTimeListFinished = []
     runningTimeListUnfinished = []
@@ -362,14 +371,16 @@ def studyChart(request,studyId):
         # running time = current time - start time
         else:
             runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][1],DATEFORMAT)).total_seconds()
-            runningTimeListUnfinished.append(runningTime)
             runningTimeListFinished.append(None)
-            if runningTime >= 2*24*3600:
+            # If worth to notice, no need to mark as unfinished
+            if runningTime >= timeWorth:
+                runningTimeListUnfinished.append(None)
                 runningTimeListWorth.append(runningTime)
             else:
                 runningTimeListWorth.append(None)
+                runningTimeListUnfinished.append(runningTime)
+        # allRunningTime includes all running time
         allRunningTime.append(runningTime)
-
     rowsList = blankSet(rowsList)
     studyname = getStudyName(request, studyId)[0][0]
     if request.method == "POST":
@@ -389,6 +400,8 @@ def studyChart(request,studyId):
         return render(request, 'studyChart.html', {"rows": rowsList,"viewType": "Replicates chart on study: ",'allRunningTime':allRunningTime,'units':units,"studyname":studyname,"localURL":'/Study/Chart/'+str(studyId)})
 
 
+
+# id is study id
 @api_view(["POST"])
 def studyNotesRecord(request,studyId):
     notes = request.POST["notes"]
@@ -403,7 +416,6 @@ def studyNotesRecord(request,studyId):
     return response
 
 
-# Study/DeleteNotes/<str: studyid>/<str:id>
 @api_view(["DELETE"])
 def DeleteNotes(request, studyId, id):
     AppDatabase.deleteNotes(request, id)
