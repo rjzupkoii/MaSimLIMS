@@ -35,4 +35,10 @@
   <script>
     messageBoxAdjust("createDBMessage","login");
   </script>
+  <script>
+    window.addEventListener('load', function () {
+      const loader = document.querySelector(".pageLoading");
+      $(".pageLoading").fadeOut();
+    });
+  </script>
 {% endblock %}

@@ -5,12 +5,20 @@
 ##
 import psycopg2
 import re
+
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Define the various time attributes to be used for formatting
+TIMEATTRIBUTES = { 'seconds': [1, 0], 'minutes': [60, 0], 'hours': [3600, 2] }
+
+# Indices to use with TIMEATTRIBUTES
+TIMEDIVISOR = 0
+TIMEROUNDING = 1
+
 # Select specific unit
 def getStudyName(request, id = 'None'):
     # If there is not an ID, return default value
-    if 'None' in id:
-        return [["Unassigned"]]
+    if 'None' in id: return [["Unassigned"]]
 
     # Return the study name
     query = "SELECT name FROM study WHERE id = %(id)s"
@@ -20,8 +28,8 @@ def getStudyName(request, id = 'None'):
 
 def getConfigName(request, id = 'None'):
     # If there is not an ID, return default value
-    if 'None' in id:
-        return [["Unassigned"]]
+    if 'None' in id: return [["Unassigned"]]
+
     # Return the configuration name
     query = "SELECT filename FROM configuration WHERE id = %(id)s"
     result = selectQuery(request, query, {'id':id})
@@ -74,16 +82,15 @@ def commitQuery(request, sql, parameter, connectionString = None):
     # Clean-up and return
     cursor.close()
     connection.close()
-    return
 
 
 def visitor_ip_address(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
+        return x_forwarded_for.split(',')[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+        return request.META.get('REMOTE_ADDR')
+
 
 def pathReformateNoLast(pathPrepare):
     pathPrepare = pathPrepare.split('/')
@@ -99,8 +106,8 @@ def nextPage_newRow(pageNum, rowsList):
     # If pageNum is None assume we are on the first page
     if pageNum == None: pageNum = 1
 
-    newRow = []
     # if nextPage is 1, we can move to the next page, else stop moving
+    newRow = []
     nextPage = 1
     for i in range((pageNum-1)*20,pageNum*20):
         # this means that we reach the last element of the table, next page is empty and no need to show
@@ -110,6 +117,7 @@ def nextPage_newRow(pageNum, rowsList):
             nextPage = 0
             break
         newRow.append(rowsList[i])
+
     if nextPage:
         pageNumberNext = pageNum + 1
     else:
@@ -135,40 +143,35 @@ def blankSet(rowsList):
     return rowsList
 
 
-# input should be a list which contains seconds as elements
-def timeAlgorithm(timeListSeconds):
+# Update the times provided to be in the preferred unit for display and return the correct label
+def timeAlgorithm(times):
+
+    # Start by getting the mean time
     sum = 0
-    for i in range(0,len(timeListSeconds)):
-        sum += float(timeListSeconds[i])
-    mean = round(sum/len(timeListSeconds))
-    # seconds
-    if mean <= 300:
-        for i in range(0, len(timeListSeconds)):
-            timeListSeconds[i] = round(timeListSeconds[i])
-        return timeListSeconds, 'in seconds'
-    elif mean <= 7200:
-        timeListMinutes = []
-        for i in range(0, len(timeListSeconds)):
-            timeListMinutes.append(round(timeListSeconds[i]/60))
-        return timeListMinutes, 'in minutes'
-    else:
-        timeListHours = []
-        for i in range(0, len(timeListSeconds)):
-            timeListHours.append(round(timeListSeconds[i]/3600,2))
-        return timeListHours, 'in hours'
+    for i in range(0, len(times)):
+        sum += float(times[i])
+    mean = round(sum / len(times))
+
+    # Get the correct unit, default hours
+    units = 'hours'
+
+    # Return seconds if the running time is less than 5 minutes
+    if mean <= 300: units = 'seconds'
+    
+    # Return minutes if running time is less than 2 hours
+    elif mean <= 7200: units = 'minutes'
+
+    # Format and return
+    for i in range(0, len(times)):
+        times[i] = round(times[i] / TIMEATTRIBUTES[units][TIMEDIVISOR], TIMEATTRIBUTES[units][TIMEROUNDING])
+    return times, units
 
 
-def manageTime(timeListSeconds,units):
-    if 'seconds' in units:
-        for i in range(0, len(timeListSeconds)):
-            if timeListSeconds[i]:
-                timeListSeconds[i] = round(timeListSeconds[i])
-    elif 'minutes' in units:
-        for i in range(0,len(timeListSeconds)):
-            if timeListSeconds[i]:
-                timeListSeconds[i] = round(timeListSeconds[i]/60)
-    else:
-        for i in range(0,len(timeListSeconds)):
-            if timeListSeconds[i]:
-                timeListSeconds[i] = round(timeListSeconds[i]/3600,2)
-    return timeListSeconds
+def manageTime(times, units):
+    # Default is hours
+    if units is None: units = 'hours'
+    
+    # Format and return
+    for i in range(0, len(times)):
+        if times[i]: times[i] = round(times[i] / TIMEATTRIBUTES[units][TIMEDIVISOR], TIMEATTRIBUTES[units][TIMEROUNDING])
+    return times

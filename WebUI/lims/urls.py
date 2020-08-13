@@ -12,7 +12,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     # path('<int:pageNum>', views.index, name='index'),
-
+    path('deleteLongRunning/<str:replicateID>', views.deleteLongRunning, name='deleteLongRunning'),
     path('study', views.study, name='study'),
     path('study/InsertFail', views.setStudyInsert, name='setStudyInsert'),
     path('replicatesLatest100', views.replicatesLatest100, name='replicatesLatest100'),

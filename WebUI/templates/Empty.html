@@ -12,4 +12,10 @@
 <div class="center">
   <h1>{{message}}</h1>
 </div>
+<script>
+  window.addEventListener('load', function () {
+    const loader = document.querySelector(".pageLoading");
+    $(".pageLoading").fadeOut();
+  });
+</script>
 {% endblock %}

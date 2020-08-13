@@ -4,26 +4,22 @@
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
 {% block meta %} 
-<!-- Refresh every minute -->
-<!-- <meta http-equiv="refresh" content="60"> -->
-<!-- <script type="text/javascript">
-  // Sort by the start time once loaded
-  $(document).ready(function() {
-    sortTableByColumn(document.getElementById('replicateTable'), 1, false);
-  })
-  
-  // AJAX function for the last 100 replicates
-  var tableDataTmp = []
-  function last100(){
-    $.ajax({
-      url: '/replicatesLatest100',
-      type: 'POST',
-      success: function(result) {
-        location.replace('/replicatesLatest100')
+  <script>
+    // delete long running replicates
+    function deleteReplicate(id) {
+      if (confirm("Are you sure you wish to delete this replicate?")) {
+        $.ajax({
+          url: '/deleteLongRunning'.concat('/', id),
+          type: 'DELETE',
+          success: function(result) {
+            alert("Replicate deleted!");
+            location.reload();
+          }
+        });
       }
-    });
-  }
-  </script> -->
+      return false;
+    }
+  </script>
 {% endblock %}
 {% block content %}
 <script>
@@ -39,31 +35,27 @@
 <div class="center" id="replicateMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 <table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
-    {% if localURL == '/worthToNotice' or localURL == '/' %}
-      <tr>
-        <th>File Name</th>
-        <th>Start Time</th>
-        <th>Movement</th>
-        <th>Running Time</th>
-      </tr>
-    {% else %}
-      <tr>
-        <th>File Name</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Movement</th>
-        <th>Running Time</th>
-      </tr>
-    {% endif %}
+    <tr>
+      <th>File Name</th>
+      <th>Start Time</th>
+
+      <!--- Don't display the end time if the replicates are running  --->
+      {% if localURL != '/worthToNotice' and localURL != '/' %} <th>End Time</th> {% endif %}
+
+      <th>Movement</th>
+      <th>Running Time</th>
+      {% if localURL == '/worthToNotice' %}<th>Action</th>{% endif %}
+    </tr>
   </thead>
   <tfoot>
     <tr>
       <td colspan = "4">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
     </tr>
   </tfoot>
-  <tbody id = "table-body">
-  </tbody>
+  <!--- Rendered using JavaScript after the AJAX response --->
+  <tbody id = "table-body"></tbody>
 </table>
+
 <div>
   <div id="pagination-wrapper"></div>
 </div>

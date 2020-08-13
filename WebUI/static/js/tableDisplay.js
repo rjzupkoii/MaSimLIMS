@@ -17,6 +17,9 @@ function tableDisplay(targetURL,boxID, tableID){
         state.querySet = tableDataTmp
         buildTable(targetURL)
         messageBoxAdjust(boxID, tableID)
+        const loader = document.querySelector(".pageLoading");
+        // loader.className += " hidden"; // class "loader hidden"
+        $(".pageLoading").fadeOut();
       }
     });
 }
@@ -86,7 +89,7 @@ function pageButtons(pages, targetURL) {
 
 // build table dynamically
 function buildTable(targetURL) {
-  console.log("IN")
+  const LONG_RUNNING = 96 * 3600; // Time in seconds
   var table = $('#table-body')
   var data = pagination(state.querySet, state.page, state.rows)
   var myList = data.querySet
@@ -98,7 +101,20 @@ function buildTable(targetURL) {
               <td>${myList[i][2]}</td>
               <td>${myList[i][3]}</td>
               `
-    if(targetURL == '/replicatesLatest100'){
+    if(targetURL == '/worthToNotice'){
+      console.log(myList[i][5])
+      if(myList[i][5] >= LONG_RUNNING){
+        // working
+        row = row + `<td>
+                      <button id="ReplicateBtn" onclick="return deleteReplicate('${myList[i][4]}');">[DELETE]</button>
+                    </td>`
+        // <input type="checkbox" id="checks" name="checks" value="delete_${myList[i][4]}">
+        // <label for="checks">Delete?</label>
+      }else{
+        row = row + `<td> </td>`
+      }
+    }
+    else if(targetURL == '/replicatesLatest100'){
       row =  row +  `
                     <td>${myList[i][4]}</td>
                     <td>${myList[i][5]}</td>

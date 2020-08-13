@@ -12,7 +12,7 @@ function studyReplicateChart(targetURL){
             var studyName = result.studyname
             var allRunningTime = result.allRunningTime
             var finishedCount = result.finishedCount
-            statistics(allRunningTime,studyName,units,finishedCount)
+            statistics(runningTimeListFinished.filter(function (element) {return element != null;}),studyName,units,finishedCount)
             let last100Chart = document.getElementById('studyReplicateChart').getContext('2d');
             let runningTimeChart = new Chart(last100Chart, {
               type: 'line',
@@ -63,12 +63,15 @@ function studyReplicateChart(targetURL){
                     },
                     scales:{
                         yAxes: [{
-                            gridLines: { display: false },
+                            gridLines: { display: true },
                             barPercentage: 0.2, maintainAspectRatio: false,
                             scaleLabel: {
                                 display: true,
                                 labelString: 'running time ('+units+')'
                             }
+                        }],
+                        xAxes: [{
+                            gridLines: {display: false},
                         }]
                     },
                     tooltips: {
@@ -100,13 +103,18 @@ function studyReplicateChart(targetURL){
 }
 
 function statistics(allRunningTime,studyname,units,finishedCount){
-  // standard deviation for all.
-  var standard = math.round(math.std(allRunningTime, 'uncorrected'),2);
-  var max = math.round(math.max(allRunningTime),2);
-  var min = math.round(math.min(allRunningTime),2);
-  var mean = math.round(math.mean(allRunningTime),2);
-  var statisticsPlace = $('#statistics');
-  var rows = `<p>Statistics of replicates on study (${units}) - \'${studyname}\' </p>
-            <p>Number that finished: ${finishedCount};&nbsp&nbspStandard deviation for all data: ${standard};&nbsp&nbspMaximum for all data: ${max};&nbsp&nbspMinimum for all data: ${min};&nbsp&nbspMean for all data: ${mean}</p>`
-  statisticsPlace.append(rows);
+    // Get the basic statistics on everything
+    var standard = math.round(math.std(allRunningTime, 'uncorrected'), 2);
+    var max = math.round(math.max(allRunningTime), 2);
+    var min = math.round(math.min(allRunningTime), 2);
+    var mean = math.round(math.mean(allRunningTime), 2);
+    var sum = math.round(math.sum(allRunningTime), 2);
+
+    // Generate the HTML and place it
+    var statisticsPlace = $('#statistics');
+    var rows = `<p>Statistics of Replicates from \'${studyname}\' </p>
+                Completed Replicates: ${finishedCount} / ${sum} ${units} total CPU time<br /><br />
+                Mean: ${mean} (${units}) (Standard Deviation: ${standard})<br /><br />
+                Range: ${min} to ${max} (${units})`
+    statisticsPlace.append(rows);
 }

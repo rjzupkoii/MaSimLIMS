@@ -31,7 +31,10 @@
           url: targetURL,
           type: 'POST',
           success: function(result) {
-            location.replace(targetURL)
+            // Open in a new tab
+            var redirectWindow = window.open(targetURL, '_blank');
+            redirectWindow.location;
+            // location.replace(targetURL)
           }
         });
     }
@@ -41,6 +44,11 @@
   {% block meta %}{% endblock  %}
 </head>
 <body>
+  <!-- modified -->
+  <div class="pageLoading">
+    <!-- <img src="C:\Users\12533\Pictures\Saved Pictures\Lab.jpg" alt="Loading..." /> -->
+    <p>This Page is Loading...</p>
+  </div>
   <div id="page-container">
     <div id="content-wrap">
   <h1>&nbsp;MaSim LIMS</h1>

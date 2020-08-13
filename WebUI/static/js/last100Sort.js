@@ -26,7 +26,8 @@ function Sort(column, orignal,asc=true) {
   for(bIndex; bIndex <= (orignal.length-1);bIndex++){
     track = bIndex
     for(aIndex=bIndex-1; aIndex >= 0; aIndex--){
-      var returnVal = compareFunc(tableData[aIndex][column].trim(),tableData[track][column].trim())
+      var returnVal = compare(tableData[aIndex][column].trim(),tableData[track][column].trim())
+      // var returnVal = compareFunc(tableData[aIndex][column].trim(),tableData[track][column].trim())
       if(asc){
         if(returnVal){
           var tmp = tableData[aIndex]
@@ -50,76 +51,52 @@ function Sort(column, orignal,asc=true) {
   }
 }
 
-// compare two inputs: if aColText > bColText, return true, else return false.
-function compareFunc(aColText,bColText){
-  var index;
-  const aTime = new Date(aColText);
-  const bTime = new Date(bColText);
-  // Time
-  if(!isNaN(aTime) && aColText.includes('-')){
-      return aTime >= bTime ? true : false;
+// Compare the two values, return true if if A > B
+function compare(a, b) {
+  // Is this an integer?
+  if (!(isNaN(parseInt(a)) && isNaN(parseInt(b)))) {
+    return a > b;
   }
-  else{
-      // If it is not a time, separate by ":"
-      // For running time
-      if(aColText.includes(':')){
-          var idA = aColText.split(":");
-          var idB = bColText.split(":");
-          // A has day, B does not have. A > B
-          if(idA[0].includes('day') && !idB[0].includes('day')){
-            return true;
-          }
-          // A does not have day, B has day. B > A
-          else if(!idA[0].includes('day') && idB[0].includes('day')){
-            return false;
-          }
-          // Both have day
-          else if(idA[0].includes('day') && idB[0].includes('day')){
-            var splitBySpaceA = idA[0].split(' ');
-            var splitBySpaceB = idB[0].split(' ');
-            // day in A > day in B.
-            if(parseFloat(splitBySpaceA[0]) > parseFloat(splitBySpaceB[0])){
-              return true;
-            }else if(parseFloat(splitBySpaceA[0]) < parseFloat(splitBySpaceB[0])){
-              return false;
-            }
-            // day in A == day in B
-            else{
-              // hour in A > hour in B
-              if(parseFloat(splitBySpaceA[2]) > parseFloat(splitBySpaceB[2])){
-                return true;
-              }else if(parseFloat(splitBySpaceA[2]) < parseFloat(splitBySpaceB[2])){
-                return false;
-              }
-              // idA[0] = idB[0] (both same day and same hour) --> continue comparison
-              else{
-                index = 1;
-              }
-            }
-          }
-          // Both does not have day
-          else{
-            index = 0
-          }
-          // Fetch each part and compare.
-          for(index; index < idA.length; index++){
-              if(parseFloat(idA[index]) > parseFloat(idB[index])){
-                  return true;
-              }else if(parseFloat(idA[index]) < parseFloat(idB[index])){
-                  return false
-              }
-          }
-          // If two values are the same
-          return true;
-      }
-      // Not an integer and not a running time
-      else if(isNaN(parseInt(aColText))){
-          return aColText >= bColText ? true : false;
-      }else{
-          // Integer
-          return parseInt(aColText) >= parseInt(bColText) ? true : false;
-      }
+
+  // Is this a running time?
+  if (/\d{2}\.\d{6}/.test(a) && /\d{2}\.\d{6}/.test(b)) {
+    return compareRunning(a, b);
   }
+
+  // Is this a Date
+  if (!(isNaN(Date.parse(a)) && isNaN(Date.parse(b)))) {
+    return Date.parse(a) > Date.parse(b);
+  }
+
+  // Must be two strings
+  return a > b;
+}
+
+// Compare two running times, return true if A > B
+function compareRunning(a, b) {
+    // Do either have a day?
+    if (/^\d* days, .*$/.test(a) || /^\d* days, .*$/.test(b)) {
+      
+      // Capture the groups
+      one = a.match(/^(\d*) days, (.*)$/);
+      two = b.match(/^(\d*) days, (.*)$/);
+
+      // Does only one option have a day group?
+      if (one === null || two === null) {
+        return one !== null;
+      }
+
+      // Are the days equal?
+      if (one[0] === two[0]) {
+        return Date.parse(one[1]) > Date.parse(two[1]);
+      }
+
+      // Compare as two times
+      return parseInt(one[0]) > parseInt(two[0]);
+    }
+
+    // Compare as two times
+    return Date.parse(a) > Date.parse(b);
 }
 
 // If headers are clicked, clear table and pagination features

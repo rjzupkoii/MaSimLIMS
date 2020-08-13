@@ -3,23 +3,12 @@
 {% block title %}MaSim LIMS / Study Chart{% endblock %}
 <!-- Working -->
 {% block meta %}
-<script>
-  // OK
-  setInterval(function(){
-      $('#table-body').empty();
-      $('#pagination-wrapper').empty();
-      $('#chartPlace').empty();
-      $('#statistics').empty();
-      var chart = $('#chartPlace');
-      chart.append(`<canvas id="studyReplicateChart"></canvas>`);
-      studyReplicateChart('{{localURL}}');
-      tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');
-      setTargetURL('{{localURL}}');
-  }, 60000);
-</script>
+<script src="https://unpkg.com/mathjs/dist/math.min.js"></script>
+<!-- Study Chart does not need to be refreshed -->
 {% endblock %}
 
 {% block content %}
+
 <div class="center" id="chartMessage"><strong>{{ viewType }} {{ studyname }}</strong></div>
 
 <div class="container", id="chartPlace">
@@ -55,11 +44,10 @@
 <!-- <script src="{% static './js/ChartLast100.js' %}"></script> -->
 <script src="{% static './js/last100Sort.js' %}"></script>
 <script src="{% static './js/studyReplicateChart.js' %}"></script>
-<script src="https://unpkg.com/mathjs/dist/math.min.js"></script>
 <script>
   // Spread
+  studyReplicateChart('{{localURL}}');
   tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');
   setTargetURL('{{localURL}}');
-  studyReplicateChart('{{localURL}}');
 </script>
 {% endblock %}

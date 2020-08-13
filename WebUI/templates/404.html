@@ -6,4 +6,10 @@
   <h1><a href="/">404 Page Error: the page is missing or does not exist</a></h1>
   <a href="/"> Click Here: Go to Home Page </a>
 </div>
+<script>
+  window.addEventListener('load', function () {
+    const loader = document.querySelector(".pageLoading");
+    $(".pageLoading").fadeOut();
+  });
+</script>
 {% endblock %}
