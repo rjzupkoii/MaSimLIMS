@@ -11,6 +11,8 @@
   $(document).ready(function() {
     tableDisplay('{{localURL}}','last100Message','last100Table');
     setTargetURL('{{localURL}}');
+    last100DisplayChart();
+    
     setInterval(function(){
       $('#table-body').empty();
       $('#pagination-wrapper').empty();
@@ -20,7 +22,7 @@
       last100DisplayChart();
       tableDisplay('{{localURL}}','last100Message','last100Table');
       setTargetURL('{{localURL}}');
-  }, 60000);
+    }, 60000);
   });
 </script>
 {% endblock %}
