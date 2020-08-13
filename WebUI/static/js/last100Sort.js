@@ -27,6 +27,7 @@ function Sort(column, orignal,asc=true) {
     track = bIndex
     for(aIndex=bIndex-1; aIndex >= 0; aIndex--){
       var returnVal = compare(tableData[aIndex][column].trim(),tableData[track][column].trim())
+
       // var returnVal = compareFunc(tableData[aIndex][column].trim(),tableData[track][column].trim())
       if(asc){
         if(returnVal){
@@ -122,11 +123,9 @@ function tableSort(headerIndex){
     });
 }
 
-
 function setTargetURL(urlInput){
   targetURL = urlInput;
 }
-
 
 // header click event listener
 document.querySelectorAll(".content-table th").forEach(headerCell => {

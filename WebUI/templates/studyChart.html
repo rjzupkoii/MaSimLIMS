@@ -4,7 +4,24 @@
 <!-- Working -->
 {% block meta %}
 <script src="https://unpkg.com/mathjs/dist/math.min.js"></script>
+
 <!-- Study Chart does not need to be refreshed -->
+
+
+<script>
+  // OK
+  setInterval(function(){
+      $('#table-body').empty();
+      $('#pagination-wrapper').empty();
+      $('#chartPlace').empty();
+      $('#statistics').empty();
+      var chart = $('#chartPlace');
+      chart.append(`<canvas id="studyReplicateChart"></canvas>`);
+      studyReplicateChart('{{localURL}}');
+      tableDisplay('{{localURL}}','chartMessage','studyReplicateTable');
+      setTargetURL('{{localURL}}');
+  }, 60000);
+</script>
 {% endblock %}
 
 {% block content %}

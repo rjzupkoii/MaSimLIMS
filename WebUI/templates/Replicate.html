@@ -21,6 +21,7 @@
     }
   </script>
 {% endblock %}
+
 {% block content %}
 <script>
   // OK
@@ -44,7 +45,9 @@
 
       <th>Movement</th>
       <th>Running Time</th>
+
       {% if localURL == '/worthToNotice' %}<th>Action</th>{% endif %}
+
     </tr>
   </thead>
   <tfoot>
@@ -52,6 +55,7 @@
       <td colspan = "4">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
     </tr>
   </tfoot>
+
   <!--- Rendered using JavaScript after the AJAX response --->
   <tbody id = "table-body"></tbody>
 </table>
