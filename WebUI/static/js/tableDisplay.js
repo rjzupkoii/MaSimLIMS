@@ -79,7 +79,9 @@ function pageButtons(pages, targetURL) {
   })
 }
 
-// build table dynamically
+// TODO Clean this function up so that it takes a JavaScript function as a parameter, that function should then
+//      pass the current myList[i] to the function and it will return the HTML row. This allows for better 
+//      separation of concerns since the code for how to create the table row can be maintained with the .html
 function buildTable(targetURL) {
   const LONG_RUNNING = 96 * 3600; // Time in seconds
   var table = $('#table-body')
