@@ -47,7 +47,9 @@ class AppDatabase:
         connection = psycopg2.connect(request.session['dbconnection'])
         connection.autocommit = True
         cursor = connection.cursor()
+
         # Run the stored procedure
+
         SQL = 'CALL delete_replicate(%(replicateId)s)'
         cursor.execute(SQL, {'replicateId': replicateId})
         # Parse the messages
@@ -79,16 +81,10 @@ class AppDatabase:
     # Here are two situations, if running is true we do not need end time, when running is false we need endtime. So this is why we have two SQL
     @staticmethod
     def getReplicates(request, running, limit = 1000):
-        if running:
-            SQL = """
-                SELECT filename, starttime, movement,
-                    CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
-                FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
-        else:
-            SQL = """
-                SELECT id, filename, starttime, endtime, movement,
-                    CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
-                FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""
+        SQL = """
+            SELECT id, filename, starttime, endtime, movement,
+                CASE WHEN endtime IS NULL THEN (now() - starttime) ELSE runningtime END AS runningtime
+            FROM v_replicates {} ORDER BY starttime DESC LIMIT %(limit)s"""                
         WHERE = "WHERE (now() - starttime) <= interval '3 days' AND endtime IS NULL"
 
         # Update the query and return the results

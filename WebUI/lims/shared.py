@@ -35,6 +35,7 @@ def getConfigName(request, id = 'None'):
     result = selectQuery(request, query, {'id':id})
     return result
 
+
 # Get the cookie based upon the name
 def getcookie(request, cookieName):  
     cookie  = request.COOKIES[cookieName]
@@ -104,8 +105,8 @@ def pathReformateNoLast(pathPrepare):
     
 def nextPage_newRow(pageNum, rowsList):
     # If pageNum is None assume we are on the first page
-    if pageNum == None: pageNum = 1
 
+    if pageNum == None: pageNum = 1
     # if nextPage is 1, we can move to the next page, else stop moving
     newRow = []
     nextPage = 1
@@ -117,7 +118,6 @@ def nextPage_newRow(pageNum, rowsList):
             nextPage = 0
             break
         newRow.append(rowsList[i])
-
     if nextPage:
         pageNumberNext = pageNum + 1
     else:
@@ -134,6 +134,7 @@ def pagePrev(pageNum):
 
     # Just navigage back one
     return pageNum - 1
+
 
 def blankSet(rowsList):
     for row in range(0,len(rowsList)):
@@ -174,4 +175,5 @@ def manageTime(times, units):
     # Format and return
     for i in range(0, len(times)):
         if times[i]: times[i] = round(times[i] / TIMEATTRIBUTES[units][TIMEDIVISOR], TIMEATTRIBUTES[units][TIMEROUNDING])
+
     return times

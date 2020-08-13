@@ -3,9 +3,9 @@
 #
 # Define the views that are used by the LIMS.
 ##
-
 import psycopg2
 import os
+
 from django.http import JsonResponse
 from django.contrib import messages
 from django.http import HttpResponse
@@ -17,8 +17,9 @@ from lims.shared import *
 from lims.AppDatabase import *
 
 
+# Render a basic 404 page when the URL is not found
 def error_404_view(request, exception):
-    return render(request,'404.html')
+    return render(request, '404.html')
 
 
 # The index of the LIMS just shows a basic list of what is running on the default database
@@ -29,27 +30,24 @@ def index(request):
 
     # Render empty if there are no results
     if len(rows) == 0:
-        # Get the dbname
         message = "{0}, no replicates running".format(request.session['dbname'])
         return render(request, "empty.html", {"message": message})
 
     # Render the rows        
     rowsList = []
-    for ndx in range(0, len(rows)):
-        rowsList.append(list(rows[ndx]))
-        rowsList[ndx][1] = rowsList[ndx][1].strftime(DATEFORMAT)
-        rowsList[ndx][-1] = str(rowsList[ndx][-1])
-    # Let's keep this feature for now, I will find a better way to solve this.
-    # if not pageNum:
-    #     return redirect('/1')
+    for row in rows:
+        values = [row[1], row[2].strftime(DATEFORMAT), row[4], str(row[5])]
+        rowsList.append(values)
+
+    # Adjust how the results are returned based upon the request method
     if request.method == "POST":
         return JsonResponse({'rowsList': rowsList})
     elif request.method == "GET":
-        # pageNumberNext, newRow = nextPage_newRow(pageNum,rowsList)
         return render(request, 'Replicate.html', {"rows": rowsList,"viewType": "Currently running for", "localURL":'/'})
 
 
 # This view will render the last 100 replicates that ran on the database
+
 @api_view(["POST","GET"])
 def replicatesLatest100(request):
     # Get the data for the view
@@ -98,6 +96,7 @@ def replicatesLatest100(request):
                 runningTimeListWorth.append(None)
         last100Time.append(runningTime)
     rowsList = blankSet(rowsList)
+
     # Return the results based upon how we were called
     if request.method == "POST":
         runningTimeListWorth.reverse()
@@ -116,7 +115,6 @@ def replicatesLatest100(request):
             'runningTimeListUnfinished': runningTimeListUnfinished, 'ReplicateID': ReplicateID,'filesName':filesName,'last100Time':last100Time,'units':units})
     elif request.method == "GET":
         return render(request, 'last100.html', {"rows": rowsList,"viewType": "Last 100 replicates on","localURL":'/replicatesLatest100'})
-    # error case
     else:
         # This shouldn't happen so allow an exception handler to catch it
         raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(replicatesLatest100.__name__,))
@@ -288,7 +286,6 @@ def deleteLongRunning(request,replicateID):
     return JsonResponse({"success":success})
 
 
-
 @api_view(["GET","POST"])
 # id is study id
 def studyNotes(request,studyId):
@@ -403,6 +400,7 @@ def studyChart(request,studyId):
         return render(request, 'studyChart.html', {"rows": rowsList,"viewType": "Replicates chart on study: ",'allRunningTime':allRunningTime,'units':units,"studyname":studyname,"localURL":'/Study/Chart/'+str(studyId)})
 
 
+
 # id is study id
 @api_view(["POST"])
 def studyNotesRecord(request,studyId):
@@ -419,8 +417,6 @@ def studyNotesRecord(request,studyId):
 
 
 @api_view(["DELETE"])
-#Study/DeleteNotes/<str: studyid>/<str:id>
-# first parameter is studyid, the second one is id of notes
 def DeleteNotes(request, studyId, id):
     AppDatabase.deleteNotes(request, id)
     return HttpResponse("OK")
@@ -429,7 +425,6 @@ def DeleteNotes(request, studyId, id):
 @api_view(["GET"])
 def createNewDatabase(request):
     return render(request,'createDatabase.html',{"viewType":"Creating Database"})
-
 
 
 # This view creates a new database using the database administrator username and 
