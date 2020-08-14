@@ -21,7 +21,10 @@
 <div class="center" id="chartMessage" style="width: 66%; display: none;"><strong>{{ viewType }} {{ studyname }}</strong></div>
 
 <!-- This page will take awhile to load -->
-<div class="center" id="pageLoading" style="margin-top: 5em; width: 66%"><strong>Chart Loading...</strong></div>
+<div class="center" id="pageLoading" style="margin-top: 5em; width: 66%">
+  <strong style="font-size: larger;">Chart Loading...</strong><br />
+  <img src="{% static './images/loading.gif' %}" style="margin-top: 2em;"/>
+</div>
 
 <div class="container", id="chartPlace">
   <canvas id="studyReplicateChart"></canvas>
