@@ -231,7 +231,7 @@ def worthToNotice(request):
 
     # Return if we have no records
     if len(rows) == 0:
-        message = "{0}, no replicates needs to be noticed".format(request.session['dbname'])
+        message = "{0}, no long running replicates".format(request.session['dbname'])
         return render(request, "empty.html", {"message": message})
 
     rowsList = []
