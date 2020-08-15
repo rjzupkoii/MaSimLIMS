@@ -100,22 +100,10 @@ function buildTable(targetURL) {
     if (targetURL == '/worthToNotice'){
       console.log(myList[i][5])
       if(myList[i][5] >= LONG_RUNNING){
-<<<<<<< HEAD
-        // working
-        // row = row + `<td>
-        //               <button id="ReplicateBtn" onclick="return deleteReplicate('${myList[i][4]}');">[DELETE]</button>
-        //             </td>`
-        row = row + `<td><input type="checkbox" id="checks" name="checks" value="delete_${myList[i][4]}" onclick="savedRows()">Delete</td>`
-        // <input type="checkbox" id="checks" name="checks" value="delete_${myList[i][4]}">
-        // <label for="checks">Delete?</label>
-      }else{
-        row = row + `<td> </td>`
-=======
         row = row + `<td><button id="ReplicateBtn" onclick="return deleteReplicate('${myList[i][4]}');">[DELETE]</button></td>`;
       } else{
         row = row + `<td> </td>`;
->>>>>>> upstream/master
-      } 
+      }
 
     } else if(targetURL == '/replicatesLatest100'){
       row +=  `<td>${myList[i][4]}</td><td>${myList[i][5]}</td>`;
