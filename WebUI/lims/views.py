@@ -256,8 +256,6 @@ def ConfigReplicate(request, id):
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @api_view(["GET","POST"])
 def worthToNotice(request):
-    if request.method == 'POST':
-        some_var = request.POST.getlist('checks')
     # Get the data for the view
     rows  = AppDatabase.getLongRunningReplicates(request)
 
