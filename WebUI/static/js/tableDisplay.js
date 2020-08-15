@@ -115,7 +115,7 @@ function buildTable(targetURL) {
       } else{
         row = row + `<td> </td>`;
 >>>>>>> upstream/master
-      }
+      } 
 
     } else if(targetURL == '/replicatesLatest100'){
       row +=  `<td>${myList[i][4]}</td><td>${myList[i][5]}</td>`;
