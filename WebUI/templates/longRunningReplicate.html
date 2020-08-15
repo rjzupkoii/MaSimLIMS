@@ -4,38 +4,42 @@
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
 {% block meta %} 
-  <script>
-    // delete long running replicates
-    function deleteReplicate(id) {
-      if (confirm("Are you sure you wish to delete this replicate?")) {
-        $.ajax({
-          url: '/deleteLongRunning'.concat('/', id),
-          type: 'DELETE',
-          success: function(result) {
-            if(result.success){
-              alert("Replicate deleted!");
-            }else{
-              alert("Replicate Delete Operation Fail!");
-            }
-            location.reload();
-          }
-        });
-      }
-      return false;
-    }
-  </script>
-{% endblock %}
-{% block content %}
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
 <script>
-  // OK
-  setInterval(function(){
+  $(document).ready(function() {
+    tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
+    setTargetURL('{{localURL}}');
+    setInterval(function(){
       $('#table-body').empty();
       $('#pagination-wrapper').empty();
       tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
       setTargetURL('{{localURL}}');
-  }, 60000);
-</script>
+    }, 60000);
+  });
 
+  // delete long running replicates
+  function deleteReplicate(id) {
+    if (confirm("Are you sure you wish to delete this replicate?")) {
+      $.ajax({
+        url: '/deleteLongRunning'.concat('/', id),
+        type: 'DELETE',
+        success: function(result) {
+          if(result.success){
+            alert("Replicate deleted!");
+          }else{
+            alert("Replicate Delete Operation Fail!");
+          }
+          location.reload();
+        }
+      });
+    }
+    return false;
+  }
+</script>
+{% endblock %}
+
+{% block content %}
 <div class="center" id="replicateMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 <table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
@@ -44,12 +48,12 @@
       <th>Start Time</th>
       <th>Movement</th>
       <th>Running Time</th>
-      <th>Action</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tfoot>
     <tr>
-      <td colspan = "4">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
+      <td colspan = "5">X - Movement not recorded, C - Movement is recorded at the cellular level, D - Movement is recorded at the distinct or province level</td>
     </tr>
   </tfoot>
   <!--- Rendered using JavaScript after the AJAX response --->
@@ -59,10 +63,4 @@
 <div>
   <div id="pagination-wrapper"></div>
 </div>
-<script src="{% static './js/tableDisplay.js' %}"></script>
-<script src="{% static './js/last100Sort.js' %}"></script>
-<script>
-  tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
-  setTargetURL('{{localURL}}');
-</script>
 {% endblock %}

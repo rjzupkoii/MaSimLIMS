@@ -121,11 +121,9 @@ function tableSort(headerIndex){
     });
 }
 
-
 function setTargetURL(urlInput){
   targetURL = urlInput;
 }
-
 
 // header click event listener
 document.querySelectorAll(".content-table th").forEach(headerCell => {

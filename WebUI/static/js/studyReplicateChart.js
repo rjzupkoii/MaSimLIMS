@@ -1,20 +1,27 @@
-function studyReplicateChart(targetURL){
+function studyReplicateChart(targetURL) {
     $.ajax({
         url: targetURL,
         type: 'POST',
         success: function(result) {
-            var runningTimeListFinished = result.runningTimeListFinished
-            var runningTimeListUnfinished = result.runningTimeListUnfinished
-            var runningTimeListWorth = result.runningTimeListWorth
-            var filesName = result.filesName
-            var units = result.units
-            var ReplicateID = result.ReplicateID
-            var studyName = result.studyname
-            var allRunningTime = result.allRunningTime
-            var finishedCount = result.finishedCount
-            statistics(runningTimeListFinished.filter(function (element) {return element != null;}),studyName,units,finishedCount)
+
+            // Load is complete, toggle elements
+            $('#pageLoading').hide();
+            $('#chartMessage').show();
+
+            // Parse the results for the chart
+            var runningTimeListFinished = result.runningTimeListFinished;
+            var runningTimeListUnfinished = result.runningTimeListUnfinished;
+            var runningTimeListWorth = result.runningTimeListWorth;
+            var filesName = result.filesName;
+            var units = result.units;
+            var ReplicateID = result.ReplicateID;
+            var studyName = result.studyname;
+            var allRunningTime = result.allRunningTime;
+
+            statistics(runningTimeListFinished.filter(function (element) {return element != null;}), studyName, units, result.finishedCount);
+
             let last100Chart = document.getElementById('studyReplicateChart').getContext('2d');
-            let runningTimeChart = new Chart(last100Chart, {
+            new Chart(last100Chart, {
               type: 'line',
                 data: {
                     datasets: [{
@@ -102,7 +109,7 @@ function studyReplicateChart(targetURL){
     });
 }
 
-function statistics(allRunningTime,studyname,units,finishedCount){
+function statistics(allRunningTime, studyname, units, finishedCount){
     // Get the basic statistics on everything
     var standard = math.round(math.std(allRunningTime, 'uncorrected'), 2);
     var max = math.round(math.max(allRunningTime), 2);

@@ -1,12 +1,32 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}MaSim LIMS / Notes{% endblock %}
+
 {% block meta %}
+<script src="{% static './js/tableDisplay.js' %}"></script>
+<script src="{% static './js/last100Sort.js' %}"></script>
 
-{% endblock %}
-
-{% block content %}
 <script>
+  $(document).ready(function() {
+    /* disable the input button*/
+    document.getElementById('saveNotes').disabled = true;
+
+    document.getElementById('notes').addEventListener('input',() => {
+        const max = 32;
+        const remaining = max - document.getElementById('notes').value.length;
+        const total = document.getElementById('notes').value.length;
+
+        if(remaining <= 0){
+            document.getElementById('remaining').textContent = `total ${total} characters`;
+            document.getElementById('saveNotes').disabled = false;
+        }
+        else{
+            document.getElementById('remaining').textContent = `${remaining} characters remaining`;
+            document.getElementById('saveNotes').disabled = true;
+        }
+    });
+  });
+
   function deleteNote(id, study) {
     if (confirm("Are you sure you wish to delete the note?")) {
       $.ajax({
@@ -20,18 +40,19 @@
     }
     return false;
   }
-</script>
 
-<script>
-  // OK
   setInterval(function(){
       $('#table-body').empty();
       $('#pagination-wrapper').empty();
       tableDisplay('{{localURL}}','notesMessage','notesTable');
       setTargetURL('{{localURL}}');
   }, 60000);
+  tableDisplay('{{localURL}}','notesMessage','notesTable');
+  setTargetURL('{{localURL}}');
 </script>
+{% endblock %}
 
+{% block content %}
 <div class="center" id="notesMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
 {% if tableNeed %}
   <table id="notesTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
@@ -43,24 +64,13 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody id = "table-body">
-        <!-- {% for r in rows %}
-          <tr>
-            <td><a style="text-decoration:none; color:#000000">{{r.1}}</a></td>
-            <td><a style="text-decoration:none; color:#000000">{{r.2}}</a></td>
-            <td><a style="text-decoration:none; color:#000000">{{r.3}}</a></td>
-            <td><a style="text-decoration:none; color:#000000">{{r.4}}</a></td>
-            <td>
-              <button id="delete" onclick="return deleteNote({{r.0}}, {{r.4}});">[DELETE]</button>
-            </td>
-          </tr>
-        {% endfor %} -->
-      </tbody>
+      <tbody id = "table-body"></tbody>
   </table>
   <div>
     <div id="pagination-wrapper"></div>
   </div>
 {%endif%}
+
 <form action="/Study/NotesRecord/{{id}}" align = "center" id="notesInfo" method = "POST">
     {% csrf_token %}
     <div>
@@ -75,11 +85,4 @@
     </div>
     <input type="submit" id="saveNotes" value="Save" style="font-size:0.9em;">
 </form>
-<script src="{% static './js/tableDisplay.js' %}"></script>
-<script src="{% static './js/last100Sort.js' %}"></script>
-<script src="{% static './js/textarea.js' %}"></script>
-<script>
-  tableDisplay('{{localURL}}','notesMessage','notesTable');
-  setTargetURL('{{localURL}}');
-</script>
 {% endblock %}

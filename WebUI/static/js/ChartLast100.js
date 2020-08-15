@@ -1,4 +1,3 @@
-last100DisplayChart()
 function last100DisplayChart(){
     $.ajax({
         url: '/replicatesLatest100',

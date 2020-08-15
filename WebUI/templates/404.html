@@ -1,15 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}MaSim LIMS / Page Error{% endblock %}
+{% block title %}MaSim LIMS / 404 Error{% endblock %}
+
 {% block content %}
 <div class="center">
-  <h1><a href="/">404 Page Error: the page is missing or does not exist</a></h1>
-  <a href="/"> Click Here: Go to Home Page </a>
+  <h1>>404 Error: the requested page could not be found.</h1>
+  <a href="/"> Return to Home Page </a>
 </div>
-<script>
-  window.addEventListener('load', function () {
-    const loader = document.querySelector(".pageLoading");
-    $(".pageLoading").fadeOut();
-  });
-</script>
 {% endblock %}

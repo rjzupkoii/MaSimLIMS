@@ -21,63 +21,45 @@
 
   <!-- Use the Google hosted jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
   <!-- Use the Cloudflare hosted Chart library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>  
-  <!-- JavaScript used by all pages that requires the HTML be done loading -->
-  <script>
-    var tableDataTmp = []
-    function pageRedirection(targetURL){
-      $.ajax({
-          url: targetURL,
-          type: 'POST',
-          success: function(result) {
-            // Open in a new tab
-            var redirectWindow = window.open(targetURL, '_blank');
-            redirectWindow.location;
-            // location.replace(targetURL)
-          }
-        });
-    }
-  </script>
-  <script src="{% static './js/popup.js' %}"></script>
+
+  <!-- JavaScript for the site -->
+  <script src="{% static './js/site.js' %}"></script>
+
   {% block meta %}{% endblock  %}
 </head>
+
 <body>
-  <!-- modified -->
-  <div class="pageLoading">
-    <p>This Page is Loading...</p>
-  </div>
   <div id="page-container">
+    <h1>&nbsp;MaSim LIMS</h1>
+    <ul class="nav">
+      <li><a href="/">Home</a></li> 
+      <li><a>Database</a>
+        <ul class="subnav">
+          <li><a>Select Database ></a>
+            <ul id="sideNav">
+              {% for key, value in request.session.databases.items %}
+                <li><a href="/setdb/{{ key }}">{{ value.Name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li><a href="/createNewDatabase">Create New Databases</a></li>
+        </ul>
+      </li>
+      <li><a href="/study">Study</a></li> 
+      <li><a href="/worthToNotice">Long Running Replicates</a></li> 
+      <li><a href="/replicatesLatest100">Last 100 Replicates</a></li> 
+    </ul>
     <div id="content-wrap">
-  <h1>&nbsp;MaSim LIMS</h1>
-  <ul class="nav">
-    <li><button onclick="pageRedirection('/');" id="studyBtn">Home</button></li> 
-    <li><a>Database</a>
-      <ul class="subnav">
-        <li><a>Select Database ></a>
-          <ul id="sideNav">
-            {% for key, value in request.session.databases.items %}
-              <!--Here setdb is called-->
-              <li><a href="/setdb/{{ key }}">{{ value.Name }}</a></li>
-            {% endfor %}
-          </ul>
-        </li>
-        <li><a href="/createNewDatabase">Create New Databases</a></li>
-      </ul>
-    </li>
-    
-    <li><button onclick="pageRedirection('/study');" id="studyBtn">Study</button></li> 
-    
-    <li><button onclick="pageRedirection('/worthToNotice');" id="worthToNoticeBtn">Long Running Replicates</button></li> 
-    <li><button onclick="pageRedirection('/replicatesLatest100');" id="last100Btn">Last 100 Replicates</button></li> 
-  </ul>
     {% block content %}{% endblock %}
     </div>
     <footer id="footer">
       &nbsp;<em>Boni Lab @ Penn State</em><p />
     </footer>    
   </div>
-
+  
   <!-- This is a bit of a hack and should be removed -->
   <p id="demo" style="visibility: hidden;"></p>
 </body>

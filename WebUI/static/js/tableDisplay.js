@@ -17,20 +17,12 @@ function tableDisplay(targetURL,boxID, tableID){
         state.querySet = tableDataTmp
         buildTable(targetURL)
         messageBoxAdjust(boxID, tableID)
+
         const loader = document.querySelector(".pageLoading");
-        // loader.className += " hidden"; // class "loader hidden"
         $(".pageLoading").fadeOut();
       }
     });
 }
-
-
-function messageBoxAdjust(boxID, tableID){
-  // Spread
-  var offsetWidth = document.getElementById(tableID).offsetWidth;
-  document.getElementById(boxID).style.width = String(offsetWidth).concat("px");
-}
-
 
 // pagination
 function pagination(querySet, page, rows) {
@@ -87,23 +79,28 @@ function pageButtons(pages, targetURL) {
   })
 }
 
-// build table dynamically
+// TODO Clean this function up so that it takes a JavaScript function as a parameter, that function should then
+//      pass the current myList[i] to the function and it will return the HTML row. This allows for better 
+//      separation of concerns since the code for how to create the table row can be maintained with the .html
 function buildTable(targetURL) {
   const LONG_RUNNING = 96 * 3600; // Time in seconds
+  
   var table = $('#table-body')
   var data = pagination(state.querySet, state.page, state.rows)
   var myList = data.querySet
+
   for (var i = 1 in myList) {
-    //Keep in mind we are using "Template Litterals to create rows"
+    //Keep in mind we are using "Template literal's to create rows"
     var row = `<tr>
               <td>${myList[i][0]}</td>
               <td>${myList[i][1]}</td>
               <td>${myList[i][2]}</td>
-              <td>${myList[i][3]}</td>
-              `
-    if(targetURL == '/worthToNotice'){
+              <td>${myList[i][3]}</td>`;
+
+    if (targetURL == '/worthToNotice'){
       console.log(myList[i][5])
       if(myList[i][5] >= LONG_RUNNING){
+<<<<<<< HEAD
         // working
         // row = row + `<td>
         //               <button id="ReplicateBtn" onclick="return deleteReplicate('${myList[i][4]}');">[DELETE]</button>
@@ -113,73 +110,76 @@ function buildTable(targetURL) {
         // <label for="checks">Delete?</label>
       }else{
         row = row + `<td> </td>`
+=======
+        row = row + `<td><button id="ReplicateBtn" onclick="return deleteReplicate('${myList[i][4]}');">[DELETE]</button></td>`;
+      } else{
+        row = row + `<td> </td>`;
+>>>>>>> upstream/master
       }
-    }
-    else if(targetURL == '/replicatesLatest100'){
-      row =  row +  `
-                    <td>${myList[i][4]}</td>
-                    <td>${myList[i][5]}</td>
-                    `
-    }else if(targetURL.includes('/StudyReplicate') || targetURL.includes('/ConfigReplicate')){
-      row = row + `
-                      <td>${myList[i][4]}</td>
-                      `
-    }else if(targetURL.includes('/StudyConfig')){
+
+    } else if(targetURL == '/replicatesLatest100'){
+      row +=  `<td>${myList[i][4]}</td><td>${myList[i][5]}</td>`;
+
+    } else if(targetURL.includes('/StudyReplicate') || targetURL.includes('/ConfigReplicate')){
+      row += `<td>${myList[i][4]}</td>`;
+
+    } else if(targetURL.includes('/StudyConfig')){
       var row = `<tr>
                   <td><button onclick="pageRedirection('/ConfigReplicate/'+'${myList[i][3]}');" id="ReplicateBtn">${myList[i][0]}</button></td>
                   <td><button onclick="pageRedirection('/ConfigReplicate/'+'${myList[i][3]}');" id="ReplicateBtn">${myList[i][1]}</button></td>
-                  <td><button onclick="pageRedirection('/ConfigReplicate/'+'${myList[i][3]}');" id="ReplicateBtn">${myList[i][2]}</button></td>`
-    }else if(targetURL.includes('/study')){
-      var studyID;
-      if(myList[i][1]){
-        studyID = myList[i][1]
-      }else{
-        studyID = 'None'
-      }
-      var row = `
-              <tr>
-              <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${myList[i][0]}</button></td> 
-              <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${myList[i][1]}</button></td> 
-              <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${myList[i][2]}</button></td>
-              <td><button onclick="pageRedirection('/StudyReplicate/'+'${studyID}');" id="ReplicateBtn">${myList[i][3]}</button></td>
-              `
-      // If a study does not have any replicates and configurations, we can add delete. (but it should have study id)
-      if(parseInt(myList[i][2])==0 &&  parseInt(myList[i][3])==0 && myList[i][1]){
-        // myList[i][1] is id
-        row = row + `<td>
-                      <button onclick="pageRedirection('/Study/Notes/'+'${myList[i][1]}');" id="ReplicateBtn">[NOTES]</button>
-                      <button onclick="pageRedirection('/Study/Chart/'+'${myList[i][1]}');" id="ReplicateBtn">[CHART]</button>
-                      <button id="delete" onclick="return deleteNote('${myList[i][1]}');">[DELETE]</button>
-                      </td>`
-      }
-      // If a study has configurations and replicates. (have study id)
-      else if(myList[i][1]){
-        row = row + `<td>
-                      <button onclick="pageRedirection('/Study/Notes/'+'${myList[i][1]}');" id="ReplicateBtn">[NOTES]</button>
-                      <button onclick="pageRedirection('/Study/Chart/'+'${myList[i][1]}');" id="ReplicateBtn">[CHART]</button>
-                    </td>`
-      }
-      // If a study does not have id. (last row of the table)
-      else{
-        row = row + `<td>
-                      <a style="text-decoration:none; color:#000000">No Notes Available</a>
-                    </td>`
-      }
-    }else if(targetURL.includes('/Study/Notes/')){
+                  <td><button onclick="pageRedirection('/ConfigReplicate/'+'${myList[i][3]}');" id="ReplicateBtn">${myList[i][2]}</button></td>`;
+
+    } else if(targetURL.includes('/study')){
+      row = studyRowBuilder(myList[i]);
+
+    } else if(targetURL.includes('/Study/Notes/')){
       // working
       var row = `<tr>
                   <td><a style="text-decoration:none; color:#000000">${myList[i][0]}</a></td>
                   <td><a style="text-decoration:none; color:#000000">${myList[i][1]}</a></td>
                   <td><a style="text-decoration:none; color:#000000">${myList[i][2]}</a></td>
-                  <td>
-                    <button id="delete" onclick="return deleteNote(${myList[i][4]}, ${myList[i][3]});">[DELETE]</button>
-                  </td>`
-    }else if(targetURL.includes('/Study/Chart/')){
+                  <td><button id="delete" onclick="return deleteNote(${myList[i][4]}, ${myList[i][3]});">[DELETE]</button></td>`;
+
+    } else if(targetURL.includes('/Study/Chart/')){
       row += `<td>${myList[i][4]}</td>`
-    }else{
+
+    } else{
       console.log(targetURL)
     }
+
     table.append(row)
   }
   pageButtons(data.pages, targetURL)
+}
+
+// Example of row builder function - this would go in the .html file
+function studyRowBuilder(data) {
+  var studyID = 'None'
+  if(data[1]){
+    studyID = data[1]
+  }
+
+  var row = `<tr><td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${data[0]}</button></td> 
+                 <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${data[1]}</button></td> 
+                 <td><button onclick="pageRedirection('/StudyConfig/'+'${studyID}');" id="ConfigBtn">${data[2]}</button></td>
+                 <td><button onclick="pageRedirection('/StudyReplicate/'+'${studyID}');" id="ReplicateBtn">${data[3]}</button></td>`;
+
+  // If there is a study id we can add common functions
+  if (data[1]) {
+    row += `<td><button onclick="pageRedirection('/Study/Notes/'+'${data[1]}');" id="ReplicateBtn">[NOTES]</button>
+                     <button onclick="pageRedirection('/Study/Chart/'+'${data[1]}');" id="ReplicateBtn">[CHART]</button>`;
+
+    // If there are no replicates or configurations, we can delete
+    if(parseInt(data[2])==0 &&  parseInt(data[3])==0) {
+      row += `<button id="delete" onclick="return deleteNote('${data[1]}');">[DELETE]</button>`;
+    }
+
+    // Close out the element
+    row += `</td>`;
+  } else {
+    // No study id means this is the catch all
+    row += `<td><a style="text-decoration:none; color:#000000">No Notes Available</a></td>`
+  }
+
+  return row;
 }
