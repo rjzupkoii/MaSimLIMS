@@ -21,8 +21,10 @@
     width: 100%;
     height: 2.5rem;
 }
+
 .center{
     margin: auto;
+    width: 50%;
 }
 /* Used on 404 page */
 .center > a{
@@ -37,6 +39,11 @@
     text-decoration: none;
     font-weight: bold;
     color: red;
+}
+
+#createdbMessage{
+    margin-top: 20px;
+    border: white;
 }
 
 #tableLast100{
@@ -84,4 +91,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.deleteReplicates{
+    text-align: center;
+    margin-top: 20px;
+}
+
+#name, #user,#pass,#Submit{
+    margin-top: 5px;
 }

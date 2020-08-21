@@ -54,7 +54,7 @@ function Sort(column, orignal,asc=true) {
 function compare(a, b) {
   // Is this an integer?
   if (!(isNaN(parseInt(a)) && isNaN(parseInt(b)))) {
-    return a > b;
+    return parseInt(a) > parseInt(b);
   }
 
   // Is this a running time?
@@ -99,9 +99,11 @@ function compareRunning(a, b) {
 }
 
 // If headers are clicked, clear table and pagination features
-$(".content-table th").click(function() {
-  $("#table-body").empty();
-  $("#pagination-wrapper").empty();
+$(document).ready(function() {
+  $(".content-table th").click(function() {
+    $("#table-body").empty();
+    $("#pagination-wrapper").empty();
+  });
 });
 
 // ajax code to send request, get data, sort, build table.
@@ -111,7 +113,6 @@ function tableSort(headerIndex){
       url: targetURL,
       type: 'POST',
       success: function(result) {
-        // Fix here
         tableData = result.rowsList
         tableDataToString()
         Sort(headerIndex,tableData,currentIsAscending)
@@ -126,18 +127,20 @@ function setTargetURL(urlInput){
 }
 
 // header click event listener
-document.querySelectorAll(".content-table th").forEach(headerCell => {
-  headerCell.addEventListener("click", () => {
-      const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
-      // Check previous header index
-      if(previousHeaderInder == headerIndex){
-        currentIsAscending = !currentIsAscending
-      }else{
-        previousHeaderInder = headerIndex
-        currentIsAscending = true
-      }
-      // sort data and clear tableData
-      tableSort(headerIndex)
-      tableData=[]
+$(document).ready(function() {
+  document.querySelectorAll(".content-table th").forEach(headerCell => {
+    headerCell.addEventListener("click", () => {
+        const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
+        // Check previous header index
+        if(previousHeaderInder == headerIndex){
+          currentIsAscending = !currentIsAscending
+        }else{
+          previousHeaderInder = headerIndex
+          currentIsAscending = true
+        }
+        // sort data and clear tableData
+        tableSort(headerIndex)
+        tableData=[]
+    });
   });
 });

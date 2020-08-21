@@ -65,6 +65,7 @@ function studyReplicateChart(targetURL) {
                 },
                 options: {
                     title: { 
+                        fontSize:18,
                         display: true,
                         text: '\'' + studyName + '\'' + " - replicates"
                     },
@@ -73,12 +74,19 @@ function studyReplicateChart(targetURL) {
                             gridLines: { display: true },
                             barPercentage: 0.2, maintainAspectRatio: false,
                             scaleLabel: {
+                                fontSize: 15,
                                 display: true,
                                 labelString: 'running time ('+units+')'
+                            },
+                            ticks:{
+                                fontSize: 15,
                             }
                         }],
                         xAxes: [{
                             gridLines: {display: false},
+                            ticks:{
+                                display: false,
+                            }
                         }]
                     },
                     tooltips: {

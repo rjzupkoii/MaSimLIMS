@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="center" id="createDBMessage"><strong>{{ viewType }}</strong></div>
-  <div class="center">
+  <div class="center" id="createdbMessage">
     {% if messages %}
       <ul class="messages">
         {% for message in messages %}
@@ -17,15 +17,15 @@
   <!--The back-end should require that the operation take place via an HTTP POST.-->
   <form action="/createDatabase" method="POST" id="login">
     {% csrf_token %}
-    <div>
+    <div id="name">
         <label for="databaseName">Database Name: </label>
         <input type="text" name="databaseName" id="databaseName" required><br>
     </div>
-    <div>
+    <div id="user">
         <label for="userName">User Name: </label>
         <input type="text" name="userName" id="userName" required><br>
     </div>
-    <div>
+    <div id="pass">
         <!--The password field should be masked so that it is not reviewed when typing.-->
         <label for="Password">Password: </label>
         <input type="password" name="Password" id="Password" required><br>

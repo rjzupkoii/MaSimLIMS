@@ -3,6 +3,10 @@ function last100DisplayChart(){
         url: '/replicatesLatest100',
         type: 'POST',
         success: function(result) {
+            // Load is complete, toggle elements
+            $('#pageLoading').hide();
+            $('#chartMessage').show();
+            
             var runningTimeListFinished = result.runningTimeListFinished
             var ReplicateID = result.ReplicateID
             var runningTimeListUnfinished = result.runningTimeListUnfinished
@@ -54,7 +58,8 @@ function last100DisplayChart(){
                     labels: ReplicateID
                 },
                 options: {
-                    title: { 
+                    title: {
+                        fontSize:18,
                         display: true,
                         text: "Lastest 100 replicates"
                     },
@@ -63,12 +68,19 @@ function last100DisplayChart(){
                             gridLines: { display: true },
                             barPercentage: 0.2, maintainAspectRatio: false,
                             scaleLabel: {
+                                fontSize: 15,
                                 display: true,
                                 labelString: 'running time ('+units+')'
+                            },
+                            ticks:{
+                                fontSize: 15,
                             }
                         }],
                         xAxes: [{
                             gridLines: {display: false},
+                            ticks:{
+                                display: false,
+                            }
                         }]
                     },
                     tooltips: {

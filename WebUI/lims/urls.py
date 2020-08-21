@@ -16,8 +16,7 @@ urlpatterns = [
 
     path('createDatabase', views.createDatabase, name='createDatabase'),
     path('createNewDatabase', views.createNewDatabase, name='createNewDatabase'),
-
-    path('deleteLongRunning/<str:replicateID>', views.deleteLongRunning, name='deleteLongRunning'),
+    path('longRunningDelete', views.longRunningDelete, name='longRunningDelete'),
 
     path('setdb/<int:id>', views.setdb, name='setdb'),
 

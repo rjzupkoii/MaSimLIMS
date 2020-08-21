@@ -108,8 +108,8 @@ def replicatesLatest100(request):
         runningTimeListWorth = manageTime(runningTimeListWorth,units)
         runningTimeListFinished = manageTime(runningTimeListFinished, units)
         runningTimeListUnfinished = manageTime(runningTimeListUnfinished,units)
-        
-        # ReplicateID.reverse()
+        # Make sure that table is complete
+        ReplicateID.append(len(ReplicateID)+1)
         return JsonResponse({'rowsList': rowsList, 'runningTimeListWorth': runningTimeListWorth, 'runningTimeListFinished': runningTimeListFinished, 
             'runningTimeListUnfinished': runningTimeListUnfinished, 'ReplicateID': ReplicateID,'filesName':filesName,'last100Time':last100Time,'units':units})
     elif request.method == "GET":
@@ -223,12 +223,9 @@ def ConfigReplicate(request, id):
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
 @api_view(["GET","POST"])
 def worthToNotice(request):
-<<<<<<< HEAD
-=======
     if request.method == 'POST':
         some_var = request.POST.getlist('checks')
 
->>>>>>> upstream/master
     # Get the data for the view
     rows  = AppDatabase.getLongRunningReplicates(request)
 
@@ -251,13 +248,17 @@ def worthToNotice(request):
         return render(request, 'longRunningReplicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on", "localURL":'/worthToNotice'})
 
 
-# Used for delete long running replicates (individually)
-@api_view(["DELETE"])
-def deleteLongRunning(request,replicateID):
+@api_view(["POST"])
+def longRunningDelete(request):
+    success = []
     app = AppDatabase()
-    # Return a boolean
-    success = app.deleteReplicate(request,replicateID)
-    return JsonResponse({"success":success})
+    replicates = request.POST.getlist('tasks[]')
+    for replicateID in replicates:
+        success.append(app.deleteReplicate(request,replicateID))
+    if False in success:
+        return JsonResponse({"success":False})
+    else:
+        return JsonResponse({"success":True})
 
 
 @api_view(["GET","POST"])
@@ -364,7 +365,9 @@ def studyChart(request,studyId):
         allRunningTime, units = timeAlgorithm(allRunningTime)
         runningTimeListWorth = manageTime(runningTimeListWorth,units)
         runningTimeListFinished = manageTime(runningTimeListFinished, units)
-        runningTimeListUnfinished = manageTime(runningTimeListUnfinished,units) 
+        runningTimeListUnfinished = manageTime(runningTimeListUnfinished,units)
+        # Make sure that table is complete
+        ReplicateID.append(len(ReplicateID)+1)
         return JsonResponse({'rowsList': rowsList, 'runningTimeListWorth': runningTimeListWorth, 'runningTimeListFinished': runningTimeListFinished, 
             'runningTimeListUnfinished': runningTimeListUnfinished,'filesName':filesName,'allRunningTime':allRunningTime,'units':units,"ReplicateID":ReplicateID,"studyname":studyname,"finishedCount":finishedCount})
     elif request.method == "GET":

@@ -12,8 +12,12 @@ function pageRedirection(targetURL){
         url: targetURL,
         type: 'POST',
         success: function(result) {
-          var redirectWindow = window.open(targetURL, '_blank');
-          redirectWindow.location;
+          if(targetURL.includes('Study/Chart/')){
+            var redirectWindow = window.open(targetURL, '_blank');
+            redirectWindow.location;
+          }else{
+            window.location.assign(targetURL)
+          }
         }
       });
 }
