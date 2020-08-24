@@ -86,6 +86,11 @@ function buildTable(targetURL) {
   const LONG_RUNNING = 96 * 3600; // Time in seconds
   
   var table = $('#table-body')
+  // Hide the pagination controls when there is only one page for the table
+  // rows can be showed in one page
+  if(state.querySet.length <= state.rows){
+    $('#pagination-wrapper').hide();
+  }
   var data = pagination(state.querySet, state.page, state.rows)
   var myList = data.querySet
 
@@ -100,7 +105,7 @@ function buildTable(targetURL) {
     if (targetURL == '/worthToNotice'){
       console.log(myList[i][5])
       if(myList[i][5] >= LONG_RUNNING){
-        row = row + `<td><button id="ReplicateBtn" onclick="return deleteReplicate('${myList[i][4]}');">[DELETE]</button></td>`;
+        row = row + `<td><input type="checkbox" name="checkboxs" value="${myList[i][4]}" onclick="record(this, value)">Delete</td>`
       } else{
         row = row + `<td> </td>`;
       }
