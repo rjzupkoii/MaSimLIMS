@@ -7,13 +7,13 @@ function last100DisplayChart(){
             $('#pageLoading').hide();
             $('#chartMessage').show();
             
-            var runningTimeListFinished = result.runningTimeListFinished
-            var ReplicateID = result.ReplicateID
-            var runningTimeListUnfinished = result.runningTimeListUnfinished
-            var runningTimeListWorth = result.runningTimeListWorth
-            var filesName = result.filesName
-            var units = result.units
-            var last100Time = result.last100Time
+            var runningTimeListFinished = result.runningTimeListFinished;
+            var ReplicateID = result.ReplicateID;
+            var runningTimeListUnfinished = result.runningTimeListUnfinished;
+            var runningTimeListWorth = result.runningTimeListWorth;
+            var filesName = result.filesName;
+            var units = result.units;
+            var last100Time = result.last100Time;
             let last100Chart = document.getElementById('last100Chart').getContext('2d');
             let runningTimeChart = new Chart(last100Chart, {
               type: 'line',
@@ -101,7 +101,7 @@ function last100DisplayChart(){
                             // First line
                             title: function(tooltipItem){
                                 var title = "Name: " + filesName[tooltipItem[0].xLabel-1];
-                                return title
+                                return title;
                             }
                         }
                     }
