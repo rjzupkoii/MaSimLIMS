@@ -20,7 +20,6 @@ function tableDataToString(){
 
 // sort table data based upon parameter "asc"
 function Sort(column, orignal,asc=true) {
-  alert(asc)
   var bIndex = 1;
   var track = bIndex;
   var aIndex = 0;
