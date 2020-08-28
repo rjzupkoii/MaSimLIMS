@@ -162,10 +162,10 @@ def StudyReplicate(request, id):
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][1] = rowsList[ndx][1].strftime(DATEFORMAT)
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
-        if rowsList[ndx][2]:
-            rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
+        if rowsList[ndx][3]:
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         rowsList[ndx][-1] = str(rowsList[ndx][-1])
     studyname = getStudyName(request, id)
     rowsList = blankSet(rowsList)

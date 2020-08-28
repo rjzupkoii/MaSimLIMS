@@ -113,9 +113,12 @@ function buildTable(targetURL) {
     } else if(targetURL == '/replicatesLatest100'){
       row +=  `<td>${myList[i][4]}</td><td>${myList[i][5]}</td>`;
 
-    } else if(targetURL.includes('/StudyReplicate') || targetURL.includes('/ConfigReplicate')){
-      row += `<td>${myList[i][4]}</td>`;
+    } else if(targetURL.includes('/StudyReplicate')){
+      row += `<td>${myList[i][4]}</td>
+              <td>${myList[i][5]}</td>`;
 
+    } else if(targetURL.includes('/ConfigReplicate')){
+      row += `<td>${myList[i][4]}</td>`;
     } else if(targetURL.includes('/StudyConfig')){
       var row = `<tr>
                   <td><button onclick="pageRedirection('/ConfigReplicate/'+'${myList[i][3]}');" id="ReplicateBtn">${myList[i][0]}</button></td>

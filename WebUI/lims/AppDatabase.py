@@ -120,13 +120,13 @@ class AppDatabase:
         # if studyid is a number
         if studyid and not 'None' in studyid:
             SQL = """
-                SELECT v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime FROM study 
+                SELECT v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime FROM study 
                 LEFT JOIN configuration ON configuration.studyID = %(id)s INNER JOIN v_replicates ON v_replicates.configurationid = configuration.id 
                 WHERE study.id = %(id)s ORDER BY v_replicates.starttime desc"""
             return selectQuery(request, SQL,{'id':studyid})
         else:
             SQL = """
-                SELECT v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime
+                SELECT v_replicates.id, v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime
                 FROM configuration INNER JOIN v_replicates ON v_replicates.configurationid = configuration.id WHERE studyid IS NULL ORDER BY v_replicates.starttime desc"""
             return selectQuery(request,SQL)
 
