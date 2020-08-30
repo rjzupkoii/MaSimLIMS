@@ -3,10 +3,19 @@
 
 {% block title %}MaSim LIMS / Replicates{% endblock %}
 
-{% block meta %} 
-<script src="{% static './js/tableDisplay.js' %}"></script>
-<script src="{% static './js/last100Sort.js' %}"></script>
+{% block meta %}
 <script>
+  var tableData = [];
+  var targetURL;
+  var previousHeaderInder = 0;
+  var state = {
+    'querySet': tableData,
+    'page': 1,
+    'rows': 20,
+    'window': 5,
+  };
+  var currentIsAscending = false;
+  // Set time, table, and URL
   $(document).ready(function() {
     tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
     setTargetURL('{{localURL}}');
@@ -21,17 +30,17 @@
 {% endblock %}
 
 {% block content %}
+<!-- Space for message block -->
 <div class="center" id="replicateMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+<!-- replicate table -->
 <table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
     <tr>
-      {% if '/StudyReplicate/' in localURL %}<th>replicate ID</th>{%endif%}
+      {% if '/StudyReplicate/' in localURL or localURL == '/' %}<th>replicate ID</th>{%endif%}
       <th>File Name</th>
       <th>Start Time</th>
-
       <!--- Don't display the end time if the replicates are running  --->
       {% if localURL != '/worthToNotice' and localURL != '/' %} <th>End Time</th> {% endif %}
-
       <th>Movement</th>
       <th>Running Time</th>
     </tr>

@@ -4,7 +4,6 @@
 # These are lower level database functions that may need to be executed.
 ##
 import psycopg2
-
 from lims.shared import commitQuery, selectQuery
 
 class AppDatabase:
@@ -28,6 +27,7 @@ class AppDatabase:
                    ALTER TABLE public.v_replicates OWNER TO sim;"""
 
 
+    # clone database
     def cloneDatabase(self, request, username, password, database):
         # Create the database
         self.executeSql(self.CLONE.format(database), self.ADMIN.format(username, password))
@@ -131,6 +131,7 @@ class AppDatabase:
             return selectQuery(request,SQL)
 
 
+    # study insertion
     @staticmethod
     def insertStudy(request, name):
         SQL = 'INSERT INTO study (name) VALUES (%(name)s)'
@@ -199,10 +200,12 @@ class AppDatabase:
         commitQuery(request,SQL, {'data':notes, 'user': user, 'studyid':studyId})
 
     
+    # Delete Notes
     @staticmethod
     def deleteNotes(request, id):
         SQL = """delete from notes where id = %(id)s"""
         commitQuery(request,SQL, {"id":id})
+    
     
     # delete study, but before deleting study, we need to delete all notes that associate to it.
     @staticmethod
