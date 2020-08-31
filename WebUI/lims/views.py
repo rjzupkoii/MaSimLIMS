@@ -5,14 +5,12 @@
 ##
 import psycopg2
 import os
-
 from django.http import JsonResponse
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view
 from datetime import datetime
-
 from lims.shared import *
 from lims.AppDatabase import *
 
@@ -36,7 +34,7 @@ def index(request):
     # Render the rows        
     rowsList = []
     for row in rows:
-        values = [row[1], row[2].strftime(DATEFORMAT), row[4], str(row[5])]
+        values = [row[0],row[1], row[2].strftime(DATEFORMAT), row[4], str(row[5])]
         rowsList.append(values)
 
     # Adjust how the results are returned based upon the request method
@@ -44,6 +42,9 @@ def index(request):
         return JsonResponse({'rowsList': rowsList})
     elif request.method == "GET":
         return render(request, 'Replicate.html', {"rows": rowsList,"viewType": "Currently running for", "localURL":'/'})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(index.__name__,))
 
 
 # This view will render the last 100 replicates that ran on the database
@@ -59,18 +60,19 @@ def replicatesLatest100(request):
     filesName = []
     last100Time = []
     rowsList = []
+    # Standardize data
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
         # start time
         rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         if rowsList[ndx][3]:
             rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
-
+    # Reformat data
     for i in range(0, len(rowsList)):
         filesName.append(rowsList[i][1])
         # The database provides running time, format it as a string
         rowsList[i][-1] = str(rowsList[i][-1])
-
+        # Count replicates
         ReplicateID.append(i+1)
         runningTime = 0
         # If we have an end time, finished
@@ -98,17 +100,18 @@ def replicatesLatest100(request):
 
     # Return the results based upon how we were called
     if request.method == "POST":
+        # Reverse data in order to draw chart: oldest -> latest data
         runningTimeListWorth.reverse()
         runningTimeListFinished.reverse()
         runningTimeListUnfinished.reverse()
         filesName.reverse()
         last100Time.reverse()
-
+        # Get units and apply units to running time data
         last100Time, units = timeAlgorithm(last100Time)
         runningTimeListWorth = manageTime(runningTimeListWorth,units)
         runningTimeListFinished = manageTime(runningTimeListFinished, units)
         runningTimeListUnfinished = manageTime(runningTimeListUnfinished,units)
-        # Make sure that table is complete
+        # Make sure that table is complete  Sometimes the chart only shows half of the last point
         ReplicateID.append(len(ReplicateID)+1)
         return JsonResponse({'rowsList': rowsList, 'runningTimeListWorth': runningTimeListWorth, 'runningTimeListFinished': runningTimeListFinished, 
             'runningTimeListUnfinished': runningTimeListUnfinished, 'ReplicateID': ReplicateID,'filesName':filesName,'last100Time':last100Time,'units':units})
@@ -136,11 +139,13 @@ def setdb(request, id):
 @api_view(["GET","POST"])
 def study(request):
     rows = AppDatabase.getStudies(request)
-
     if request.method == "POST":
         return JsonResponse({'rowsList': rows})
     elif request.method == "GET":
         return render(request, 'index.html',{"rows": rows, "viewType": "Studies on", "localURL": "/study"})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(study.__name__,))
 
 
 # Configurations that associate with study id
@@ -148,11 +153,13 @@ def study(request):
 def StudyConfig(request,id):
     rows = AppDatabase.getStudyConfigurations(request,id)
     studyname = getStudyName(request, id)
-
     if request.method == "POST":
         return JsonResponse({'rowsList': rows})
     elif request.method == "GET":
         return render(request,"Config.html",{"rows":rows,"viewType": "Configurations on Study: \""+studyname[0][0]+'\" - ',"localURL":'/StudyConfig/'+str(id)})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(StudyConfig.__name__,))
 
 
 # Replicates that associate with study id
@@ -162,18 +169,20 @@ def StudyReplicate(request, id):
     rowsList = []
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][1] = rowsList[ndx][1].strftime(DATEFORMAT)
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
-        if rowsList[ndx][2]:
-            rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
+        if rowsList[ndx][3]:
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         rowsList[ndx][-1] = str(rowsList[ndx][-1])
     studyname = getStudyName(request, id)
     rowsList = blankSet(rowsList)
-
     if request.method == "POST":
         return JsonResponse({'rowsList': rowsList})
     elif request.method == "GET":
         return render(request, 'replicate.html', {"rows": rowsList,"viewType": "Replicates on Study: \""+studyname[0][0]+'\" - ',"localURL":'/StudyReplicate/'+str(id)})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(StudyReplicate.__name__,))
 
 
 # Insert data into study table
@@ -210,14 +219,15 @@ def ConfigReplicate(request, id):
             rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         rowsList[ndx][-1] = str(rowsList[ndx][-1])
     configurationName = getConfigName(request, id)
-
     # Get next page number and new row value
     rowsList = blankSet(rowsList)
-
     if request.method == "POST":
         return JsonResponse({'rowsList': rowsList})
     elif request.method == "GET":
         return render(request, 'Replicate.html', {"rows": rowsList, "viewType": "Replicates on Configuration: \""+configurationName[0][0]+"\" - ","localURL":'/ConfigReplicate/'+str(id)})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(ConfigReplicate.__name__,))
 
 
 # Not within latest 100 and interval > 2 days and not end. (Data that worth to notice) --> may add parameter in the future
@@ -246,8 +256,12 @@ def worthToNotice(request):
         return JsonResponse({'rowsList':rowsList})
     elif request.method == "GET":
         return render(request, 'longRunningReplicate.html', {"rows": rowsList, "viewType": "Long Running Replicates on", "localURL":'/worthToNotice'})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(worthToNotice.__name__,))
 
 
+# Dalete long running replicates
 @api_view(["POST"])
 def longRunningDelete(request):
     success = []
@@ -261,11 +275,11 @@ def longRunningDelete(request):
         return JsonResponse({"success":True})
 
 
+# Get study notes
 @api_view(["GET","POST"])
 def studyNotes(request,studyId):
     rows = AppDatabase.getStudyNotes(request,studyId)
     rowsList = []
-
     # id,data, user, date,studyid
     # data, user, date, studyid,id
     for ndx in range(0, len(rows)):
@@ -291,6 +305,9 @@ def studyNotes(request,studyId):
     elif request.method == "GET":
         return render(request, 'notes.html', {"rows":rowsList, "tableNeed":tableNeed,
                             "id": studyId, "user":user, "studyName":studyName[0][0],"viewType":"Notes on Study: \""+studyName[0][0]+"\" - ","localURL":'/Study/Notes/'+str(studyId)})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(studyNotes.__name__,))
 
 
 # statistics only for finished
@@ -310,20 +327,20 @@ def studyChart(request,studyId):
     #  v_replicates.filename, v_replicates.starttime, v_replicates.endtime, v_replicates.movement, v_replicates.runningtime
     for ndx in range(0, len(rows)):
         rowsList.append(list(rows[ndx]))
-        rowsList[ndx][1] = rowsList[ndx][1].strftime(DATEFORMAT)
+        rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
         # Only when endtime and runningtime exist, we process the data
-        if rowsList[ndx][2]:
-            rowsList[ndx][2] = rowsList[ndx][2].strftime(DATEFORMAT)
+        if rowsList[ndx][3]:
+            rowsList[ndx][3] = rowsList[ndx][3].strftime(DATEFORMAT)
         rowsList[ndx][-1] = str(rowsList[ndx][-1])
 
     for i in range(0, len(rowsList)):
         ReplicateID.append(i+1)
-        filesName.append(rowsList[i][0])
+        filesName.append(rowsList[i][1])
         runningTime = 0
         runningTimeDay = 0
         # If we have an end time, finished
         # when finished --> unfinished and worthtonotice are None
-        if rowsList[i][2]:
+        if rowsList[i][3]:
             finishedCount += 1
             # Split running time
             runningTimeTmp = rowsList[i][-1].split(':')
@@ -357,6 +374,7 @@ def studyChart(request,studyId):
     rowsList = blankSet(rowsList)
     studyname = getStudyName(request, studyId)[0][0]
     if request.method == "POST":
+        # Reverse data in order to draw the chart
         runningTimeListWorth.reverse()
         runningTimeListFinished.reverse()
         runningTimeListUnfinished.reverse()
@@ -373,6 +391,9 @@ def studyChart(request,studyId):
     elif request.method == "GET":
         allRunningTime, units = timeAlgorithm(allRunningTime)
         return render(request, 'studyChart.html', {"rows": rowsList,"viewType": "Replicates chart on study: ",'allRunningTime':allRunningTime,'units':units,"studyname":studyname,"localURL":'/Study/Chart/'+str(studyId)})
+    else:
+        # This shouldn't happen so allow an exception handler to catch it
+        raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(studyChart.__name__,))
 
 
 # id is study id
@@ -390,12 +411,14 @@ def studyNotesRecord(request,studyId):
     return response
 
 
+# delete notes
 @api_view(["DELETE"])
 def DeleteNotes(request, studyId, id):
     AppDatabase.deleteNotes(request, id)
     return HttpResponse("OK")
 
 
+# page for creating new data base
 @api_view(["GET"])
 def createNewDatabase(request):
     return render(request,'createDatabase.html',{"viewType":"Creating Database"})

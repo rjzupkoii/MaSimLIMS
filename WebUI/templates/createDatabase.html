@@ -3,6 +3,7 @@
 {% block title %}MaSim LIMS / Create Database{% endblock %}
 
 {% block content %}
+<!-- Create place for messages -->
 <div class="center" id="createDBMessage"><strong>{{ viewType }}</strong></div>
   <div class="center" id="createdbMessage">
     {% if messages %}
@@ -15,6 +16,7 @@
   </div>
   
   <!--The back-end should require that the operation take place via an HTTP POST.-->
+  <!-- input form -->
   <form action="/createDatabase" method="POST" id="login">
     {% csrf_token %}
     <div id="name">
@@ -32,7 +34,6 @@
     </div>
     <input type="submit" id = "Submit" value="Submit" style="font-size:0.9em;">
   </form>
-  <script src="{% static './js/tableDisplay.js' %}"></script>
   <script>
     messageBoxAdjust("createDBMessage","login");
   </script>

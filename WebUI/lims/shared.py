@@ -5,7 +5,7 @@
 ##
 import psycopg2
 import re
-
+# Date format
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 
 # Define the various time attributes to be used for formatting
@@ -15,7 +15,8 @@ TIMEATTRIBUTES = { 'seconds': [1, 0], 'minutes': [60, 0], 'hours': [3600, 2] }
 TIMEDIVISOR = 0
 TIMEROUNDING = 1
 
-# Select specific unit
+
+# Select specific unit Get study name
 def getStudyName(request, id = 'None'):
     # If there is not an ID, return default value
     if 'None' in id: return [["Unassigned"]]
@@ -26,6 +27,7 @@ def getStudyName(request, id = 'None'):
     return result
 
 
+# get configuration name
 def getConfigName(request, id = 'None'):
     # If there is not an ID, return default value
     if 'None' in id: return [["Unassigned"]]
@@ -42,7 +44,7 @@ def getcookie(request, cookieName):
     return cookie 
 
 
-# Need parameter input
+# Need parameter input, sql syntax execution
 def selectQuery(request, sql, parameter = None):
     # Open the connection
     connection = psycopg2.connect(request.session['dbconnection'])
@@ -85,60 +87,11 @@ def commitQuery(request, sql, parameter, connectionString = None):
     connection.close()
 
 
-def visitor_ip_address(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        return x_forwarded_for.split(',')[0]
-    else:
-        return request.META.get('REMOTE_ADDR')
-
-
-def pathReformateNoLast(pathPrepare):
-    pathPrepare = pathPrepare.split('/')
-    newPathPart = ""
-    # Now we have new path
-    for i in range(1,len(pathPrepare)-1):
-        newPathPart += '/'
-        newPathPart += pathPrepare[i]
-    return newPathPart
-
-    
-def nextPage_newRow(pageNum, rowsList):
-    # If pageNum is None assume we are on the first page
-
-    if pageNum == None: pageNum = 1
-    # if nextPage is 1, we can move to the next page, else stop moving
-    newRow = []
-    nextPage = 1
-    for i in range((pageNum-1)*20,pageNum*20):
-        # this means that we reach the last element of the table, next page is empty and no need to show
-        if i == len(rowsList)-1:
-            nextPage = 0
-        if i >= len(rowsList):
-            nextPage = 0
-            break
-        newRow.append(rowsList[i])
-    if nextPage:
-        pageNumberNext = pageNum + 1
-    else:
-        pageNumberNext = pageNum
-    return pageNumberNext, newRow
-
-
-def pagePrev(pageNum):
-    # None resolves as the first page
-    if pageNum == None: return 1
-
-    # Can't navigate before the first page
-    if pageNum - 1 == 0: return 1
-
-    # Just navigage back one
-    return pageNum - 1
-
-
+# set blank space into ' '
 def blankSet(rowsList):
     for row in range(0,len(rowsList)):
         for column in range(0, len(rowsList[row])):
+            # If meet blank space
             if not rowsList[row][column]:
                 rowsList[row][column] =' '
     return rowsList
@@ -146,7 +99,6 @@ def blankSet(rowsList):
 
 # Update the times provided to be in the preferred unit for display and return the correct label
 def timeAlgorithm(times):
-
     # Start by getting the mean time
     sum = 0
     for i in range(0, len(times)):
@@ -158,7 +110,7 @@ def timeAlgorithm(times):
 
     # Return seconds if the running time is less than 5 minutes
     if mean <= 300: units = 'seconds'
-    
+
     # Return minutes if running time is less than 2 hours
     elif mean <= 7200: units = 'minutes'
 
@@ -170,10 +122,9 @@ def timeAlgorithm(times):
 
 def manageTime(times, units):
     # Default is hours
-    if units is None: units = 'hours'
-    
+    if units is None: units = 'hours'  
+      
     # Format and return
     for i in range(0, len(times)):
         if times[i]: times[i] = round(times[i] / TIMEATTRIBUTES[units][TIMEDIVISOR], TIMEATTRIBUTES[units][TIMEROUNDING])
-
     return times
