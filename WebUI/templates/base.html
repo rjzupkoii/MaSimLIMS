@@ -14,7 +14,7 @@
   <title>{% block title %}{% endblock  %}</title>
   <link rel = "stylesheet" href = "{% static './css/style.css' %}">
 
-  <!-- Use the Google hosted jQuery -->
+  <!-- Use the Google hosted jQuery, common and likely already cached -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
   <!-- Use the Cloudflare hosted Chart library -->
@@ -49,7 +49,7 @@
     <div id="content-wrap">
     {% block content %}{% endblock %}
     </div>
-    <footer id="footer">
+    <footer id="footer" style="text-align: right;">
       &nbsp;<em>Boni Lab @ Penn State</em><p />
     </footer>    
   </div>

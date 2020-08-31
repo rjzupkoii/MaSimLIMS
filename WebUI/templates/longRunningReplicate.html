@@ -16,6 +16,7 @@
     'window': 5,
   };
   var currentIsAscending = false;
+
   // Set timer, table, and URL
   $(document).ready(function() {
     tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
@@ -31,9 +32,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- for message block -->
 <div class="center" id="replicateMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-<!-- build table -->
 <table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
     <tr>
@@ -55,7 +54,6 @@
 <div>
   <div id="pagination-wrapper"></div>
 </div>
-<!-- Delete button -->
 <div class="deleteReplicates">
   <button onclick="passReplicateList()">Delete</button>
 </div>

@@ -3,6 +3,7 @@
 {% block title %}MaSim LIMS / Create Database{% endblock %}
 
 {% block content %}
+
 <!-- Create place for messages -->
 <div class="center" id="createDBMessage"><strong>{{ viewType }}</strong></div>
   <div class="center" id="createdbMessage">
@@ -16,7 +17,6 @@
   </div>
   
   <!--The back-end should require that the operation take place via an HTTP POST.-->
-  <!-- input form -->
   <form action="/createDatabase" method="POST" id="login">
     {% csrf_token %}
     <div id="name">
@@ -28,7 +28,6 @@
         <input type="text" name="userName" id="userName" required><br>
     </div>
     <div id="pass">
-        <!--The password field should be masked so that it is not reviewed when typing.-->
         <label for="Password">Password: </label>
         <input type="password" name="Password" id="Password" required><br>
     </div>

@@ -1,6 +1,10 @@
 // site.js
 //
+// JavaScript functions used by the MaSim LIMS.
+
+// ---------------------------------------------------------------------------
 // Common functions of use on most / all of the MaSim LIMS pages.
+// ---------------------------------------------------------------------------
 
 // used to adjust the width of message box
 function messageBoxAdjust(boxID, tableID){
@@ -26,6 +30,10 @@ function pageRedirection(targetURL){
       });
 }
 
+
+// ---------------------------------------------------------------------------
+// Functions that are specific to given pages.
+// ---------------------------------------------------------------------------
 
 // From record.js replicatesList = []; is removed to html file
 // store selected long running replicates
@@ -58,7 +66,6 @@ function passReplicateList(){
 }
 
 
-// from studyReplicateChart.js
 // Used for creating study replicate chart
 function studyReplicateChart(targetURL) {
   $.ajax({
@@ -203,7 +210,7 @@ function statistics(allRunningTime, studyname, units, finishedCount){
 }
 
 
-// from ChartLast100.js
+// Used for the display of the last 100 replicates
 function last100DisplayChart(){
   $.ajax({
       url: '/replicatesLatest100',
@@ -324,9 +331,13 @@ function last100DisplayChart(){
 }
 
 
-// from tableDisplay.js
-//Reference: https://dennis-sourcecode.herokuapp.com/7/
-// send request, get data, store data, and build table
+// ---------------------------------------------------------------------------
+// The following functions are for tables and may be capable of being adopted 
+// for multiple websites
+// ---------------------------------------------------------------------------
+
+// Send request, get data, store data, and build table
+// Reference: https://dennis-sourcecode.herokuapp.com/7/
 function tableDisplay(targetURL,boxID, tableID){
   $.ajax({
       url: targetURL,
@@ -499,7 +510,7 @@ function studyConfigRowBuilder(data){
 }
 
 
-// Example of row builder function - this would go in the .html file
+// Study row builder 
 function studyRowBuilder(data) {
   var studyID = 'None'
   if(data[1]){
@@ -531,7 +542,6 @@ function studyRowBuilder(data) {
 }
 
 
-// from last100Sort.js
 // Transfer table date to string type
 function tableDataToString(){
   for(var i = 0; i < tableData.length;i++){

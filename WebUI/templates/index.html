@@ -2,10 +2,9 @@
 {% load static %}
 {% block title %}MaSim LIMS / Studys{% endblock %}
 {% block meta %}
+
 <!-- Refresh every minute -->
 <meta http-equiv="refresh" content="60">
-
-<!-- <script src="{% static './js/last100Sort.js' %}"></script> -->
 
 <script>
   var tableData = [];
@@ -18,6 +17,7 @@
     'window': 5,
   };
   var currentIsAscending = false;
+
   // set timer, build table, and set URL
   $(document).ready(function() {
     tableDisplay('{{localURL}}','indexMessage','indexTable');
@@ -29,7 +29,6 @@
       setTargetURL('{{localURL}}');
   }, 60000);
   });
-
   
   // ajax code used for notes delete operation
   function deleteNote(id) {
@@ -50,7 +49,8 @@
 
 {% block content %}
 <div class="center" id="indexMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-  <!-- for error message -->
+
+<!-- for error message -->
   <div style="text-align: center">
     {% if messages %}
       <ul class="messages">
@@ -67,6 +67,7 @@
     Study Name: <input type="text" name="studyName" style="font-size:0.9em; margin: 10px;"><br>
     <input type="submit" id = "Submit" value="Submit" style="font-size:0.9em;">
   </form>
+  
   <!-- Build table and pagination-wrapper -->
   <table id="indexTable" class="content-table" style="margin-left:auto;margin-right:auto;margin-top: 1em">
     <thead>

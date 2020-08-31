@@ -5,6 +5,7 @@
 ##
 import psycopg2
 import re
+
 # Date format
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -38,12 +39,6 @@ def getConfigName(request, id = 'None'):
     return result
 
 
-# Get the cookie based upon the name
-def getcookie(request, cookieName):  
-    cookie  = request.COOKIES[cookieName]
-    return cookie 
-
-
 # Need parameter input, sql syntax execution
 def selectQuery(request, sql, parameter = None):
     # Open the connection
@@ -61,12 +56,6 @@ def selectQuery(request, sql, parameter = None):
     cursor.close()
     connection.close()
     return rows
-
-
-# Set the cookie
-def setcookie(response, cookieName, value):    
-    response.set_cookie(cookieName, value)
-    return response  
 
 
 # Execute SQL queries that need to be committed (e.g., INSERT or DELETE) 

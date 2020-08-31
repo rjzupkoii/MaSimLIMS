@@ -15,9 +15,11 @@
     'window': 5,
   };
   var currentIsAscending = false;
+  
   // When web page is ready, set up text area
   $(document).ready(function() {
-    /* disable the input button*/
+
+    // disable the input button
     document.getElementById('saveNotes').disabled = true;
 
     document.getElementById('notes').addEventListener('input',() => {
@@ -67,6 +69,7 @@
 
 {% block content %}
 <div class="center" id="notesMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
+
 <!-- When there are some notes, build notes table -->
 {% if tableNeed %}
   <table id="notesTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
@@ -84,6 +87,7 @@
     <div id="pagination-wrapper"></div>
   </div>
 {%endif%}
+
 <!-- Here is the form to fill in order to save notes -->
 <form action="/Study/NotesRecord/{{id}}" align = "center" id="notesInfo" method = "POST">
     {% csrf_token %}
@@ -97,7 +101,6 @@
         <!--"{{user}}" regard all as one string-->
         <input type="text" name="UserName" id="UserName" value="{{user}}">
     </div>
-    <!-- submit through "POST" method -->
     <input type="submit" id="saveNotes" value="Save" style="font-size:0.9em;">
 </form>
 {% endblock %}

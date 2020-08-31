@@ -15,6 +15,7 @@
     'window': 5,
   };
   var currentIsAscending = false;
+
   // Set time, table, and URL
   $(document).ready(function() {
     tableDisplay('{{localURL}}',"replicateMessage","replicateTable");
@@ -30,9 +31,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- Space for message block -->
 <div class="center" id="replicateMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
-<!-- replicate table -->
 <table id="replicateTable" class="content-table" style="margin-left:auto; margin-right:auto; margin-top: 1em">
   <thead>
     <tr>

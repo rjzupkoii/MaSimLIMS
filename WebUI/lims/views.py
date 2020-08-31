@@ -5,6 +5,7 @@
 ##
 import psycopg2
 import os
+
 from django.http import JsonResponse
 from django.contrib import messages
 from django.http import HttpResponse
@@ -261,7 +262,7 @@ def worthToNotice(request):
         raise ValueError("{}, request.method is not either \"GET\" or \"POST\"".format(worthToNotice.__name__,))
 
 
-# Dalete long running replicates
+# Delete long running replicates
 @api_view(["POST"])
 def longRunningDelete(request):
     success = []
@@ -293,7 +294,7 @@ def studyNotes(request,studyId):
     
     # If 'username' is cookies, we get cookie
     if 'username' in request.COOKIES:
-        user = getcookie(request,'username')
+        user = request.COOKIES['username']
     # If not, make it empty
     else:
         user = ""
@@ -407,7 +408,7 @@ def studyNotesRecord(request,studyId):
     # set cookies and connect cookies with response
     response = redirect(path)
     # cookie is for global
-    setcookie(response,'username',user)
+    response.set_cookie('username',user)
     return response
 
 

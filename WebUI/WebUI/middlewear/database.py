@@ -30,7 +30,7 @@ class DatabaseMiddlewear:
         return response
 
         
-    # set "sessions".
+    # Set the database by injecting it into the request.session
     def injectDatabase(self, request):
         # Note the ID (get the database id)
         database = request.session['database']

@@ -15,6 +15,7 @@
     'window': 5,
   };
   var currentIsAscending = false;
+
   // set timer, build table, and refresh
   $(document).ready(function() {
     setInterval(function(){
@@ -30,7 +31,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- create message block and table -->
 <div class="center" id="configMessage"><strong>{{ viewType }} {{ request.session.dbname }}</strong></div>
   <table id="configTable" class="content-table" style="margin-left:auto;margin-right:auto;margin-top: 1em">
     <thead>
@@ -45,4 +45,4 @@
   <div>
     <div id="pagination-wrapper"></div>
   </div>
-  {% endblock %}
+{% endblock %}
