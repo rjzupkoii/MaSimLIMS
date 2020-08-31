@@ -26,6 +26,44 @@ class AppDatabase:
                    sim.configuration c ON c.id = r.configurationid;
                    ALTER TABLE public.v_replicates OWNER TO sim;"""
 
+    # Procedure to delete studies from the database
+    PROCEDURE_STUDY = \
+    """CREATE OR REPLACE PROCEDURE public.delete_study(	study_id integer) LANGUAGE 'plpgsql'
+        AS $BODY$
+        DECLARE record RECORD;
+        BEGIN
+            FOR record IN select distinct r.id from sim.configuration c inner join sim.replicate r on r.configurationid = c.id where studyid = study_id LOOP
+                CALL delete_replicate(record.id);
+            END LOOP;
+            DELETE FROM sim.location WHERE configurationid IN (SELECT id FROM sim.configuration WHERE studyid = study_id);
+            DELETE FROM sim.configuration WHERE studyid = study_id;
+            DELETE FROM sim.notes WHERE studyid = study_id;
+            DELETE FROM sim.study WHERE id = study_id;
+            RAISE NOTICE 'Complete';
+        END $BODY$;"""
+
+    # Procedure to delete replicates from the database
+    PROCEDURE_REPLICATE = \
+    """CREATE OR REPLACE PROCEDURE public.delete_replicate(replicate_id integer) LANGUAGE 'plpgsql'
+        AS $BODY$
+        DECLARE ENDTIME TIMESTAMP WITH TIME ZONE;
+        BEGIN
+            SELECT sim.replicate.endtime INTO ENDTIME FROM sim.replicate where id = REPLICATE_ID;
+            IF ENDTIME IS NOT NULL THEN
+                RAISE NOTICE 'Replicate appears to have a complete run, exiting.';
+                RETURN;
+            ELSE
+                RAISE NOTICE 'Culling replicate %', REPLICATE_ID;
+            END IF;
+            DELETE FROM sim.monthlygenomedata WHERE monthlydataid IN (SELECT id FROM sim.monthlydata WHERE replicateid = REPLICATE_ID);
+            DELETE FROM sim.monthlysitedata WHERE monthlydataid IN (SELECT id FROM sim.monthlydata WHERE replicateid = REPLICATE_ID);
+            DELETE FROM sim.monthlydata WHERE replicateid = REPLICATE_ID;
+            DELETE FROM sim.districtmovement WHERE replicateid = REPLICATE_ID;
+            DELETE FROM sim.movement WHERE replicateid = REPLICATE_ID;
+            DELETE FROM sim.replicate WHERE id = REPLICATE_ID;
+            RAISE NOTICE 'Complete';
+        END $BODY$;"""
+
 
     # clone database
     def cloneDatabase(self, request, username, password, database):
@@ -35,13 +73,16 @@ class AppDatabase:
         # Create the view
         self.executeSql(self.VIEW, self.createConnectionString(database))
 
+        # Create teh procedures
+        self.executeSql(self.PROCEDURE_STUDY, self.createConnectionString(database))
+        self.executeSql(self.PROCEDURE_REPLICATE, self.createConnectionString(database))
+
         # Insert the new connection into the databases table
         SQL = 'INSERT INTO app.database (name, connection) VALUES (%(name)s, %(connection)s)'
         commitQuery(request, SQL, {'name':database, 'connection':self.createConnectionString(database)}, self.APPCONN)
 
 
     # Deletes the replicate indicated from the database, returns True if the operation was successful
-    # Minor syntax error fixed
     def deleteReplicate(self, request, replicateId):
         # Open the connection
         connection = psycopg2.connect(request.session['dbconnection'])
@@ -131,7 +172,6 @@ class AppDatabase:
             return selectQuery(request,SQL)
 
 
-    # study insertion
     @staticmethod
     def insertStudy(request, name):
         SQL = 'INSERT INTO study (name) VALUES (%(name)s)'
@@ -193,14 +233,12 @@ class AppDatabase:
         return selectQuery(request, SQL,{"id":id})
 
 
-    # Insert notes
     @staticmethod
     def insertNotes(request, notes, user,studyId):
         SQL = """insert into notes (data, "user", date, studyid) values (%(data)s,%(user)s,now(),%(studyid)s)"""
         commitQuery(request,SQL, {'data':notes, 'user': user, 'studyid':studyId})
 
     
-    # Delete Notes
     @staticmethod
     def deleteNotes(request, id):
         SQL = """delete from notes where id = %(id)s"""
