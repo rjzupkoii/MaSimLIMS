@@ -357,11 +357,10 @@ def studyChart(request,studyId):
             runningTimeListUnfinished.append(None)
             runningTimeListWorth.append(None)
 
-        # If the data is still running
-        # some of them are worth to notice
+        # If the data is still running some of them are worth to notice
         # running time = current time - start time
         else:
-            runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][1],DATEFORMAT)).total_seconds()
+            runningTime = (datetime.strptime(datetime.now().strftime(DATEFORMAT),DATEFORMAT) - datetime.strptime(rowsList[i][2],DATEFORMAT)).total_seconds()
             runningTimeListFinished.append(None)
             # If worth to notice, no need to mark as unfinished
             if runningTime >= timeWorth:
