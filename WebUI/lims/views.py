@@ -4,7 +4,6 @@
 # Define the views that are used by the LIMS.
 ##
 import psycopg2
-import os
 
 from django.http import JsonResponse
 from django.contrib import messages
@@ -24,8 +23,20 @@ def error_404_view(request, exception):
 # The index of the LIMS just shows a basic list of what is running on the default database
 @api_view(["GET","POST"])
 def index(request):
-    # Get the data for the view
-    rows = AppDatabase.getReplicates(request, True)
+    try:
+        # Get the data for the view
+        rows = AppDatabase.getReplicates(request, True)
+    except (psycopg2.OperationalError) as error:
+        # If the database does not exist, reset the cookies
+        if "does not exist" in str(error):
+            response = render(request, "error.html", {"message": "Selected database does not exist. Clearing database connection selection."})
+            response.delete_cookie('dbconnection')
+            return response
+
+        # Unknown error, just report it
+        return render(request, "error.html", {"message": "Unknown OperationalError: {}".format(error)})
+        
+
 
     # Render empty if there are no results
     if len(rows) == 0:
